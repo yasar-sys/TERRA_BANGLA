@@ -1,71 +1,104 @@
 import { Link } from "@tanstack/react-router";
+import { BarChart3, BookOpen, Gamepad2, Globe2, Languages, Map, Menu, Orbit, Satellite } from "lucide-react";
 import { useLang } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const NAV = [
-  { to: "/", key: "nav.globe" },
-  { to: "/heatmap", key: "nav.heatmap" },
-  { to: "/compare", key: "nav.compare" },
-  { to: "/kids", key: "nav.kids" },
-  { to: "/about", key: "nav.about" },
+  { to: "/", key: "nav.globe", icon: Globe2 },
+  { to: "/heatmap", key: "nav.heatmap", icon: Map },
+  { to: "/compare", key: "nav.compare", icon: BarChart3 },
+  { to: "/kids", key: "nav.kids", icon: Gamepad2 },
+  { to: "/about", key: "nav.about", icon: BookOpen },
 ] as const;
+
+function Brand() {
+  const { t } = useLang();
+  return (
+    <Link to="/" className="group flex min-w-0 items-center gap-3 rounded-md">
+      <span className="brand-orbit" aria-hidden><Orbit /></span>
+      <span className="min-w-0">
+        <span className="block truncate font-display text-sm font-semibold text-foreground">{t("team.name")}</span>
+        <span className="block truncate text-[10px] uppercase text-muted-foreground">{t("app.title")}</span>
+      </span>
+    </Link>
+  );
+}
+
+function NavItems({ mobile = false }: { mobile?: boolean }) {
+  const { t } = useLang();
+  return NAV.map((item) => {
+    const Icon = item.icon;
+    const link = (
+      <Link
+        to={item.to}
+        activeOptions={{ exact: item.to === "/" }}
+        className={mobile ? "nav-mobile-link" : "nav-desktop-link"}
+        activeProps={{ className: mobile ? "nav-mobile-link nav-link-active" : "nav-desktop-link nav-link-active" }}
+      >
+        <Icon aria-hidden /> <span>{t(item.key)}</span>
+      </Link>
+    );
+    return mobile ? <SheetClose asChild key={item.to}>{link}</SheetClose> : <li key={item.to}>{link}</li>;
+  });
+}
 
 export function SiteHeader() {
   const { t, lang, setLang } = useLang();
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-3 py-2 sm:px-6">
-        <Link to="/" className="group flex min-w-0 items-center gap-2 rounded-md px-1 py-1">
-          <span
-            aria-hidden
-            className="inline-block h-6 w-6 shrink-0 rounded-full bg-gradient-to-br from-primary to-accent"
-          />
-          <span className="min-w-0">
-            <span className="block truncate font-display text-sm font-semibold tracking-tight text-foreground">
-              {t("team.name")}
-            </span>
-            <span className="block truncate text-[11px] text-muted-foreground">{t("app.title")}</span>
-          </span>
-        </Link>
-
-        <nav aria-label="Main" className="order-3 -mx-1 w-full overflow-x-auto sm:order-2 sm:mx-0 sm:w-auto">
-          <ul className="flex items-center gap-1">
-            {NAV.map((item) => (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  className="inline-flex whitespace-nowrap rounded-md px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                  activeProps={{ className: "bg-secondary text-foreground" }}
-                  activeOptions={{ exact: item.to === "/" }}
-                >
-                  {t(item.key)}
-                </Link>
-              </li>
-            ))}
-          </ul>
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/82 backdrop-blur-xl">
+      <div className="h-0.5 bg-gradient-to-r from-transparent via-accent to-primary" />
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-3 sm:px-6">
+        <Brand />
+        <nav aria-label="Main" className="ml-auto hidden lg:block">
+          <ul className="flex items-center gap-1"><NavItems /></ul>
         </nav>
-
-        <button
-          type="button"
-          onClick={() => setLang(lang === "en" ? "bn" : "en")}
-          aria-label={t("lang.label")}
-          className="order-2 ml-auto rounded-md border border-border px-2.5 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary sm:order-3"
-        >
-          {t("lang.toggle")}
-        </button>
+        <Button variant="outline" size="sm" onClick={() => setLang(lang === "en" ? "bn" : "en")} className="ml-auto lg:ml-0" aria-label={t("lang.label")}>
+          <Languages aria-hidden /> {t("lang.toggle")}
+        </Button>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="lg:hidden" aria-label={t("nav.menu")}><Menu aria-hidden /></Button>
+          </SheetTrigger>
+          <SheetContent className="border-border bg-background/95 backdrop-blur-xl">
+            <SheetHeader><SheetTitle><Brand /></SheetTitle></SheetHeader>
+            <nav aria-label="Mobile" className="mt-8 flex flex-col gap-2"><NavItems mobile /></nav>
+            <div className="mt-8 border-t border-border pt-5 text-xs leading-6 text-muted-foreground">
+              {t("app.tagline")}
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );
 }
 
 export function SiteFooter() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const L = (en: string, bn: string) => (lang === "bn" ? bn : en);
   return (
-    <footer className="mt-12 border-t border-border bg-elevated">
-      <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6">
-        <p className="font-display text-sm font-semibold text-foreground">{t("team.name")}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{t("footer.built")}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{t("footer.license")}</p>
+    <footer className="relative z-10 mt-14 border-t border-border bg-elevated/92 backdrop-blur-xl">
+      <div className="mx-auto grid max-w-7xl gap-8 px-3 py-9 sm:px-6 md:grid-cols-[1.25fr_0.75fr_0.75fr]">
+        <div>
+          <Brand />
+          <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">{t("footer.built")}</p>
+          <p className="mt-3 inline-flex items-center gap-2 text-xs text-accent"><Satellite aria-hidden className="h-4 w-4" /> NASA data · deterministic statistics · AI-guided inquiry</p>
+        </div>
+        <div>
+          <h2 className="text-xs font-semibold uppercase text-foreground">{L("Investigate", "অনুসন্ধান")}</h2>
+          <div className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
+            <Link to="/heatmap" className="hover:text-foreground">{t("nav.heatmap")}</Link>
+            <Link to="/compare" search={{ districtA: undefined, districtB: undefined }} className="hover:text-foreground">{t("nav.compare")}</Link>
+            <Link to="/kids" className="hover:text-foreground">{t("nav.kids")}</Link>
+          </div>
+        </div>
+        <div>
+          <h2 className="text-xs font-semibold uppercase text-foreground">{L("Open science", "উন্মুক্ত বিজ্ঞান")}</h2>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("footer.license")}</p>
+          <Link to="/about" className="mt-2 inline-block text-sm text-primary hover:underline">{t("nav.about")}</Link>
+        </div>
       </div>
+      <div className="border-t border-border/70 px-3 py-3 text-center text-[11px] text-muted-foreground">MEC TERRA_DETECTORS · Bangladesh · 2026</div>
     </footer>
   );
 }

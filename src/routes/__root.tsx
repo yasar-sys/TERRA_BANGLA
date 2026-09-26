@@ -13,6 +13,9 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider, useLang } from "@/lib/i18n";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
+import deltaOrbit from "@/assets/delta-orbit.jpg";
+import monsoonFields from "@/assets/monsoon-fields.jpg";
+import climateLab from "@/assets/climate-lab.jpg";
 
 function NotFoundComponent() {
   return (
@@ -97,7 +100,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,
@@ -123,7 +126,12 @@ function RootShell({ children }: { children: ReactNode }) {
 function Shell() {
   const { t } = useLang();
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col overflow-hidden">
+      <div className="site-atmosphere" aria-hidden>
+        <img src={deltaOrbit} alt="" width={1600} height={900} className="atmosphere-frame atmosphere-frame-one" />
+        <img src={monsoonFields} alt="" width={1600} height={900} className="atmosphere-frame atmosphere-frame-two" />
+        <img src={climateLab} alt="" width={1600} height={900} className="atmosphere-frame atmosphere-frame-three" />
+      </div>
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:text-primary-foreground"
@@ -131,7 +139,7 @@ function Shell() {
         {t("nav.skip")}
       </a>
       <SiteHeader />
-      <main id="main" className="flex-1">
+      <main id="main" className="relative z-10 flex-1">
         {/* Required: nested routes render here. */}
         <Outlet />
       </main>

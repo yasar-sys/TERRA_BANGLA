@@ -1,3 +1,4 @@
+AI explanations are generated only from server-recomputed cached statistics; the browser sends selections, never authoritative climate values, to prevent fabricated evidence.
 <!-- LOVABLE:BEGIN -->
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting

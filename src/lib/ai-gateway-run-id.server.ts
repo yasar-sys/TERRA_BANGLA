@@ -1,0 +1,14 @@
+const RUN_ID_HEADER = "X-Lovable-AIG-Run-ID";
+
+export function createGatewayFetch() {
+  let runId: string | undefined;
+  return {
+    fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+      const headers = new Headers(init?.headers);
+      if (runId) headers.set(RUN_ID_HEADER, runId);
+      const response = await fetch(input, { ...init, headers });
+      runId = runId ?? (response.headers.get(RUN_ID_HEADER)?.trim() || undefined);
+      return response;
+    },
+  };
+}

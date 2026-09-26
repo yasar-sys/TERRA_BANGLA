@@ -10,6 +10,7 @@ import {
   VARIABLE_LABEL_KEY,
 } from "@/lib/climate";
 import { useLang } from "@/lib/i18n";
+import { StudentInsight } from "@/components/StudentInsight";
 
 export const Route = createFileRoute("/district/$districtId")({
   loader: ({ params }) => {
@@ -31,6 +32,8 @@ export const Route = createFileRoute("/district/$districtId")({
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
     };
   },
@@ -132,6 +135,13 @@ function DistrictDetail() {
               <TrendCard key={analysis.variable} analysis={analysis} districtName={district.name} />
             ))}
           </div>
+
+          <StudentInsight
+            districtId={districtId}
+            variable={available.includes("temperature") ? "temperature" : available[0]!}
+            start={analyses[0]!.result.period.start}
+            end={analyses[0]!.result.period.end}
+          />
 
           {available.length < VARIABLE_KEYS.length ? (
             <p className="mt-4 text-xs text-muted-foreground">
