@@ -6,7 +6,7 @@ export function createLovableAiGatewayRunIdFetch(initialRunId?: string) {
   let resolved = false;
   const ready = new Promise<string | undefined>((resolve) => { resolveRunId = resolve; });
   const publish = (value?: string) => {
-    runId = runId ?? value?.trim() || undefined;
+    runId = runId ?? (value?.trim() || undefined);
     if (!resolved) { resolved = true; resolveRunId(runId); }
   };
   if (runId) publish(runId);

@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const ADMIN_EMAIL = "saminyasarsunny@gmail.com";
 
 async function requireAdmin(context: { userId: string; claims: Record<string, unknown>; supabase: any }) {
-  const email = typeof context.claims.email === "string" ? context.claims.email.toLowerCase() : "";
+  const email = typeof context.claims['email'] === "string" ? context.claims['email'].toLowerCase() : "";
   if (email !== ADMIN_EMAIL) throw new Error("Admin access is restricted.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const role = await supabaseAdmin.from("user_roles").upsert({ user_id: context.userId, role: "admin" }, { onConflict: "user_id,role" });
