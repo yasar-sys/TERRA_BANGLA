@@ -89,7 +89,7 @@ function Detective({ celebrate = false }: { celebrate?: boolean }) {
   );
 }
 
-function SceneDecor({ kind, now, interactive, onObject }: { kind: MissionId; now: boolean; interactive?: boolean; onObject?: (correct: boolean) => void }) {
+function SceneDecor({ kind, now, interactive, onObject }: { kind: MissionId; now: boolean; interactive?: boolean | undefined; onObject?: ((correct: boolean) => void) | undefined }) {
   if (kind === "padma") {
     const top = now ? 142 : 112;
     return <svg viewBox="0 0 360 220" className="h-full w-full" role="img" aria-label={now ? "Now: lower illustrated river water" : "Before: higher illustrated river water"}>
