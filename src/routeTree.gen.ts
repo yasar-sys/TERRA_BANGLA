@@ -10,33 +10,92 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as CompareRouteImport } from './routes/compare'
+import { Route as HeatmapRouteImport } from './routes/heatmap'
+import { Route as KidsRouteImport } from './routes/kids'
+import { Route as DistrictDistrictIdRouteImport } from './routes/district.$districtId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HeatmapRoute = HeatmapRouteImport.update({
+  id: '/heatmap',
+  path: '/heatmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KidsRoute = KidsRouteImport.update({
+  id: '/kids',
+  path: '/kids',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DistrictDistrictIdRoute = DistrictDistrictIdRouteImport.update({
+  id: '/district/$districtId',
+  path: '/district/$districtId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/compare': typeof CompareRoute
+  '/heatmap': typeof HeatmapRoute
+  '/kids': typeof KidsRoute
+  '/district/$districtId': typeof DistrictDistrictIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/compare': typeof CompareRoute
+  '/heatmap': typeof HeatmapRoute
+  '/kids': typeof KidsRoute
+  '/district/$districtId': typeof DistrictDistrictIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/compare': typeof CompareRoute
+  '/heatmap': typeof HeatmapRoute
+  '/kids': typeof KidsRoute
+  '/district/$districtId': typeof DistrictDistrictIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/about' | '/compare' | '/heatmap' | '/kids' | '/district/$districtId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    '/' | '/about' | '/compare' | '/heatmap' | '/kids' | '/district/$districtId'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/compare'
+    | '/heatmap'
+    | '/kids'
+    | '/district/$districtId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  CompareRoute: typeof CompareRoute
+  HeatmapRoute: typeof HeatmapRoute
+  KidsRoute: typeof KidsRoute
+  DistrictDistrictIdRoute: typeof DistrictDistrictIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +107,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/heatmap': {
+      id: '/heatmap'
+      path: '/heatmap'
+      fullPath: '/heatmap'
+      preLoaderRoute: typeof HeatmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kids': {
+      id: '/kids'
+      path: '/kids'
+      fullPath: '/kids'
+      preLoaderRoute: typeof KidsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/district/$districtId': {
+      id: '/district/$districtId'
+      path: '/district/$districtId'
+      fullPath: '/district/$districtId'
+      preLoaderRoute: typeof DistrictDistrictIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  CompareRoute: CompareRoute,
+  HeatmapRoute: HeatmapRoute,
+  KidsRoute: KidsRoute,
+  DistrictDistrictIdRoute: DistrictDistrictIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
