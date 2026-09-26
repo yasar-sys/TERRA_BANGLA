@@ -34,7 +34,7 @@ export const strings: Dict = {
     bn: "নাসা স্পেস অ্যাপস চ্যালেঞ্জ ২০২৬ · Be An Earth System Trend Detective!",
   },
   "globe.loading": { en: "Loading globe…", bn: "গ্লোব লোড হচ্ছে…" },
-  "globe.districts": { en: "64 districts", bn: "৬৪ জেলা" },
+  "globe.districts": { en: "districts with cached NASA records", bn: "জেলায় সংরক্ষিত নাসা উপাত্ত" },
   "globe.back": { en: "Back to world view", bn: "বিশ্ব দৃশ্যে ফিরুন" },
   "globe.pick": { en: "Select a district", bn: "একটি জেলা বেছে নিন" },
   "globe.search": { en: "Search districts", bn: "জেলা খুঁজুন" },
