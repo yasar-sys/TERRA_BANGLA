@@ -10,6 +10,8 @@ import {
 } from "@/lib/climate";
 import { normalize, rampColor, spectralColor } from "@/lib/colors";
 import { fmt, useLang } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
+import { Vector3 } from "three";
 
 const BD_CENTER = { lat: 23.75, lng: 90.35 };
 const FLY_MS = 1600;
@@ -155,7 +157,7 @@ export default function GlobeExplorer({
       : { min: 0, max: 1 };
   }, [gridPoints]);
 
-  const [view, setView] = useState<"tilt" | "top">("tilt");
+  const [view, setView] = useState<"side" | "tilt" | "top">("tilt");
   const [spin, setSpin] = useState(false);
   const [showNames, setShowNames] = useState(true);
   const districtLabels = useMemo(
@@ -163,29 +165,46 @@ export default function GlobeExplorer({
     [lang],
   );
 
-  // Heatmap: circle the viewpoint around Bangladesh for an oblique 360° look at the 3D hexagons.
+  // Aim at Bangladesh instead of the globe's centre so low camera angles keep the data in frame.
   useEffect(() => {
     if (!hexMode) return;
     const g = globeRef.current;
     if (!g) return;
-    const r = view === "top" ? 0 : 2.6;
-    const alt = view === "top" ? 0.26 : 0.32;
-    let theta = 0;
-    g.pointOfView({ lat: BD_CENTER.lat - r, lng: BD_CENTER.lng, altitude: alt }, prefersReducedMotion() ? 0 : 900);
-    if (!spin || prefersReducedMotion()) return;
-    let raf = 0;
-    const start = window.setTimeout(() => {
-      const tick = () => {
-        theta += 0.006;
-        const rr = r || 0.8;
-        g.pointOfView({ lat: BD_CENTER.lat - rr * Math.cos(theta), lng: BD_CENTER.lng + rr * Math.sin(theta), altitude: alt }, 0);
-        raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
-    }, 950);
+    const viewSettings = {
+      top: { outward: 52, tangent: 0 },
+      tilt: { outward: 52, tangent: 18 },
+      side: { outward: 52, tangent: 32 },
+    } as const;
+    const targetCoords = g.getCoords(BD_CENTER.lat, BD_CENTER.lng, 0.035);
+    const southCoords = g.getCoords(BD_CENTER.lat - 2, BD_CENTER.lng, 0.035);
+    const target = new Vector3(targetCoords.x, targetCoords.y, targetCoords.z);
+    const outward = target.clone().normalize();
+    const south = new Vector3(southCoords.x, southCoords.y, southCoords.z);
+    const tangent = south.sub(target).normalize();
+    const setting = viewSettings[view];
+    const destination = target
+      .clone()
+      .addScaledVector(outward, setting.outward)
+      .addScaledVector(tangent, setting.tangent);
+    const camera = g.camera();
+    const controls = g.controls() as {
+      target: Vector3;
+      autoRotate: boolean;
+      autoRotateSpeed: number;
+      minDistance: number;
+      maxDistance: number;
+      update: () => void;
+    };
+    camera.position.copy(destination);
+    camera.lookAt(target);
+    controls.target.copy(target);
+    controls.minDistance = 30;
+    controls.maxDistance = 180;
+    controls.autoRotate = spin && !prefersReducedMotion();
+    controls.autoRotateSpeed = 0.7;
+    controls.update();
     return () => {
-      window.clearTimeout(start);
-      cancelAnimationFrame(raf);
+      controls.autoRotate = false;
     };
   }, [hexMode, view, spin, size]);
 
@@ -251,7 +270,7 @@ export default function GlobeExplorer({
         hexAltitude={(bin: object) => {
           const b = bin as { sumWeight: number; points: unknown[] };
           const mean = b.sumWeight / Math.max(1, b.points.length);
-          return 0.004 + 0.03 * normalize(mean, hexBounds.min, hexBounds.max);
+          return 0.012 + 0.075 * normalize(mean, hexBounds.min, hexBounds.max);
         }}
         hexLabel={(bin: object) => {
           const b = bin as { sumWeight: number; points: { lat: number; lng: number }[] };
@@ -267,7 +286,7 @@ export default function GlobeExplorer({
         labelText={(d: object) => (d as { text: string }).text}
         labelSize={phase === "world" ? 1.6 : 0.09}
         labelDotRadius={phase === "world" ? 0.7 : 0.03}
-        labelAltitude={phase === "world" ? 0.002 : 0.036}
+        labelAltitude={phase === "world" ? 0.002 : 0.095}
         labelColor={() => (phase === "world" ? "#F2A93B" : "rgba(232,230,225,0.95)")}
         labelResolution={2}
         onLabelClick={() => { if (phase === "world") enterBangladesh(); }}
@@ -283,35 +302,42 @@ export default function GlobeExplorer({
       {hexMode && (
         <div className="absolute right-3 top-3 flex flex-col gap-1.5">
           {([
+            ["side", lang === "bn" ? "পাশ থেকে" : "Side view"],
             ["tilt", lang === "bn" ? "৩D কোণ" : "3D tilt"],
             ["top", lang === "bn" ? "উপর থেকে" : "Top view"],
           ] as const).map(([k, label]) => (
-            <button
+            <Button
               key={k}
               type="button"
+              size="sm"
+              variant={view === k ? "default" : "outline"}
               aria-pressed={view === k}
               onClick={() => setView(k)}
-              className={`rounded-md border px-3 py-1.5 text-xs font-medium ${view === k ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card/90 text-foreground hover:bg-secondary"}`}
+              className="bg-card/90"
             >
               {label}
-            </button>
+            </Button>
           ))}
-          <button
+          <Button
             type="button"
+            size="sm"
+            variant={spin ? "default" : "outline"}
             aria-pressed={spin}
             onClick={() => setSpin((s) => !s)}
-            className={`rounded-md border px-3 py-1.5 text-xs font-medium ${spin ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card/90 text-foreground hover:bg-secondary"}`}
+            className="bg-card/90"
           >
             {lang === "bn" ? "৩৬০° ঘোরান" : "Spin 360°"}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            size="sm"
+            variant="outline"
             aria-pressed={showNames}
             onClick={() => setShowNames((s) => !s)}
-            className="rounded-md border border-border bg-card/90 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary"
+            className="bg-card/90"
           >
             {showNames ? (lang === "bn" ? "নাম লুকান" : "Hide names") : lang === "bn" ? "নাম দেখান" : "Show names"}
-          </button>
+          </Button>
           <p className="max-w-[9rem] rounded-md bg-card/80 px-2 py-1 text-[10px] text-muted-foreground">
             {lang === "bn" ? "টেনে ঘোরান, স্ক্রল করে জুম" : "Drag to orbit, scroll to zoom"}
           </p>
