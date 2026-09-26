@@ -199,3 +199,17 @@ export function analyzeUploaded(input: {
     result,
   };
 }
+
+/** Nearest district centroid to a point — used only to name a location, never to derive values. */
+export function nearestDistrict(lat: number, lng: number): District | undefined {
+  let best: District | undefined;
+  let bestD = Infinity;
+  for (const d of districts) {
+    const dd = (d.lat - lat) ** 2 + ((d.lon - lng) * Math.cos((lat * Math.PI) / 180)) ** 2;
+    if (dd < bestD) {
+      bestD = dd;
+      best = d;
+    }
+  }
+  return best;
+}

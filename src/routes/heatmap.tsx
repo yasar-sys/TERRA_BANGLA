@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { GlobeStage } from "@/components/GlobeStage";
 import { ProvenanceButton } from "@/components/ProvenanceDrawer";
-import type { Provenance, VariableKey } from "@/lib/climate";
+import { nearestDistrict, type Provenance, type VariableKey } from "@/lib/climate";
+import { spectralGradient } from "@/lib/colors";
 import { analyzeSeries } from "@/lib/stats";
 import { fmt, useLang } from "@/lib/i18n";
 import tempGrid from "@/data/grid/temperature.json";
@@ -83,6 +84,10 @@ function HeatmapPage() {
     });
   }, [grid, mode, activeYear]);
 
+  const placeName = (lat: number, lng: number) => {
+    const d = nearestDistrict(lat, lng);
+    return d ? (lang === "bn" ? d.bn : d.name) : "—";
+  };
   const sorted = [...points].sort((a, b) => b.value - a.value);
   const unit = mode === "trend" ? `${grid.unit} / ${L("decade", "দশক")}` : grid.unit;
   const sigCount = mode === "trend" ? points.filter((p) => (p as { sig?: boolean }).sig).length : 0;
@@ -159,6 +164,13 @@ function HeatmapPage() {
           <h2 className="font-display text-lg text-foreground">
             {L(LABELS[variable].en, LABELS[variable].bn)} · <span className="text-sm text-muted-foreground">{unit}</span>
           </h2>
+          <div className="mt-3">
+            <div className="h-2.5 w-full rounded-full" style={{ background: spectralGradient(variable as VariableKey) }} />
+            <div className="mt-1 flex justify-between font-mono text-[11px] text-muted-foreground">
+              <span>{fmt(sorted[sorted.length - 1]?.value ?? 0, lang, 2)}</span>
+              <span>{fmt(sorted[0]?.value ?? 0, lang, 2)}</span>
+            </div>
+          </div>
           {mode === "trend" && (
             <p className="mt-2 text-xs text-muted-foreground">
               {L(
@@ -171,7 +183,7 @@ function HeatmapPage() {
           <ol className="mt-1 space-y-1 text-sm">
             {sorted.slice(0, 5).map((p) => (
               <li key={`${p.lat},${p.lng}`} className="flex justify-between font-mono text-foreground">
-                <span>{p.lat.toFixed(2)}°N {p.lng.toFixed(2)}°E</span>
+                <span className="font-sans">{placeName(p.lat, p.lng)} <span className="text-[10px] text-muted-foreground font-mono">{p.lat.toFixed(1)}°,{p.lng.toFixed(1)}°</span></span>
                 <span className="text-[var(--rising)]">{fmt(p.value, lang, 2)}</span>
               </li>
             ))}
@@ -180,7 +192,7 @@ function HeatmapPage() {
           <ol className="mt-1 space-y-1 text-sm">
             {sorted.slice(-5).reverse().map((p) => (
               <li key={`${p.lat},${p.lng}`} className="flex justify-between font-mono text-foreground">
-                <span>{p.lat.toFixed(2)}°N {p.lng.toFixed(2)}°E</span>
+                <span className="font-sans">{placeName(p.lat, p.lng)} <span className="text-[10px] text-muted-foreground font-mono">{p.lat.toFixed(1)}°,{p.lng.toFixed(1)}°</span></span>
                 <span className="text-[var(--declining)]">{fmt(p.value, lang, 2)}</span>
               </li>
             ))}

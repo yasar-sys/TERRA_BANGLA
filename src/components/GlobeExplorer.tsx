@@ -4,10 +4,11 @@ import {
   districts,
   getSeries,
   hasData,
+  nearestDistrict,
   VARIABLE_LABEL_KEY,
   type VariableKey,
 } from "@/lib/climate";
-import { normalize, rampColor } from "@/lib/colors";
+import { normalize, rampColor, spectralColor } from "@/lib/colors";
 import { fmt, useLang } from "@/lib/i18n";
 
 const BD_CENTER = { lat: 23.75, lng: 90.35 };
@@ -107,18 +108,20 @@ export default function GlobeExplorer({
   }, []);
 
   useEffect(() => {
+    if (hexMode) return;
     const controls = globeRef.current?.controls() as
       | { autoRotate: boolean; autoRotateSpeed: number; enableZoom: boolean }
       | undefined;
     if (!controls) return;
     controls.autoRotate = phase === "world" && !prefersReducedMotion();
     controls.autoRotateSpeed = 0.35;
-  }, [phase, size]);
+  }, [phase, size, hexMode]);
 
   useEffect(() => {
+    if (hexMode) return;
     if (phase === "world") flyTo(20, 60, 2.4);
     else flyTo(BD_CENTER.lat, BD_CENTER.lng, 0.24);
-  }, [phase, flyTo]);
+  }, [phase, flyTo, hexMode]);
 
   const enterBangladesh = useCallback(() => {
     const ms = flyTo(BD_CENTER.lat, BD_CENTER.lng, 0.24);
@@ -151,6 +154,40 @@ export default function GlobeExplorer({
       ? { min: Math.min(...vals), max: Math.max(...vals) }
       : { min: 0, max: 1 };
   }, [gridPoints]);
+
+  const [view, setView] = useState<"tilt" | "top">("tilt");
+  const [spin, setSpin] = useState(false);
+  const [showNames, setShowNames] = useState(true);
+  const districtLabels = useMemo(
+    () => districts.map((d) => ({ lat: d.lat, lng: d.lon, text: lang === "bn" ? d.bn : d.name })),
+    [lang],
+  );
+
+  // Heatmap: circle the viewpoint around Bangladesh for an oblique 360° look at the 3D hexagons.
+  useEffect(() => {
+    if (!hexMode) return;
+    const g = globeRef.current;
+    if (!g) return;
+    const r = view === "top" ? 0 : 2.6;
+    const alt = view === "top" ? 0.26 : 0.32;
+    let theta = 0;
+    g.pointOfView({ lat: BD_CENTER.lat - r, lng: BD_CENTER.lng, altitude: alt }, prefersReducedMotion() ? 0 : 900);
+    if (!spin || prefersReducedMotion()) return;
+    let raf = 0;
+    const start = window.setTimeout(() => {
+      const tick = () => {
+        theta += 0.006;
+        const rr = r || 0.8;
+        g.pointOfView({ lat: BD_CENTER.lat - rr * Math.cos(theta), lng: BD_CENTER.lng + rr * Math.sin(theta), altitude: alt }, 0);
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }, 950);
+    return () => {
+      window.clearTimeout(start);
+      cancelAnimationFrame(raf);
+    };
+  }, [hexMode, view, spin, size]);
 
   return (
     <div ref={wrapRef} className="relative h-full w-full overflow-hidden">
@@ -204,23 +241,36 @@ export default function GlobeExplorer({
         hexTopColor={(bin: object) => {
           const b = bin as { sumWeight: number; points: unknown[] };
           const mean = b.sumWeight / Math.max(1, b.points.length);
-          return rampColor(variable, normalize(mean, hexBounds.min, hexBounds.max), 0.95);
+          return spectralColor(variable, normalize(mean, hexBounds.min, hexBounds.max), 0.95);
         }}
-        hexSideColor={() => "rgba(26, 31, 46, 0.85)"}
+        hexSideColor={(bin: object) => {
+          const b = bin as { sumWeight: number; points: unknown[] };
+          const mean = b.sumWeight / Math.max(1, b.points.length);
+          return spectralColor(variable, normalize(mean, hexBounds.min, hexBounds.max), 0.55);
+        }}
         hexAltitude={(bin: object) => {
           const b = bin as { sumWeight: number; points: unknown[] };
           const mean = b.sumWeight / Math.max(1, b.points.length);
-          return 0.01 + 0.09 * normalize(mean, hexBounds.min, hexBounds.max);
+          return 0.004 + 0.03 * normalize(mean, hexBounds.min, hexBounds.max);
         }}
-        labelsData={phase === "world" ? WORLD_LABELS : EMPTY}
+        hexLabel={(bin: object) => {
+          const b = bin as { sumWeight: number; points: { lat: number; lng: number }[] };
+          const mean = b.sumWeight / Math.max(1, b.points.length);
+          const p = b.points[0];
+          const d = p ? nearestDistrict(p.lat, p.lng) : undefined;
+          const name = d ? (lang === "bn" ? d.bn : d.name) : "";
+          return `<div style="font-family:Inter,sans-serif;background:#1A1F2E;border:1px solid #2D3448;border-radius:8px;padding:6px 9px;color:#E8E6E1;font-size:12px"><strong>${lang === "bn" ? "কাছের এলাকা" : "Near"}: ${name}</strong><br/>${p ? `${p.lat.toFixed(2)}°N ${p.lng.toFixed(2)}°E<br/>` : ""}${fmt(mean, lang, 2)}</div>`;
+        }}
+        labelsData={phase === "world" ? WORLD_LABELS : hexMode && showNames ? districtLabels : EMPTY}
         labelLat={(d: object) => (d as { lat: number }).lat}
         labelLng={(d: object) => (d as { lng: number }).lng}
         labelText={(d: object) => (d as { text: string }).text}
-        labelSize={1.6}
-        labelDotRadius={0.7}
-        labelColor={() => "#F2A93B"}
+        labelSize={phase === "world" ? 1.6 : 0.09}
+        labelDotRadius={phase === "world" ? 0.7 : 0.03}
+        labelAltitude={phase === "world" ? 0.002 : 0.036}
+        labelColor={() => (phase === "world" ? "#F2A93B" : "rgba(232,230,225,0.95)")}
         labelResolution={2}
-        onLabelClick={enterBangladesh}
+        onLabelClick={() => { if (phase === "world") enterBangladesh(); }}
         ringsData={phase === "world" ? WORLD_RINGS : EMPTY}
         ringLat={(d: object) => (d as { lat: number }).lat}
         ringLng={(d: object) => (d as { lng: number }).lng}
@@ -230,6 +280,44 @@ export default function GlobeExplorer({
         ringRepeatPeriod={prefersReducedMotion() ? 0 : 900}
       />
 
+      {hexMode && (
+        <div className="absolute right-3 top-3 flex flex-col gap-1.5">
+          {([
+            ["tilt", lang === "bn" ? "৩D কোণ" : "3D tilt"],
+            ["top", lang === "bn" ? "উপর থেকে" : "Top view"],
+          ] as const).map(([k, label]) => (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={view === k}
+              onClick={() => setView(k)}
+              className={`rounded-md border px-3 py-1.5 text-xs font-medium ${view === k ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card/90 text-foreground hover:bg-secondary"}`}
+            >
+              {label}
+            </button>
+          ))}
+          <button
+            type="button"
+            aria-pressed={spin}
+            onClick={() => setSpin((s) => !s)}
+            className={`rounded-md border px-3 py-1.5 text-xs font-medium ${spin ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card/90 text-foreground hover:bg-secondary"}`}
+          >
+            {lang === "bn" ? "৩৬০° ঘোরান" : "Spin 360°"}
+          </button>
+          <button
+            type="button"
+            aria-pressed={showNames}
+            onClick={() => setShowNames((s) => !s)}
+            className="rounded-md border border-border bg-card/90 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary"
+          >
+            {showNames ? (lang === "bn" ? "নাম লুকান" : "Hide names") : lang === "bn" ? "নাম দেখান" : "Show names"}
+          </button>
+          <p className="max-w-[9rem] rounded-md bg-card/80 px-2 py-1 text-[10px] text-muted-foreground">
+            {lang === "bn" ? "টেনে ঘোরান, স্ক্রল করে জুম" : "Drag to orbit, scroll to zoom"}
+          </p>
+        </div>
+      )}
+
       {phase === "world" ? (
         <button
           type="button"
@@ -238,7 +326,7 @@ export default function GlobeExplorer({
         >
           {t("hero.enter")}
         </button>
-      ) : (
+      ) : hexMode ? null : (
         <button
           type="button"
           onClick={() => onPhaseChange("world")}
