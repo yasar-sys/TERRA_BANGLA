@@ -308,6 +308,7 @@
 .td-honesty { position: relative; z-index: 20; margin: 0 auto 1rem; max-width: 42rem; padding: 0 1rem; text-align: center; color: var(--game-ink); font-size: .68rem; font-weight: 800; opacity: .8; }
 .td-data-weather { display: grid; grid-template-columns: 5rem 1fr auto; align-items: center; gap: .8rem; margin-bottom: 1rem; border: 3px solid var(--game-ink); border-radius: 1.25rem; background: color-mix(in oklab, var(--game-water) 25%, var(--game-paper)); padding: .7rem; color: var(--game-ink); box-shadow: 0 4px 0 var(--game-shadow); }.td-data-map { text-align: center; font-size: .65rem; font-weight: 900; }.td-data-map .td-district-map { max-height: 5.5rem; }.td-data-copy h4 { font-family: "Outfit", "Noto Sans Bengali", sans-serif; font-size: 1.05rem; font-weight: 800; }.td-data-copy p { font-size: .8rem; font-weight: 700; }.td-data-copy small { display: block; margin-top: .2rem; color: var(--game-muted); font-size: .63rem; }.td-live-label { display: flex; align-items: center; gap: .35rem; font-size: .6rem !important; letter-spacing: .04em; }.td-live-label i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--game-green); box-shadow: 0 0 0 4px color-mix(in oklab, var(--game-green) 25%, transparent); }.td-reading strong { font-size: 1.55rem; }.td-reading span { color: var(--game-muted); font-size: .7rem; }.td-weather-reaction { font-size: 2.6rem; animation: td-weather-react 2s ease-in-out infinite; }
 .td-trend-state { display: inline-flex; margin-top: .25rem; border: 2px solid var(--game-ink); border-radius: 999px; background: var(--game-yellow); padding: .12rem .45rem; font-size: .66rem !important; font-weight: 900 !important; }
+.td-mission-score { display: flex; align-items: center; gap: .55rem; border: 2px solid var(--game-ink); border-radius: 999px; background: var(--game-paper); padding: .35rem .65rem; color: var(--game-ink); font-size: .78rem; font-weight: 900; box-shadow: 0 3px 0 var(--game-shadow); }.td-score-dots { display: flex; gap: .2rem; }.td-score-dots i { width: .55rem; height: .55rem; border: 2px solid var(--game-ink); border-radius: 50%; background: transparent; }.td-score-dots i.is-earned { background: var(--game-yellow); }.td-score-earned { width: fit-content; margin: .75rem auto 0; border: 2px solid var(--game-ink); border-radius: 999px; background: var(--game-paper); padding: .35rem .8rem; font-size: .9rem; font-weight: 900; animation: td-score-pop .45s cubic-bezier(.2,1.6,.4,1); }
 .td-pressable { touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: transform .2s cubic-bezier(.2,1.5,.35,1), box-shadow .16s ease; }.td-pressable:active { transform: translateY(5px) scale(.94); box-shadow: 0 1px 0 var(--game-shadow); }
 .td-sky { fill: oklch(0.88 0.08 218); }
 .td-sun { fill: var(--game-yellow); stroke: var(--game-ink); stroke-width: 3; }
@@ -369,6 +370,7 @@
 @keyframes td-wobble { 25% { transform: translateX(-6px) rotate(-1deg); } 75% { transform: translateX(6px) rotate(1deg); } }
 @keyframes td-map-pulse { 50% { fill: var(--game-red); } }
 @keyframes td-weather-react { 50% { transform: translateY(-5px) rotate(4deg) scale(1.06); } }
+@keyframes td-score-pop { 0% { transform: scale(.65); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
 
 @media (max-width: 520px) {
   .td-game-shell { border-radius: 1.5rem; }
@@ -382,6 +384,7 @@
   .td-real-map { top: 19%; width: 6.5rem; }
   .td-game-hud { grid-template-columns: 1fr; }.td-final-button { width: 100%; }
   .td-data-weather { grid-template-columns: 4.2rem 1fr auto; gap: .55rem; }.td-data-copy h4 { font-size: .9rem; }.td-reading strong { font-size: 1.25rem; }.td-weather-reaction { font-size: 2rem; }
+  .td-mission-score { margin-left: auto; padding: .3rem .5rem; }.td-score-dots i { width: .48rem; height: .48rem; }
 }
 
 /* Weather Friends chat (kids) */
@@ -403,5 +406,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .wc-bob, .wc-jump, .wc-shake, .wc-spin, .wc-dot { animation: none; }
-  .td-wave, .td-boat, .td-fish, .td-car, .td-float, .td-jump, .td-sparkle, .td-confetti, .td-cloudscape span, .td-weather-sun, .td-weather-cloud, .td-weather-cloud i, .td-stop-next::after, .td-district-active, .td-weather-reaction, .td-sun-friend, .td-cloud-drift { animation: none; }
+  .td-wave, .td-boat, .td-fish, .td-car, .td-float, .td-jump, .td-sparkle, .td-confetti, .td-cloudscape span, .td-weather-sun, .td-weather-cloud, .td-weather-cloud i, .td-stop-next::after, .td-district-active, .td-weather-reaction, .td-score-earned, .td-sun-friend, .td-cloud-drift { animation: none; }
 }
