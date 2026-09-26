@@ -13,3 +13,4 @@
 - [x] Verify public sign-in flow, protected chat/admin access, install metadata, and mobile layout
 - [ ] Verify saved chat streaming and admin forms after the first Google account signs in (blocked: no auth user exists yet)
 - [x] Build and verify the four-location Bangladesh Earth Trend Detective game for ages 7–12
+- [ ] Redesign the children’s game as “আমার হাতে বাংলাদেশ” with polished scenes and tactile interaction
