@@ -4,7 +4,7 @@
   "ndvi": {
    "annual": {
     "2001": 0.5592,
-    "2002": 0.5721,
+    "2002": 0.5819,
     "2003": 0.6022,
     "2004": 0.6012,
     "2005": 0.5781,
@@ -32,7 +32,7 @@
    "provenance": {
     "dataset_id": "MOD13Q1.061",
     "mode": "cache",
-    "retrieved": "2026-09-26T18:33:07.620404+00:00",
+    "retrieved": "2026-09-26T18:34:18.873924+00:00",
     "source_url": "https://modis.ornl.gov/rst/api/v1/MOD13Q1/subset (lat=23.1641, lon=90.1897, band=250m_16_days_NDVI)"
    },
    "unit": "NDVI"
