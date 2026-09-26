@@ -3,12 +3,18 @@ export async function exportComparisonPdf(element: HTMLElement, filename: string
     import("html2canvas"),
     import("jspdf"),
   ]);
-  const canvas = await html2canvas(element, {
-    backgroundColor: "#0B0E1A",
-    scale: 1.6,
-    useCORS: true,
-    logging: false,
-  });
+  element.classList.add("pdf-export");
+  let canvas: HTMLCanvasElement;
+  try {
+    canvas = await html2canvas(element, {
+      backgroundColor: "#0B0E1A",
+      scale: 1.6,
+      useCORS: true,
+      logging: false,
+    });
+  } finally {
+    element.classList.remove("pdf-export");
+  }
   const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   pdf.setProperties({
     title: "Bangladesh Trend Detective comparison",

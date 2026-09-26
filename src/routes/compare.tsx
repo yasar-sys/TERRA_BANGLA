@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { Download, FileCheck2, LoaderCircle } from "lucide-react";
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ProvenanceButton } from "@/components/ProvenanceDrawer";
 import {
@@ -15,6 +16,9 @@ import {
 } from "@/lib/climate";
 import { senLine } from "@/lib/stats";
 import { fmt, useLang } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
+import { StudentInsight } from "@/components/StudentInsight";
+import { exportComparisonPdf } from "@/lib/export-comparison";
 
 export const Route = createFileRoute("/compare")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -62,6 +66,9 @@ function ComparePage() {
   const [v2, setV2] = useState<VariableKey>("precipitation");
   const [start, setStart] = useState(bounds.min);
   const [end, setEnd] = useState(bounds.max);
+  const [exporting, setExporting] = useState(false);
+  const [aiInterpretation, setAiInterpretation] = useState("");
+  const reportRef = useRef<HTMLDivElement>(null);
   const range = { start: Math.min(start, end), end: Math.max(start, end) };
   const dName = (id: string) => {
     const d = getDistrict(id);
@@ -147,6 +154,16 @@ function ComparePage() {
       </option>
     ));
   };
+
+  async function downloadReport() {
+    if (!reportRef.current) return;
+    setExporting(true);
+    try {
+      await exportComparisonPdf(reportRef.current, `MEC-trend-comparison-${a}-${mode === "districts" ? b : v2}.pdf`);
+    } finally {
+      setExporting(false);
+    }
+  }
   const districtSelect = (value: string, set: (v: string) => void, label: string) => (
     <label className="flex flex-col gap-1 text-xs text-muted-foreground">
       {label}
@@ -162,13 +179,22 @@ function ComparePage() {
 
   return (
     <div className="mx-auto max-w-7xl px-3 py-8 sm:px-6">
-      <h1 className="font-display text-3xl text-foreground sm:text-4xl">{t("compare.title")}</h1>
-      <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-        {L(
-          "Each line gets its own Mann-Kendall test and Theil-Sen trend with a 95% confidence band, computed only for the years you pick.",
-          "প্রতিটি রেখার নিজস্ব ম্যান-কেন্ডাল পরীক্ষা ও ৯৫% আস্থা ব্যান্ডসহ থাইল-সেন প্রবণতা, কেবল নির্বাচিত বছরগুলোর জন্য।",
-        )}
-      </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase text-accent">{L("Evidence lab", "প্রমাণ গবেষণাগার")}</p>
+          <h1 className="mt-2 font-display text-3xl text-foreground sm:text-4xl">{t("compare.title")}</h1>
+          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+            {L(
+              "Each line gets its own Mann-Kendall test and Theil-Sen trend with a 95% confidence band, computed only for the years you pick.",
+              "প্রতিটি রেখার নিজস্ব ম্যান-কেন্ডাল পরীক্ষা ও ৯৫% আস্থা ব্যান্ডসহ থাইল-সেন প্রবণতা, কেবল নির্বাচিত বছরগুলোর জন্য।",
+            )}
+          </p>
+        </div>
+        <Button onClick={downloadReport} disabled={exporting} variant="outline">
+          {exporting ? <LoaderCircle className="animate-spin" aria-hidden /> : <Download aria-hidden />}
+          {exporting ? t("compare.exporting") : t("compare.export")}
+        </Button>
+      </div>
 
       <div className="panel mt-5 flex flex-wrap items-end gap-3 p-4">
         <div role="radiogroup" aria-label={L("Comparison mode", "তুলনার ধরন")} className="flex flex-wrap gap-2">
@@ -214,7 +240,13 @@ function ComparePage() {
         </label>
       </div>
 
-      <div className="panel mt-5 h-[360px] p-2 sm:h-[440px] sm:p-4" role="img" aria-label={verdict}>
+      <div ref={reportRef} className="comparison-report mt-5 p-3 sm:p-5">
+        <div className="report-only mb-5 border-b border-border pb-4">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase text-accent"><FileCheck2 aria-hidden /> {t("compare.report")}</p>
+          <h2 className="mt-2 font-display text-2xl text-foreground">MEC TERRA_DETECTORS</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{lines.map((line) => line.label).join(" · ")} · {range.start}–{range.end}</p>
+        </div>
+      <div className="h-[360px] sm:h-[440px]" role="img" aria-label={verdict}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 10, right: dualAxis ? 10 : 20, left: 0, bottom: 0 }}>
             <CartesianGrid stroke="#2D3448" strokeDasharray="3 3" />
@@ -234,7 +266,7 @@ function ComparePage() {
         </ResponsiveContainer>
       </div>
 
-      <p className="panel mt-4 border-l-4 border-l-[var(--rising)] p-4 text-sm text-foreground">{verdict}</p>
+      <p className="mt-4 border-l-4 border-l-[var(--rising)] bg-card p-4 text-sm text-foreground">{verdict}</p>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         {lines.map((l, i) => (
@@ -284,6 +316,15 @@ function ComparePage() {
           </div>
         ))}
       </div>
+      {aiInterpretation ? (
+        <div className="report-only mt-4 border-t border-border pt-4">
+          <h3 className="text-sm font-semibold text-foreground">{L("AI interpretation", "AI ব্যাখ্যা")}</h3>
+          <p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-muted-foreground">{aiInterpretation}</p>
+        </div>
+      ) : null}
+      </div>
+
+      <StudentInsight districtId={a} variable={v1} start={range.start} end={range.end} onResult={setAiInterpretation} />
     </div>
   );
 }

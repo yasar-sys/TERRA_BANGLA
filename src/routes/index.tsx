@@ -38,13 +38,13 @@ function Landing() {
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-accent">
           {t("hero.challenge")}
         </p>
-        <h1 className="mt-2 font-display text-3xl leading-tight text-foreground sm:text-5xl">
+        <h1 className="mt-2 max-w-4xl font-display text-4xl leading-tight text-foreground sm:text-6xl">
           {t("app.title")}
         </h1>
         <p className="mt-1 font-display text-sm font-semibold tracking-wide text-primary">
           {t("team.name")}
         </p>
-        <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
           {t("app.tagline")}
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
@@ -71,7 +71,7 @@ function Landing() {
           ))}
         </div>
 
-        <div className="mt-3 h-[58vh] min-h-[340px] overflow-hidden rounded-2xl border border-border bg-elevated">
+        <div className="globe-frame mt-3 h-[58vh] min-h-[340px] overflow-hidden border border-border bg-elevated">
           <GlobeStage
             variable={variable}
             phase={phase}
