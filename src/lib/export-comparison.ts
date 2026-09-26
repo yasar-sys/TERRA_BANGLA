@@ -11,6 +11,7 @@ export async function exportComparisonPdf(element: HTMLElement, filename: string
       pixelRatio: 1.6,
       quality: 0.92,
       cacheBust: true,
+      skipFonts: true,
     });
   } finally {
     element.classList.remove("pdf-export");
