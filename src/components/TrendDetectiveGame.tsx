@@ -282,9 +282,11 @@ function MissionScreen({ mission, lang, completed, stars, muted, onToggleSound, 
     setFeedback(right ? "right" : "wrong");
     if (right) {
       onChime();
-      setScorePulse(true);
-      window.setTimeout(() => setScorePulse(false), 650);
-      onComplete();
+      window.setTimeout(() => {
+        onComplete();
+        setScorePulse(true);
+        window.setTimeout(() => setScorePulse(false), 650);
+      }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 480);
     }
   };
   return <div className="td-paper td-mission-shell overflow-hidden rounded-[2rem] border-4 border-game-paper shadow-game">
