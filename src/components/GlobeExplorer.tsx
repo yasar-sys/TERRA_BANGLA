@@ -273,7 +273,7 @@ export default function GlobeExplorer({
         labelAltitude={phase === "world" ? 0.002 : 0.036}
         labelColor={() => (phase === "world" ? "#F2A93B" : "rgba(232,230,225,0.95)")}
         labelResolution={2}
-        onLabelClick={phase === "world" ? enterBangladesh : undefined}
+        onLabelClick={() => { if (phase === "world") enterBangladesh(); }}
         ringsData={phase === "world" ? WORLD_RINGS : EMPTY}
         ringLat={(d: object) => (d as { lat: number }).lat}
         ringLng={(d: object) => (d as { lng: number }).lng}
