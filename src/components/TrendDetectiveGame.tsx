@@ -222,10 +222,20 @@ function TrendChoices({ lang, onChoose }: { lang: "en" | "bn"; onChoose: (trend:
   </div>;
 }
 
-function MapScreen({ lang, completed, stars, onOpen, onFinal }: { lang: "en" | "bn"; completed: Set<MissionId>; stars: number; onOpen: (id: MissionId) => void; onFinal: () => void }) {
+function SoundToggle({ muted, lang, onToggle }: { muted: boolean; lang: "en" | "bn"; onToggle: () => void }) {
+  const label = muted ? (lang === "bn" ? "শব্দ চালু করো" : "Turn sound on") : (lang === "bn" ? "শব্দ বন্ধ করো" : "Mute sound");
+  return <Button type="button" size="icon" variant="ghost" onClick={onToggle} className="td-sound-toggle" aria-label={label} title={label}>{muted ? <VolumeX/> : <Volume2/>}</Button>;
+}
+
+function TravelTransition({ mission, lang }: { mission: Mission; lang: "en" | "bn" }) {
+  return <div className="td-travel" role="status" aria-live="polite"><div className="td-travel-card"><div className="td-travel-path" aria-hidden="true"><i/><span>⛵</span><b>{mission.icon}</b></div><div className="mx-auto w-24"><Detective state="thinking"/></div><p>{lang === "bn" ? `${mission.place.bn}-এর পথে…` : `Travelling to ${mission.place.en}…`}</p></div></div>;
+}
+
+function MapScreen({ lang, completed, stars, muted, onToggleSound, onOpen, onFinal }: { lang: "en" | "bn"; completed: Set<MissionId>; stars: number; muted: boolean; onToggleSound: () => void; onOpen: (id: MissionId) => void; onFinal: () => void }) {
   return <div className="td-game-shell relative overflow-hidden rounded-[2rem] border-4 border-game-paper shadow-game">
     <div className="td-cloudscape" aria-hidden="true"><span/><span/><span/></div>
     <WeatherFriends />
+    <div className="absolute right-3 top-3 z-30"><SoundToggle muted={muted} lang={lang} onToggle={onToggleSound}/></div>
     <div className="relative z-20 px-4 pt-6 text-center sm:px-8 sm:pt-8">
       <p className="td-kicker">{lang === "bn" ? "ছোট্ট গোয়েন্দার বাংলাদেশ অভিযান" : "A LITTLE DETECTIVE'S BANGLADESH ADVENTURE"}</p>
       <h2 className="td-game-title">{lang === "bn" ? "আমার হাতে বাংলাদেশ" : "Bangladesh in My Hands"}</h2>
@@ -238,7 +248,7 @@ function MapScreen({ lang, completed, stars, onOpen, onFinal }: { lang: "en" | "
         const positions = ["td-stop-one", "td-stop-two", "td-stop-three", "td-stop-four"];
         const done = completed.has(mission.id);
         const next = i === completed.size;
-        return <Button key={mission.id} type="button" onPointerUp={() => onOpen(mission.id)} className={`td-map-pin ${positions[i]} ${done ? "td-stop-done" : ""} ${next ? "td-stop-next" : ""}`}>
+        return <Button key={mission.id} type="button" onClick={() => onOpen(mission.id)} className={`td-map-pin ${positions[i]} ${done ? "td-stop-done" : ""} ${next ? "td-stop-next" : ""}`}>
           <span className="td-pin-number">{done ? <Check/> : mission.number}</span><span className="td-pin-icon" aria-hidden="true">{mission.icon}</span><span className="td-pin-copy">{mission.place[lang]}</span>
         </Button>;
       })}
@@ -255,31 +265,37 @@ function MapScreen({ lang, completed, stars, onOpen, onFinal }: { lang: "en" | "
   </div>;
 }
 
-function MissionScore({ stars, lang }: { stars: number; lang: "en" | "bn" }) {
-  return <div className="td-mission-score" aria-label={lang === "bn" ? `স্কোর ${stars.toLocaleString("bn-BD")} এর মধ্যে ৪` : `Score ${stars} out of 4`}>
+function MissionScore({ stars, lang, pulse }: { stars: number; lang: "en" | "bn"; pulse: boolean }) {
+  return <div className={`td-mission-score ${pulse ? "td-score-bounce" : ""}`} aria-label={lang === "bn" ? `স্কোর ${stars.toLocaleString("bn-BD")} এর মধ্যে ৪` : `Score ${stars} out of 4`}>
     <span>⭐ <b>{stars.toLocaleString(lang === "bn" ? "bn-BD" : "en-US")}/4</b></span>
     <div className="td-score-dots" aria-hidden="true">{Array.from({ length: 4 }).map((_, index) => <i key={index} className={index < stars ? "is-earned" : ""}/>)}</div>
   </div>;
 }
 
-function MissionScreen({ mission, lang, completed, stars, onBack, onComplete }: { mission: Mission; lang: "en" | "bn"; completed: boolean; stars: number; onBack: () => void; onComplete: () => void }) {
+function MissionScreen({ mission, lang, completed, stars, muted, onToggleSound, onChime, onBack, onComplete }: { mission: Mission; lang: "en" | "bn"; completed: boolean; stars: number; muted: boolean; onToggleSound: () => void; onChime: () => void; onBack: () => void; onComplete: () => void }) {
   const [feedback, setFeedback] = useState<"idle" | "wrong" | "right">(completed ? "right" : "idle");
+  const [scorePulse, setScorePulse] = useState(false);
   const analysis = useMemo(() => analyzeVariable(mission.districtId, mission.variable), [mission.districtId, mission.variable]);
   const dataCorrect = trendFromAnalysis(analysis);
   const answer = (value: Trend | boolean) => {
     const right = typeof value === "boolean" ? value : value === dataCorrect;
     setFeedback(right ? "right" : "wrong");
-    if (right) onComplete();
+    if (right) {
+      onChime();
+      setScorePulse(true);
+      window.setTimeout(() => setScorePulse(false), 650);
+      onComplete();
+    }
   };
   return <div className="td-paper td-mission-shell overflow-hidden rounded-[2rem] border-4 border-game-paper shadow-game">
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b-4 border-game-ink bg-game-yellow px-3 py-3 sm:px-5"><Button type="button" variant="ghost" onClick={onBack} className="text-game-ink hover:bg-game-paper"><ArrowLeft /> {lang === "bn" ? "মানচিত্র" : "Map"}</Button><p className="font-black text-game-ink">{mission.icon} {lang === "bn" ? `মিশন ${mission.number.toLocaleString("bn-BD")}` : `Mission ${mission.number}`}: {mission.name[lang]}</p><MissionScore stars={stars} lang={lang}/></div>
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b-4 border-game-ink bg-game-yellow px-3 py-3 sm:px-5"><Button type="button" variant="ghost" onClick={onBack} className="text-game-ink hover:bg-game-paper"><ArrowLeft /> {lang === "bn" ? "মানচিত্র" : "Map"}</Button><p className="font-black text-game-ink">{mission.icon} {lang === "bn" ? `মিশন ${mission.number.toLocaleString("bn-BD")}` : `Mission ${mission.number}`}: {mission.name[lang]}</p><div className="flex items-center gap-1"><SoundToggle muted={muted} lang={lang} onToggle={onToggleSound}/><MissionScore stars={stars} lang={lang} pulse={scorePulse}/></div></div>
     <div className="p-4 sm:p-6">
       <DataWeatherCard mission={mission} analysis={analysis} lang={lang}/>
       <div className="mb-4 rounded-xl border-2 border-dashed border-game-water bg-game-paper/70 px-3 py-2 text-center text-xs font-semibold text-game-muted">ⓘ {lang === "bn" ? "সংখ্যা ও প্রবণতা NASA রেকর্ড থেকে; দৃশ্যটি শুধু শেখার কার্টুন, আজকের লাইভ আবহাওয়া নয়।" : "Numbers and trend use NASA records; the scene is a learning cartoon, not today’s live weather."}</div>
-      {mission.id === "village" ? <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]"><SceneCard label={lang === "bn" ? "ময়মনসিংহের গ্রাম" : "MYMENSINGH VILLAGE"} kind="village" now trend={dataCorrect}/><div className="rounded-2xl border-4 border-game-ink bg-game-paper p-4 text-game-ink shadow-game"><p className="text-center font-black">{lang === "bn" ? "বাস্তব বার্ষিক রেকর্ড" : "REAL ANNUAL RECORD"}</p><div className="mt-4 space-y-4 text-center text-lg font-black"><p>{analysis?.result.period.start} → {analysis?.result.first_value?.toFixed(1)} {analysis?.unit}</p><p>{analysis?.result.period.end} → {analysis?.result.current_value?.toFixed(1)} {analysis?.unit}</p><p className="text-3xl">{TREND_LABELS[dataCorrect].icon}</p></div></div></div> : <div className="grid gap-4 sm:grid-cols-2"><SceneCard label={`${lang === "bn" ? "আগে" : "BEFORE"} · ${analysis?.result.period.start ?? "—"}`} kind={mission.id} now={false} trend={dataCorrect}/><SceneCard label={`${lang === "bn" ? "সাম্প্রতিক" : "RECENT"} · ${analysis?.result.period.end ?? "—"}`} kind={mission.id} now trend={dataCorrect}/></div>}
+      {mission.id === "village" ? <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]"><SceneCard label={lang === "bn" ? "ময়মনসিংহের গ্রাম" : "MYMENSINGH VILLAGE"} kind="village" now trend={dataCorrect} revealed={feedback === "right"}/><div className="rounded-2xl border-4 border-game-ink bg-game-paper p-4 text-game-ink shadow-game"><p className="text-center font-black">{lang === "bn" ? "বাস্তব বার্ষিক রেকর্ড" : "REAL ANNUAL RECORD"}</p><div className="mt-4 space-y-4 text-center text-lg font-black"><p>{analysis?.result.period.start} → {analysis?.result.first_value?.toFixed(1)} {analysis?.unit}</p><p>{analysis?.result.period.end} → {analysis?.result.current_value?.toFixed(1)} {analysis?.unit}</p><p className="text-3xl">{TREND_LABELS[dataCorrect].icon}</p></div></div></div> : <div className="grid gap-4 sm:grid-cols-2"><SceneCard label={`${lang === "bn" ? "আগে" : "BEFORE"} · ${analysis?.result.period.start ?? "—"}`} kind={mission.id} now={false} trend={dataCorrect}/><SceneCard label={`${lang === "bn" ? "সাম্প্রতিক" : "RECENT"} · ${analysis?.result.period.end ?? "—"}`} kind={mission.id} now trend={dataCorrect} revealed={feedback === "right"}/></div>}
       <div className="mx-auto mt-6 max-w-2xl text-center"><h3 className="font-display text-2xl text-game-ink">🔎 {lang === "bn" ? `${VARIABLE_NAMES[mission.variable].bn}-এর কী প্রবণতা দেখছ?` : `What trend do you see in ${VARIABLE_NAMES[mission.variable].en.toLowerCase()}?`}</h3>{feedback !== "right" && <div className="mt-4"><TrendChoices lang={lang} onChoose={answer}/></div>}
         {feedback === "wrong" && <div className="td-feedback-wrong mt-4 animate-fade-in rounded-2xl border-2 border-game-red bg-game-paper p-4 font-bold text-game-red" role="status">🤔 {lang === "bn" ? "প্রায় হয়েছে! দুইটি ছবি আবার ভালো করে দেখো।" : "Almost! Look closely at both pictures and try again."}</div>}
-        {feedback === "right" && <div className="td-celebrate relative mt-4 overflow-hidden rounded-2xl border-4 border-game-ink bg-game-yellow p-4 text-game-ink shadow-game" role="status"><span className="td-sparkle left-[12%] top-2">✦</span><span className="td-sparkle right-[14%] top-5">★</span><div className="mx-auto w-20"><Detective celebrate /></div><p className="font-display text-2xl">✨ {mission.success[lang]}</p><p className="mt-1 font-black">🔎 {lang === "bn" ? "সূত্র ব্যাজ অর্জিত!" : "Clue Badge earned!"}</p><div className="td-score-earned">⭐ {completed ? (lang === "bn" ? `মোট স্কোর: ${stars.toLocaleString("bn-BD")}/৪` : `Total score: ${stars}/4`) : (lang === "bn" ? "+১ গোয়েন্দা তারা" : "+1 Detective Star")}</div><Button type="button" onClick={onBack} className="mt-3 border-2 border-game-ink bg-game-green text-game-ink shadow-game hover:bg-game-green/80">{lang === "bn" ? "পরের জায়গা বেছে নাও" : "Choose another place"}</Button></div>}
+        {feedback === "right" && <div className="td-celebrate relative mt-4 overflow-hidden rounded-2xl border-4 border-game-ink bg-game-yellow p-4 text-game-ink shadow-game" role="status"><div className="td-star-flight" aria-hidden="true">★<i/><i/><i/></div><div className="td-mini-star-shower" aria-hidden="true">★ ✦ ★ ✦ ★</div><span className="td-sparkle left-[12%] top-2">✦</span><span className="td-sparkle right-[14%] top-5">★</span><div className="mx-auto w-20"><Detective state="celebrate" /></div><p className="font-display text-2xl">✨ {mission.success[lang]}</p><p className="mt-1 font-black">🔎 {lang === "bn" ? "সূত্র ব্যাজ অর্জিত!" : "Clue Badge earned!"}</p><div className="td-score-earned">⭐ {completed ? (lang === "bn" ? `মোট স্কোর: ${stars.toLocaleString("bn-BD")}/৪` : `Total score: ${stars}/4`) : (lang === "bn" ? "+১ গোয়েন্দা তারা" : "+1 Detective Star")}</div><Button type="button" onClick={onBack} className="mt-3 border-2 border-game-ink bg-game-green text-game-ink shadow-game hover:bg-game-green/80">{lang === "bn" ? "পরের জায়গা বেছে নাও" : "Choose another place"}</Button></div>}
       </div>
     </div>
   </div>;
@@ -293,14 +309,14 @@ function FinalMission({ lang, onBack, onWin, alreadyWon }: { lang: "en" | "bn"; 
   const correctCount = MISSIONS.filter((mission) => answers[mission.id] === realTrend(mission)).length;
   const check = () => { setChecked(true); if (correctCount === MISSIONS.length) onWin(alreadyWon ? 0 : correctCount); };
   return <div className="td-paper rounded-3xl border-4 border-game-ink p-4 shadow-game sm:p-7"><div className="flex items-center justify-between gap-3"><Button type="button" variant="ghost" onClick={onBack} className="text-game-ink hover:bg-game-paper"><ArrowLeft /> {lang === "bn" ? "মানচিত্র" : "Map"}</Button><span className="rounded-full border-2 border-game-ink bg-game-yellow px-3 py-1 text-xs font-black text-game-ink">🌍 {lang === "bn" ? "চূড়ান্ত মিশন" : "FINAL MISSION"}</span></div>
-    <div className="mx-auto mt-2 max-w-2xl text-center"><div className="mx-auto w-28"><Detective /></div><h2 className="font-display text-3xl text-game-ink">{lang === "bn" ? "বাহ! তুমি সব সূত্র সংগ্রহ করেছ।" : "Wow! You collected all the clues."}</h2><p className="mt-2 font-semibold text-game-muted">{lang === "bn" ? "প্রতিটি ছবির প্রবণতা মিলিয়ে বাংলাদেশের রহস্য সমাধান করো।" : "Match each picture clue to its trend and solve the Bangladesh mystery."}</p></div>
+    <div className="mx-auto mt-2 max-w-2xl text-center"><div className="mx-auto w-28"><Detective state="thinking" /></div><h2 className="font-display text-3xl text-game-ink">{lang === "bn" ? "বাহ! তুমি সব সূত্র সংগ্রহ করেছ।" : "Wow! You collected all the clues."}</h2><p className="mt-2 font-semibold text-game-muted">{lang === "bn" ? "প্রতিটি ছবির প্রবণতা মিলিয়ে বাংলাদেশের রহস্য সমাধান করো।" : "Match each picture clue to its trend and solve the Bangladesh mystery."}</p></div>
     <div className="mx-auto mt-6 grid max-w-3xl gap-3">{MISSIONS.map((mission) => { const district = getDistrict(mission.districtId); const analysis = analyzeVariable(mission.districtId, mission.variable); const correct = realTrend(mission); return <div key={mission.id} className={`rounded-2xl border-2 p-3 ${checked ? answers[mission.id] === correct ? "border-game-green bg-game-green/20" : "border-game-red bg-game-red/10" : "border-game-ink bg-game-paper"}`}><div className="flex items-center gap-3"><span className="text-3xl">{mission.icon}</span><div className="min-w-0 flex-1"><p className="font-black text-game-ink">{lang === "bn" ? district?.bn : district?.name} · {VARIABLE_NAMES[mission.variable][lang]}</p><p className="text-xs font-bold text-game-muted">{analysis?.result.period.start}–{analysis?.result.period.end} · {analysis?.provenance.dataset_id}</p><div className="mt-2 flex flex-wrap gap-2">{(Object.keys(TREND_LABELS) as Trend[]).map((trend) => <Button key={trend} type="button" size="sm" variant={answers[mission.id] === trend ? "default" : "outline"} disabled={checked} onClick={() => setAnswers((old) => ({ ...old, [mission.id]: trend }))} className={`td-pressable ${answers[mission.id] === trend ? "border-2 border-game-ink bg-game-blue text-game-paper" : "border-2 border-game-ink bg-game-paper text-game-ink"}`}>{TREND_LABELS[trend].icon} {TREND_LABELS[trend].label[lang]}</Button>)}</div></div>{checked && answers[mission.id] === correct && <Check className="size-7 text-game-green" />}</div></div>; })}</div>
     <div className="mt-5 text-center">{checked && correctCount < MISSIONS.length && <p className="mb-3 font-bold text-game-red" role="status">{lang === "bn" ? `${correctCount.toLocaleString("bn-BD")}/৪টি ঠিক। ভুলগুলো দেখে আবার চেষ্টা করো!` : `${correctCount}/4 correct. Check the pictures and try again!`}</p>}<Button type="button" size="lg" disabled={!allAnswered} onClick={checked && correctCount < MISSIONS.length ? () => setChecked(false) : check} className="h-12 border-2 border-game-ink bg-game-red px-7 font-black text-game-paper shadow-game">{checked && correctCount < MISSIONS.length ? (lang === "bn" ? "আবার চেষ্টা করো" : "Try again") : (lang === "bn" ? "রহস্য সমাধান করো" : "Solve the mystery")}</Button></div>
   </div>;
 }
 
 function AwardScreen({ lang, stars, onRestart }: { lang: "en" | "bn"; stars: number; onRestart: () => void }) {
-  return <div className="td-paper td-award relative overflow-hidden rounded-[2rem] border-4 border-game-paper p-6 text-center shadow-game sm:p-10"><div className="td-confetti" aria-hidden="true">★ ✦ ● ★ ✦ ● ★</div><WeatherFriends/><div className="mx-auto w-40"><Detective celebrate /></div><div className="mx-auto mt-2 inline-flex size-28 items-center justify-center rounded-full border-4 border-game-ink bg-game-yellow text-6xl shadow-game">🏆</div><h2 className="mt-4 td-game-title text-3xl sm:text-5xl">{lang === "bn" ? "অভিনন্দন, ছোট্ট গোয়েন্দা!" : "Congratulations, little detective!"}</h2><p className="mx-auto mt-3 max-w-xl text-lg font-bold text-game-muted">🌍🔎 {lang === "bn" ? "তুমি ছবি দেখে পরিবর্তন খুঁজে বাংলাদেশের সব রহস্য সমাধান করেছ!" : "You observed changes and solved every Bangladesh mystery!"}</p><div className="mx-auto mt-5 max-w-md rounded-2xl border-4 border-game-ink bg-game-blue p-5 text-game-paper shadow-game"><p className="text-xs font-black uppercase">{lang === "bn" ? "তোমার নতুন ব্যাজ" : "Your new badge"}</p><p className="mt-1 text-2xl font-black">🇧🇩 {lang === "bn" ? "আমার হাতে বাংলাদেশ" : "Bangladesh in My Hands"}</p><p className="mt-2 font-black">⭐ {stars} {lang === "bn" ? "গোয়েন্দা তারা" : "Detective Stars"}</p></div><p className="mt-6 text-xl font-black text-game-ink">🇧🇩 “{lang === "bn" ? "দেখো। ভাবো। পরিবর্তন খোঁজো।" : "Look. Think. Find the change."}”</p><Button type="button" size="lg" onClick={onRestart} className="td-pressable mt-5 border-2 border-game-ink bg-game-green font-black text-game-ink shadow-game hover:bg-game-green/80"><RotateCcw /> {lang === "bn" ? "আবার অভিযান শুরু করো" : "Play again"}</Button></div>;
+  return <div className="td-paper td-award relative overflow-hidden rounded-[2rem] border-4 border-game-paper p-6 text-center shadow-game sm:p-10"><div className="td-confetti" aria-hidden="true">★ ✦ ● ★ ✦ ● ★</div><WeatherFriends/><div className="mx-auto w-40"><Detective state="celebrate" /></div><div className="mx-auto mt-2 inline-flex size-28 items-center justify-center rounded-full border-4 border-game-ink bg-game-yellow text-6xl shadow-game">🏆</div><h2 className="mt-4 td-game-title text-3xl sm:text-5xl">{lang === "bn" ? "অভিনন্দন, ছোট্ট গোয়েন্দা!" : "Congratulations, little detective!"}</h2><p className="mx-auto mt-3 max-w-xl text-lg font-bold text-game-muted">🌍🔎 {lang === "bn" ? "তুমি ছবি দেখে পরিবর্তন খুঁজে বাংলাদেশের সব রহস্য সমাধান করেছ!" : "You observed changes and solved every Bangladesh mystery!"}</p><div className="mx-auto mt-5 max-w-md rounded-2xl border-4 border-game-ink bg-game-blue p-5 text-game-paper shadow-game"><p className="text-xs font-black uppercase">{lang === "bn" ? "তোমার নতুন ব্যাজ" : "Your new badge"}</p><p className="mt-1 text-2xl font-black">🇧🇩 {lang === "bn" ? "আমার হাতে বাংলাদেশ" : "Bangladesh in My Hands"}</p><p className="mt-2 font-black">⭐ {stars} {lang === "bn" ? "গোয়েন্দা তারা" : "Detective Stars"}</p></div><p className="mt-6 text-xl font-black text-game-ink">🇧🇩 “{lang === "bn" ? "দেখো। ভাবো। পরিবর্তন খোঁজো।" : "Look. Think. Find the change."}”</p><Button type="button" size="lg" onClick={onRestart} className="td-pressable mt-5 border-2 border-game-ink bg-game-green font-black text-game-ink shadow-game hover:bg-game-green/80"><RotateCcw /> {lang === "bn" ? "আবার অভিযান শুরু করো" : "Play again"}</Button></div>;
 }
 
 export function TrendDetectiveGame() {
@@ -309,12 +325,34 @@ export function TrendDetectiveGame() {
   const [completed, setCompleted] = useState<Set<MissionId>>(new Set());
   const [stars, setStars] = useState(0);
   const [won, setWon] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [travel, setTravel] = useState<{ to: Screen; mission: Mission } | null>(null);
   const activeMission = useMemo(() => MISSIONS.find((m) => m.id === screen), [screen]);
+  useEffect(() => {
+    if (!travel) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(() => { setScreen(travel.to); setTravel(null); }, reduced ? 10 : 800);
+    return () => window.clearTimeout(timer);
+  }, [travel]);
+  const navigateWithTravel = (to: Screen, mission: Mission) => setTravel({ to, mission });
+  const chime = () => {
+    if (muted || typeof window === "undefined") return;
+    const AudioContextCtor = window.AudioContext;
+    const context = new AudioContextCtor();
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.0001, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.12, context.currentTime + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.42);
+    gain.connect(context.destination);
+    [659, 988].forEach((frequency, index) => { const oscillator = context.createOscillator(); oscillator.type = "sine"; oscillator.frequency.value = frequency; oscillator.connect(gain); oscillator.start(context.currentTime + index * 0.09); oscillator.stop(context.currentTime + 0.3 + index * 0.09); });
+    window.setTimeout(() => void context.close(), 650);
+  };
   const complete = (id: MissionId) => { if (!completed.has(id)) { setCompleted((old) => new Set(old).add(id)); setStars((s) => s + 1); } };
   const restart = () => { setCompleted(new Set()); setStars(0); setWon(false); setScreen("map"); };
-  if (screen === "map") return <MapScreen lang={lang} completed={completed} stars={stars} onOpen={setScreen} onFinal={() => setScreen("final")}/>;
-  if (screen === "final") return <FinalMission lang={lang} alreadyWon={won} onBack={() => setScreen("map")} onWin={(bonus) => { setStars((s) => s + bonus); setWon(true); setScreen("award"); }}/>;
-  if (screen === "award") return <AwardScreen lang={lang} stars={stars} onRestart={restart}/>;
-  if (!activeMission) return null;
-  return <MissionScreen mission={activeMission} lang={lang} completed={completed.has(activeMission.id)} stars={stars} onBack={() => setScreen("map")} onComplete={() => complete(activeMission.id)}/>;
+  let content = null;
+  if (screen === "map") content = <MapScreen lang={lang} completed={completed} stars={stars} muted={muted} onToggleSound={() => setMuted((value) => !value)} onOpen={(id) => { const mission = MISSIONS.find((item) => item.id === id); if (mission) navigateWithTravel(id, mission); }} onFinal={() => setScreen("final")}/>;
+  else if (screen === "final") content = <FinalMission lang={lang} alreadyWon={won} onBack={() => setScreen("map")} onWin={(bonus) => { setStars((s) => s + bonus); setWon(true); setScreen("award"); }}/>;
+  else if (screen === "award") content = <AwardScreen lang={lang} stars={stars} onRestart={restart}/>;
+  else if (activeMission) content = <MissionScreen mission={activeMission} lang={lang} completed={completed.has(activeMission.id)} stars={stars} muted={muted} onToggleSound={() => setMuted((value) => !value)} onChime={chime} onBack={() => navigateWithTravel("map", activeMission)} onComplete={() => complete(activeMission.id)}/>;
+  return <div className="relative">{content}{travel && <TravelTransition mission={travel.mission} lang={lang}/>}</div>;
 }
