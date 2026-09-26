@@ -1,0 +1,113 @@
+{
+ "district": "pabna",
+ "variables": {
+  "precipitation": {
+   "annual": {
+    "2001": 3.8558,
+    "2002": 3.6908,
+    "2003": 3.4275,
+    "2004": 4.2642,
+    "2005": 3.9083,
+    "2006": 3.2042,
+    "2007": 5.2175,
+    "2008": 3.6125,
+    "2009": 3.9325,
+    "2010": 3.47,
+    "2011": 4.075,
+    "2012": 2.9917,
+    "2013": 3.3742,
+    "2014": 3.6717,
+    "2015": 4.53,
+    "2016": 5.5258,
+    "2017": 8.4083,
+    "2018": 5.45,
+    "2019": 6.7467,
+    "2020": 6.9092,
+    "2021": 5.7525,
+    "2022": 4.6817,
+    "2023": 5.61,
+    "2024": 6.505
+   },
+   "label": "Precipitation",
+   "provenance": {
+    "dataset_id": "NASA_POWER_MONTHLY_AG_V9",
+    "mode": "cache",
+    "retrieved": "2026-09-26T17:46:21.511930+00:00",
+    "source_url": "https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M,ALLSKY_SFC_SW_DWN,PRECTOTCORR&community=AG&latitude=24.0064&longitude=89.2372&start=2001&end=2024&format=JSON"
+   },
+   "unit": "mm/day"
+  },
+  "solar": {
+   "annual": {
+    "2001": 16.8617,
+    "2002": 16.2958,
+    "2003": 16.4958,
+    "2004": 16.4367,
+    "2005": 16.3058,
+    "2006": 16.7325,
+    "2007": 16.475,
+    "2008": 16.225,
+    "2009": 16.555,
+    "2010": 16.6892,
+    "2011": 16.2625,
+    "2012": 16.3108,
+    "2013": 16.3725,
+    "2014": 16.3392,
+    "2015": 15.865,
+    "2016": 16.2,
+    "2017": 15.6275,
+    "2018": 16.005,
+    "2019": 16.1,
+    "2020": 15.3208,
+    "2021": 15.9592,
+    "2022": 15.9308,
+    "2023": 16.0333,
+    "2024": 15.2133
+   },
+   "label": "All-sky solar radiation",
+   "provenance": {
+    "dataset_id": "NASA_POWER_MONTHLY_AG_V9",
+    "mode": "cache",
+    "retrieved": "2026-09-26T17:46:21.511930+00:00",
+    "source_url": "https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M,ALLSKY_SFC_SW_DWN,PRECTOTCORR&community=AG&latitude=24.0064&longitude=89.2372&start=2001&end=2024&format=JSON"
+   },
+   "unit": "kWh/m\u00b2/day"
+  },
+  "temperature": {
+   "annual": {
+    "2001": 25.5425,
+    "2002": 25.8492,
+    "2003": 25.725,
+    "2004": 25.7058,
+    "2005": 26.1233,
+    "2006": 25.9508,
+    "2007": 25.505,
+    "2008": 25.6,
+    "2009": 26.1017,
+    "2010": 26.1167,
+    "2011": 25.6458,
+    "2012": 25.6742,
+    "2013": 25.5917,
+    "2014": 26.0558,
+    "2015": 26.1408,
+    "2016": 26.3467,
+    "2017": 25.555,
+    "2018": 25.0475,
+    "2019": 25.8792,
+    "2020": 25.0142,
+    "2021": 25.74,
+    "2022": 25.4425,
+    "2023": 26.0442,
+    "2024": 25.7608
+   },
+   "label": "Air temperature (2 m)",
+   "provenance": {
+    "dataset_id": "NASA_POWER_MONTHLY_AG_V9",
+    "mode": "cache",
+    "retrieved": "2026-09-26T17:46:21.511930+00:00",
+    "source_url": "https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M,ALLSKY_SFC_SW_DWN,PRECTOTCORR&community=AG&latitude=24.0064&longitude=89.2372&start=2001&end=2024&format=JSON"
+   },
+   "unit": "\u00b0C"
+  }
+ }
+}
