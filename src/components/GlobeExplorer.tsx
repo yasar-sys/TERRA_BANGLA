@@ -163,33 +163,30 @@ export default function GlobeExplorer({
     [lang],
   );
 
-  // Heatmap: orbit the camera around Bangladesh itself (not Earth's centre) for a true 360° view.
+  // Heatmap: circle the viewpoint around Bangladesh for an oblique 360° look at the 3D hexagons.
   useEffect(() => {
     if (!hexMode) return;
     const g = globeRef.current;
     if (!g) return;
-    const controls = g.controls() as unknown as {
-      target: { set: (x: number, y: number, z: number) => void };
-      minDistance: number;
-      maxDistance: number;
-      autoRotate: boolean;
-      autoRotateSpeed: number;
-      maxPolarAngle: number;
-      update: () => void;
+    const r = view === "top" ? 0 : 5;
+    const alt = view === "top" ? 0.26 : 0.32;
+    let theta = 0;
+    g.pointOfView({ lat: BD_CENTER.lat - r, lng: BD_CENTER.lng, altitude: alt }, prefersReducedMotion() ? 0 : 900);
+    if (!spin || prefersReducedMotion()) return;
+    let raf = 0;
+    const start = window.setTimeout(() => {
+      const tick = () => {
+        theta += 0.006;
+        const rr = r || 5;
+        g.pointOfView({ lat: BD_CENTER.lat - rr * Math.cos(theta), lng: BD_CENTER.lng + rr * Math.sin(theta), altitude: alt }, 0);
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }, 950);
+    return () => {
+      window.clearTimeout(start);
+      cancelAnimationFrame(raf);
     };
-    const cam = g.camera();
-    const t = g.getCoords(BD_CENTER.lat, BD_CENTER.lng, 0);
-    const c =
-      view === "top"
-        ? g.getCoords(BD_CENTER.lat, BD_CENTER.lng, 0.2)
-        : g.getCoords(BD_CENTER.lat - 5.5, BD_CENTER.lng, 0.1);
-    controls.target.set(t.x, t.y, t.z);
-    cam.position.set(c.x, c.y, c.z);
-    controls.minDistance = 3;
-    controls.maxDistance = 60;
-    controls.autoRotate = spin && !prefersReducedMotion();
-    controls.autoRotateSpeed = 1.2;
-    controls.update();
   }, [hexMode, view, spin, size]);
 
   return (
@@ -329,7 +326,7 @@ export default function GlobeExplorer({
         >
           {t("hero.enter")}
         </button>
-      ) : (
+      ) : hexMode ? null : (
         <button
           type="button"
           onClick={() => onPhaseChange("world")}
