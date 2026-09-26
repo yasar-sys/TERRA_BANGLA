@@ -40,10 +40,19 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-game-paper: var(--game-paper);
+  --color-game-ink: var(--game-ink);
+  --color-game-muted: var(--game-muted);
+  --color-game-water: var(--game-water);
+  --color-game-green: var(--game-green);
+  --color-game-yellow: var(--game-yellow);
+  --color-game-red: var(--game-red);
+  --color-game-blue: var(--game-blue);
   --font-display: "Fraunces", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --shadow-panel: 0 24px 60px -24px oklch(0 0 0 / 0.75);
   --shadow-glow: 0 0 0 1px var(--border), 0 18px 40px -20px oklch(0.6185 0.1871 284.06 / 0.45);
+  --shadow-game: 5px 6px 0 var(--game-ink);
 }
 
 :root {
@@ -71,6 +80,14 @@
   --border: oklch(0.3275 0.0369 269.39);
   --input: oklch(0.3275 0.0369 269.39);
   --ring: oklch(0.6185 0.1871 284.06);
+  --game-paper: oklch(0.965 0.035 92);
+  --game-ink: oklch(0.255 0.045 248);
+  --game-muted: oklch(0.42 0.052 246);
+  --game-water: oklch(0.72 0.13 228);
+  --game-green: oklch(0.78 0.16 147);
+  --game-yellow: oklch(0.88 0.17 89);
+  --game-red: oklch(0.64 0.2 29);
+  --game-blue: oklch(0.53 0.17 250);
 }
 
 @layer base {
@@ -241,6 +258,64 @@
 @utility animate-fade-in { animation: fade-in 0.45s ease-out both; }
 @utility animate-spin-slow { animation: spin 6s linear infinite; }
 
+/* Bangladesh Earth Trend Detective */
+.td-paper {
+  background-color: var(--game-paper);
+  background-image: radial-gradient(color-mix(in oklab, var(--game-ink) 9%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.td-sky { fill: oklch(0.88 0.08 218); }
+.td-sun { fill: var(--game-yellow); stroke: var(--game-ink); stroke-width: 3; }
+.td-bank, .td-field { fill: oklch(0.76 0.15 130); }
+.td-water { fill: var(--game-water); }
+.td-tree, .td-trunk { fill: none; stroke: oklch(0.45 0.11 67); stroke-width: 8; stroke-linecap: round; }
+.td-leaf { fill: var(--game-green); stroke: var(--game-ink); stroke-width: 3; }
+.td-boat-hull, .td-roof { fill: var(--game-red); stroke: var(--game-ink); stroke-width: 3; }
+.td-sail { fill: var(--game-paper); stroke: var(--game-ink); stroke-width: 3; }
+.td-fish-body { fill: var(--game-yellow); stroke: var(--game-ink); stroke-width: 2; }
+.td-deer { fill: oklch(0.64 0.12 62); stroke: var(--game-ink); stroke-width: 2; }
+.td-cloud { fill: var(--game-paper); stroke: var(--game-ink); stroke-width: 3; }
+.td-rain { stroke: var(--game-blue); stroke-width: 5; stroke-linecap: round; }
+.td-house { fill: oklch(0.83 0.09 82); stroke: var(--game-ink); stroke-width: 3; }
+.td-door { fill: oklch(0.48 0.11 56); }
+.td-rice { fill: none; stroke: oklch(0.56 0.16 125); stroke-width: 4; stroke-linecap: round; }
+.td-building { fill: oklch(0.68 0.08 256); stroke: var(--game-ink); stroke-width: 3; }
+.td-building-alt { fill: oklch(0.72 0.13 35); stroke: var(--game-ink); stroke-width: 3; }
+.td-window { fill: var(--game-yellow); stroke: var(--game-ink); stroke-width: 1; }
+.td-road { fill: oklch(0.4 0.02 254); }
+.td-road-line { stroke: var(--game-paper); stroke-width: 3; stroke-dasharray: 18 14; }
+.td-car-body { fill: var(--game-red); stroke: var(--game-ink); stroke-width: 3; }
+.td-wheel { fill: var(--game-ink); }
+.td-skin { fill: oklch(0.82 0.09 61); stroke: var(--game-ink); stroke-width: 3; }
+.td-hair, .td-ink { fill: var(--game-ink); }
+.td-hat { fill: oklch(0.67 0.13 71); stroke: var(--game-ink); stroke-width: 3; }
+.td-hat-band, .td-coat { fill: var(--game-red); stroke: var(--game-ink); stroke-width: 3; }
+.td-shirt { fill: var(--game-blue); stroke: var(--game-ink); stroke-width: 3; }
+.td-line { fill: none; stroke: var(--game-ink); stroke-width: 3; stroke-linecap: round; }
+.td-glass { fill: oklch(0.9 0.05 220 / .6); stroke: var(--game-ink); stroke-width: 5; }
+.td-glass-line { stroke: var(--game-ink); stroke-width: 7; stroke-linecap: round; }
+.td-detective { width: 100%; filter: drop-shadow(3px 5px 0 oklch(0.25 0.04 248 / .18)); }
+.td-clickable { cursor: pointer; transform-box: fill-box; transform-origin: center; transition: transform .18s ease; }
+.td-clickable:hover, .td-clickable:focus { transform: scale(1.08); }
+.td-map-pin { transition: transform .2s ease; }
+.td-map-pin:hover { transform: translateY(-4px) rotate(-1deg); }
+.td-wave { animation: td-wave 3s ease-in-out infinite alternate; }
+.td-boat { animation: td-boat 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.td-fish { animation: td-fish 4s ease-in-out infinite; }
+.td-car { animation: td-car 5s ease-in-out infinite alternate; }
+.td-float { animation: td-float 3s ease-in-out infinite; }
+.td-jump { animation: td-jump .65s ease-in-out infinite alternate; }
+.td-sparkle { position: absolute; color: var(--game-red); font-size: 2rem; animation: td-sparkle .9s ease-in-out infinite alternate; }
+.td-confetti { color: var(--game-red); font-size: clamp(1.5rem, 6vw, 4rem); word-spacing: 1.2rem; animation: td-confetti 1.8s ease-in-out infinite alternate; }
+@keyframes td-wave { to { transform: translateY(4px); } }
+@keyframes td-boat { 50% { transform: translateY(-5px) rotate(2deg); } }
+@keyframes td-fish { 50% { transform: translateX(30px); } }
+@keyframes td-car { to { transform: translateX(100px); } }
+@keyframes td-float { 50% { transform: translateY(-7px) rotate(1deg); } }
+@keyframes td-jump { to { transform: translateY(-9px) rotate(-2deg); } }
+@keyframes td-sparkle { to { transform: scale(1.5) rotate(25deg); opacity: .55; } }
+@keyframes td-confetti { to { transform: translateY(10px) rotate(2deg); } }
+
 /* Weather Friends chat (kids) */
 @keyframes wc-bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
 @keyframes wc-jump { 0%,100% { transform: translateY(0) scale(1) } 30% { transform: translateY(-6px) scale(1.08) } }
@@ -260,4 +335,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .wc-bob, .wc-jump, .wc-shake, .wc-spin, .wc-dot { animation: none; }
+  .td-wave, .td-boat, .td-fish, .td-car, .td-float, .td-jump, .td-sparkle, .td-confetti { animation: none; }
 }
