@@ -8,6 +8,8 @@ import { fmt, useLang } from "@/lib/i18n";
 import tempGrid from "@/data/grid/temperature.json";
 import precipGrid from "@/data/grid/precipitation.json";
 import solarGrid from "@/data/grid/solar.json";
+import ndviGrid from "@/data/grid/ndvi.json";
+import lstGrid from "@/data/grid/lst.json";
 
 export const Route = createFileRoute("/heatmap")({
   head: () => ({
@@ -16,7 +18,7 @@ export const Route = createFileRoute("/heatmap")({
       {
         name: "description",
         content:
-          "Data-driven hex-bin heatmap of Bangladesh built from cached NASA POWER temperature, rainfall and solar grids.",
+          "Data-driven hex-bin heatmap of Bangladesh built from cached NASA POWER temperature, rainfall and solar grids plus MODIS vegetation and land surface temperature.",
       },
       { property: "og:title", content: "Gridded NASA heatmap of Bangladesh" },
       {
@@ -37,7 +39,9 @@ interface Grid {
   provenance: Provenance;
 }
 
-const GRIDS: Record<"temperature" | "precipitation" | "solar", Grid> = {
+const GRIDS: Record<"temperature" | "precipitation" | "solar" | "ndvi" | "lst", Grid> = {
+  ndvi: ndviGrid as Grid,
+  lst: lstGrid as Grid,
   temperature: tempGrid as Grid,
   precipitation: precipGrid as Grid,
   solar: solarGrid as Grid,
@@ -47,6 +51,8 @@ const LABELS = {
   temperature: { en: "Air temperature", bn: "বায়ুর তাপমাত্রা" },
   precipitation: { en: "Rainfall", bn: "বৃষ্টিপাত" },
   solar: { en: "Solar radiation", bn: "সৌর বিকিরণ" },
+  ndvi: { en: "Vegetation (NDVI)", bn: "উদ্ভিদ সূচক (NDVI)" },
+  lst: { en: "Land surface temp.", bn: "ভূপৃষ্ঠের তাপমাত্রা" },
 };
 
 function HeatmapPage() {
@@ -55,8 +61,9 @@ function HeatmapPage() {
   const [variable, setVariable] = useState<keyof typeof GRIDS>("temperature");
   const [mode, setMode] = useState<"year" | "trend">("year");
   const grid = GRIDS[variable];
+  const isSat = variable === "ndvi" || variable === "lst";
   const years = useMemo(
-    () => Object.keys(grid.cells[0]?.annual ?? {}).map(Number).sort((a, b) => a - b),
+    () => [...new Set(grid.cells.flatMap((c) => Object.keys(c.annual)))].map(Number).sort((a, b) => a - b),
     [grid],
   );
   const [year, setYear] = useState(2024);
@@ -87,8 +94,12 @@ function HeatmapPage() {
       </h1>
       <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
         {L(
-          `Each hexagon aggregates real NASA POWER grid cells (0.5° × 0.625°). ${grid.cells.length} cells cover the country. Colour and height come only from cached values.`,
-          `প্রতিটি ষড়ভুজ আসল নাসা POWER গ্রিড কোষ (০.৫° × ০.৬২৫°) থেকে তৈরি। ${grid.cells.length}টি কোষ দেশকে ঢেকে রাখে। রং ও উচ্চতা কেবল সংরক্ষিত মান থেকে।`,
+          isSat
+            ? `Each hexagon aggregates real NASA MODIS satellite samples (${grid.cells.length} sites, one per district). No values are interpolated — colour and height come only from cached measurements.`
+            : `Each hexagon aggregates real NASA POWER grid cells (0.5° × 0.625°). ${grid.cells.length} cells cover the country. Colour and height come only from cached values.`,
+          isSat
+            ? `প্রতিটি ষড়ভুজ আসল নাসা MODIS উপগ্রহ নমুনা থেকে তৈরি (${grid.cells.length}টি স্থান, প্রতি জেলায় একটি)। কোনো মান অনুমান করা হয়নি।`
+            : `প্রতিটি ষড়ভুজ আসল নাসা POWER গ্রিড কোষ (০.৫° × ০.৬২৫°) থেকে তৈরি। ${grid.cells.length}টি কোষ দেশকে ঢেকে রাখে। রং ও উচ্চতা কেবল সংরক্ষিত মান থেকে।`,
         )}
       </p>
 
