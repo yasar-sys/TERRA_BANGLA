@@ -38,9 +38,52 @@ export const addDistrictContent = createServerFn({ method: "POST" }).middleware(
   if (result.error) throw new Error(result.error.message); return { ok: true };
 });
 
-export const addDataUpload = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input) => z.object({ districtId: z.string(), variable: z.string(), sourceName: z.string(), sourceUrl: z.string(), payload: z.string() }).parse(input)).handler(async ({ context, data }) => {
+const dataFileSchema = z.object({
+  unit: z.string().min(1).max(40),
+  label: z.string().max(120).optional(),
+  annual: z.record(z.string().regex(/^(19|20)\d{2}$/, "Years must be 4-digit, e.g. 2015"), z.number().finite()),
+}).refine((v) => Object.keys(v.annual).length >= 5, "At least 5 years of values are needed for a trend.");
+
+const VARIABLES = ["ndvi", "lst", "temperature", "solar", "precipitation"] as const;
+
+export const addDataUpload = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input) => z.object({ districtId: z.string().min(1).max(40), variable: z.enum(VARIABLES), sourceName: z.string().trim().min(1).max(120), sourceUrl: z.string().trim().url().max(500), payload: z.string().max(200000) }).parse(input)).handler(async ({ context, data }) => {
   const admin = await requireAdmin(context);
-  let payload: unknown; try { payload = JSON.parse(data.payload); } catch { throw new Error("Data must be valid JSON."); }
-  const result = await admin.from("data_uploads").insert({ district_id: data.districtId, variable: data.variable, source_name: data.sourceName.trim(), source_url: data.sourceUrl.trim(), payload: payload as never, created_by: context.userId });
+  let raw: unknown; try { raw = JSON.parse(data.payload); } catch { throw new Error("The data file must be valid JSON."); }
+  const parsed = dataFileSchema.safeParse(raw);
+  if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Data file format is invalid.");
+  const result = await admin.from("data_uploads").insert({ district_id: data.districtId, variable: data.variable, source_name: data.sourceName, source_url: data.sourceUrl, payload: parsed.data as never, published: true, created_by: context.userId });
+  if (result.error) throw new Error(result.error.message); return { ok: true };
+});
+
+export const deleteDataUpload = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input)).handler(async ({ context, data }) => {
+  const admin = await requireAdmin(context);
+  const result = await admin.from("data_uploads").delete().eq("id", data.id);
+  if (result.error) throw new Error(result.error.message); return { ok: true };
+});
+
+const quizSchema = z.object({
+  questionEn: z.string().trim().min(3).max(300), questionBn: z.string().trim().min(1).max(300),
+  optionsEn: z.array(z.string().trim().min(1).max(120)).min(2).max(4), optionsBn: z.array(z.string().trim().min(1).max(120)).min(2).max(4),
+  correctIndex: z.number().int().min(0).max(3), whyEn: z.string().trim().min(1).max(300), whyBn: z.string().trim().min(1).max(300),
+  sortOrder: z.number().int().min(0).max(999), published: z.boolean(),
+}).refine((v) => v.optionsEn.length === v.optionsBn.length && v.correctIndex < v.optionsEn.length, "English and Bangla need the same number of answers, and the correct answer must be one of them.");
+
+export const listQuizAdmin = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  const admin = await requireAdmin(context);
+  const result = await admin.from("quiz_questions").select("*").order("sort_order").order("created_at");
+  if (result.error) throw new Error(result.error.message); return result.data;
+});
+
+export const saveQuizQuestion = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input) => z.object({ id: z.string().uuid().optional(), question: quizSchema }).parse(input)).handler(async ({ context, data }) => {
+  const admin = await requireAdmin(context);
+  const q = data.question;
+  const row = { question_en: q.questionEn, question_bn: q.questionBn, options_en: q.optionsEn, options_bn: q.optionsBn, correct_index: q.correctIndex, why_en: q.whyEn, why_bn: q.whyBn, sort_order: q.sortOrder, published: q.published };
+  const result = data.id ? await admin.from("quiz_questions").update(row).eq("id", data.id) : await admin.from("quiz_questions").insert({ ...row, created_by: context.userId });
+  if (result.error) throw new Error(result.error.message); return { ok: true };
+});
+
+export const deleteQuizQuestion = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input)).handler(async ({ context, data }) => {
+  const admin = await requireAdmin(context);
+  const result = await admin.from("quiz_questions").delete().eq("id", data.id);
   if (result.error) throw new Error(result.error.message); return { ok: true };
 });

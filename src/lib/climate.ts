@@ -160,3 +160,42 @@ export function yearBounds(): { min: number; max: number } {
   }
   return { min: min === 9999 ? 2001 : min, max: max === 0 ? 2024 : max };
 }
+
+/** Shape an admin-uploaded district data file must follow. */
+export interface UploadedDataFile {
+  unit: string;
+  label?: string;
+  annual: Record<string, number>;
+}
+
+/**
+ * Analyse an admin-uploaded annual series with the same Mann-Kendall /
+ * Theil-Sen code used for the NASA cache. Returns null when too short.
+ */
+export function analyzeUploaded(input: {
+  variable: VariableKey;
+  payload: UploadedDataFile;
+  sourceName: string;
+  sourceUrl: string;
+  createdAt: string;
+}): VariableAnalysis | null {
+  const series = Object.entries(input.payload.annual ?? {})
+    .map(([year, value]) => ({ year: Number(year), value: Number(value) }))
+    .filter((p) => Number.isFinite(p.year) && Number.isFinite(p.value))
+    .sort((a, b) => a.year - b.year);
+  const result = analyzeSeries(series);
+  if (!result) return null;
+  return {
+    variable: input.variable,
+    unit: input.payload.unit,
+    label: input.payload.label ?? input.sourceName,
+    provenance: {
+      dataset_id: input.sourceName,
+      source_url: input.sourceUrl,
+      retrieved: input.createdAt,
+      mode: "cache",
+    },
+    series,
+    result,
+  };
+}
