@@ -1,5 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useLang } from "@/lib/i18n";
+import { useMemo, useState } from "react";
+import { GlobeStage } from "@/components/GlobeStage";
+import { ProvenanceButton } from "@/components/ProvenanceDrawer";
+import type { Provenance, VariableKey } from "@/lib/climate";
+import { analyzeSeries } from "@/lib/stats";
+import { fmt, useLang } from "@/lib/i18n";
+import tempGrid from "@/data/grid/temperature.json";
+import precipGrid from "@/data/grid/precipitation.json";
+import solarGrid from "@/data/grid/solar.json";
 
 export const Route = createFileRoute("/heatmap")({
   head: () => ({
@@ -8,24 +16,173 @@ export const Route = createFileRoute("/heatmap")({
       {
         name: "description",
         content:
-          "Data-driven hex-bin heatmap of Bangladesh built from cached NASA temperature, vegetation and rainfall grids.",
+          "Data-driven hex-bin heatmap of Bangladesh built from cached NASA POWER temperature, rainfall and solar grids.",
       },
       { property: "og:title", content: "Gridded NASA heatmap of Bangladesh" },
       {
         property: "og:description",
-        content: "Switch between temperature, vegetation and rainfall grids computed from cached NASA data.",
+        content: "Switch between temperature, rainfall and sunlight grids computed from cached NASA data.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: HeatmapPage,
 });
 
+interface Grid {
+  variable: string;
+  unit: string;
+  cells: { lat: number; lng: number; annual: Record<string, number> }[];
+  provenance: Provenance;
+}
+
+const GRIDS: Record<"temperature" | "precipitation" | "solar", Grid> = {
+  temperature: tempGrid as Grid,
+  precipitation: precipGrid as Grid,
+  solar: solarGrid as Grid,
+};
+
+const LABELS = {
+  temperature: { en: "Air temperature", bn: "বায়ুর তাপমাত্রা" },
+  precipitation: { en: "Rainfall", bn: "বৃষ্টিপাত" },
+  solar: { en: "Solar radiation", bn: "সৌর বিকিরণ" },
+};
+
 function HeatmapPage() {
-  const { t } = useLang();
+  const { lang } = useLang();
+  const L = (en: string, bn: string) => (lang === "bn" ? bn : en);
+  const [variable, setVariable] = useState<keyof typeof GRIDS>("temperature");
+  const [mode, setMode] = useState<"year" | "trend">("year");
+  const grid = GRIDS[variable];
+  const years = useMemo(
+    () => Object.keys(grid.cells[0]?.annual ?? {}).map(Number).sort((a, b) => a - b),
+    [grid],
+  );
+  const [year, setYear] = useState(2024);
+  const activeYear = years.includes(year) ? year : years[years.length - 1]!;
+
+  const points = useMemo(() => {
+    if (mode === "year") {
+      return grid.cells
+        .filter((c) => c.annual[String(activeYear)] !== undefined)
+        .map((c) => ({ lat: c.lat, lng: c.lng, value: c.annual[String(activeYear)]! }));
+    }
+    return grid.cells.flatMap((c) => {
+      const r = analyzeSeries(
+        Object.entries(c.annual).map(([y, v]) => ({ year: Number(y), value: v })),
+      );
+      return r ? [{ lat: c.lat, lng: c.lng, value: r.slope.slope_per_decade, sig: r.trend.significant_at_0_05 }] : [];
+    });
+  }, [grid, mode, activeYear]);
+
+  const sorted = [...points].sort((a, b) => b.value - a.value);
+  const unit = mode === "trend" ? `${grid.unit} / ${L("decade", "দশক")}` : grid.unit;
+  const sigCount = mode === "trend" ? points.filter((p) => (p as { sig?: boolean }).sig).length : 0;
+
   return (
-    <div className="mx-auto max-w-7xl px-3 py-10 sm:px-6">
-      <h1 className="font-display text-3xl text-foreground">{t("heatmap.title")}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{t("loading")}</p>
+    <div className="mx-auto max-w-7xl px-3 py-8 sm:px-6">
+      <h1 className="font-display text-3xl text-foreground sm:text-4xl">
+        {L("Gridded heatmap of Bangladesh", "বাংলাদেশের গ্রিড হিটম্যাপ")}
+      </h1>
+      <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+        {L(
+          `Each hexagon aggregates real NASA POWER grid cells (0.5° × 0.625°). ${grid.cells.length} cells cover the country. Colour and height come only from cached values.`,
+          `প্রতিটি ষড়ভুজ আসল নাসা POWER গ্রিড কোষ (০.৫° × ০.৬২৫°) থেকে তৈরি। ${grid.cells.length}টি কোষ দেশকে ঢেকে রাখে। রং ও উচ্চতা কেবল সংরক্ষিত মান থেকে।`,
+        )}
+      </p>
+
+      <div className="mt-5 flex flex-wrap items-end gap-3">
+        <fieldset className="flex flex-wrap gap-2">
+          <legend className="sr-only">{L("Variable", "সূচক")}</legend>
+          {(Object.keys(GRIDS) as (keyof typeof GRIDS)[]).map((k) => (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={variable === k}
+              onClick={() => setVariable(k)}
+              className={`rounded-full border px-3 py-1.5 text-sm ${variable === k ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground hover:bg-secondary"}`}
+            >
+              {L(LABELS[k].en, LABELS[k].bn)}
+            </button>
+          ))}
+        </fieldset>
+        <label className="text-sm text-muted-foreground">
+          {L("View", "দেখুন")}{" "}
+          <select
+            value={mode}
+            onChange={(e) => setMode(e.target.value as "year" | "trend")}
+            className="ml-1 rounded-md border border-border bg-card px-2 py-1 text-foreground"
+          >
+            <option value="year">{L("Annual mean for a year", "একটি বছরের বার্ষিক গড়")}</option>
+            <option value="trend">{L("Theil-Sen trend per decade", "প্রতি দশকে থাইল-সেন প্রবণতা")}</option>
+          </select>
+        </label>
+        {mode === "year" && (
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            {L("Year", "বছর")} <span className="font-mono text-foreground">{fmt(activeYear, lang, 0).replace(/,/g, "")}</span>
+            <input
+              type="range"
+              min={years[0]}
+              max={years[years.length - 1]}
+              value={activeYear}
+              onChange={(e) => setYear(Number(e.target.value))}
+              className="w-40 accent-[var(--color-primary)]"
+            />
+          </label>
+        )}
+      </div>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_320px]">
+        <div className="panel h-[420px] overflow-hidden sm:h-[560px]">
+          <GlobeStage
+            variable={variable as VariableKey}
+            phase="bangladesh"
+            onPhaseChange={() => {}}
+            onSelectDistrict={() => {}}
+            hexMode
+            gridPoints={points}
+          />
+        </div>
+        <aside className="panel p-4">
+          <h2 className="font-display text-lg text-foreground">
+            {L(LABELS[variable].en, LABELS[variable].bn)} · <span className="text-sm text-muted-foreground">{unit}</span>
+          </h2>
+          {mode === "trend" && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              {L(
+                `${sigCount} of ${points.length} cells show a statistically significant Mann-Kendall trend (p < 0.05).`,
+                `${points.length}টির মধ্যে ${sigCount}টি কোষে পরিসংখ্যানগতভাবে উল্লেখযোগ্য ম্যান-কেন্ডাল প্রবণতা (p < ০.০৫)।`,
+              )}
+            </p>
+          )}
+          <h3 className="mt-4 text-xs uppercase tracking-wide text-muted-foreground">{L("Highest cells", "সর্বোচ্চ কোষ")}</h3>
+          <ol className="mt-1 space-y-1 text-sm">
+            {sorted.slice(0, 5).map((p) => (
+              <li key={`${p.lat},${p.lng}`} className="flex justify-between font-mono text-foreground">
+                <span>{p.lat.toFixed(2)}°N {p.lng.toFixed(2)}°E</span>
+                <span className="text-[var(--rising)]">{fmt(p.value, lang, 2)}</span>
+              </li>
+            ))}
+          </ol>
+          <h3 className="mt-4 text-xs uppercase tracking-wide text-muted-foreground">{L("Lowest cells", "সর্বনিম্ন কোষ")}</h3>
+          <ol className="mt-1 space-y-1 text-sm">
+            {sorted.slice(-5).reverse().map((p) => (
+              <li key={`${p.lat},${p.lng}`} className="flex justify-between font-mono text-foreground">
+                <span>{p.lat.toFixed(2)}°N {p.lng.toFixed(2)}°E</span>
+                <span className="text-[var(--declining)]">{fmt(p.value, lang, 2)}</span>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-4">
+            <ProvenanceButton
+              provenance={grid.provenance}
+              title={L(LABELS[variable].en, LABELS[variable].bn)}
+              payload={{ variable, unit, mode, year: mode === "year" ? activeYear : null, n_cells: points.length, provenance: grid.provenance, points: points.slice(0, 20) }}
+            />
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }
