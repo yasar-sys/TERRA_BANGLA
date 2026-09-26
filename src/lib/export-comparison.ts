@@ -1,16 +1,16 @@
 export async function exportComparisonPdf(element: HTMLElement, filename: string) {
-  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-    import("html2canvas"),
+  const [{ toJpeg }, { jsPDF }] = await Promise.all([
+    import("html-to-image"),
     import("jspdf"),
   ]);
   element.classList.add("pdf-export");
-  let canvas: HTMLCanvasElement;
+  let image: string;
   try {
-    canvas = await html2canvas(element, {
+    image = await toJpeg(element, {
       backgroundColor: "#0B0E1A",
-      scale: 1.6,
-      useCORS: true,
-      logging: false,
+      pixelRatio: 1.6,
+      quality: 0.92,
+      cacheBust: true,
     });
   } finally {
     element.classList.remove("pdf-export");
@@ -25,8 +25,7 @@ export async function exportComparisonPdf(element: HTMLElement, filename: string
   const pageHeight = 297;
   const margin = 10;
   const imageWidth = pageWidth - margin * 2;
-  const imageHeight = (canvas.height * imageWidth) / canvas.width;
-  const image = canvas.toDataURL("image/jpeg", 0.92);
+  const imageHeight = (element.scrollHeight * imageWidth) / element.scrollWidth;
   let offset = 0;
   while (offset < imageHeight) {
     if (offset > 0) pdf.addPage();
