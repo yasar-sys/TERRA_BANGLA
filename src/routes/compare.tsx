@@ -27,7 +27,7 @@ export const Route = createFileRoute("/compare")({
   }),
   head: () => ({
     meta: [
-      { title: "Compare district trends — MEC TERRA_DETECTORS" },
+      { title: "Compare district trends — TerraBangla" },
       {
         name: "description",
         content:
@@ -159,7 +159,7 @@ function ComparePage() {
     if (!reportRef.current) return;
     setExporting(true);
     try {
-      await exportComparisonPdf(reportRef.current, `MEC-trend-comparison-${a}-${mode === "districts" ? b : v2}.pdf`);
+      await exportComparisonPdf(reportRef.current, `TerraBangla-comparison-${a}-${mode === "districts" ? b : v2}.pdf`);
     } finally {
       setExporting(false);
     }
@@ -243,7 +243,7 @@ function ComparePage() {
       <div ref={reportRef} className="comparison-report mt-5 p-3 sm:p-5">
         <div className="report-only mb-5 border-b border-border pb-4">
           <p className="flex items-center gap-2 text-xs font-semibold uppercase text-accent"><FileCheck2 aria-hidden /> {t("compare.report")}</p>
-          <h2 className="mt-2 font-display text-2xl text-foreground">MEC TERRA_DETECTORS</h2>
+          <h2 className="mt-2 font-display text-2xl text-foreground">TerraBangla</h2>
           <p className="mt-1 text-sm text-muted-foreground">{lines.map((line) => line.label).join(" · ")} · {range.start}–{range.end}</p>
         </div>
       <div className="h-[360px] sm:h-[440px]" role="img" aria-label={verdict}>

@@ -10,20 +10,34 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as KidsRouteImport } from './routes/kids'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as DistrictDistrictIdRouteImport } from './routes/district.$districtId'
+import { Route as AuthenticatedChatIndexRouteImport } from './routes/_authenticated/chat.index'
+import { Route as AuthenticatedChatConversationIdRouteImport } from './routes/_authenticated/chat.$conversationId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompareRoute = CompareRouteImport.update({
@@ -41,60 +55,115 @@ const KidsRoute = KidsRouteImport.update({
   path: '/kids',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DistrictDistrictIdRoute = DistrictDistrictIdRouteImport.update({
   id: '/district/$districtId',
   path: '/district/$districtId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedChatIndexRoute = AuthenticatedChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedChatConversationIdRoute =
+  AuthenticatedChatConversationIdRouteImport.update({
+    id: '/chat/$conversationId',
+    path: '/chat/$conversationId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
+  '/api/chat': typeof ApiChatRoute
   '/district/$districtId': typeof DistrictDistrictIdRoute
+  '/chat/$conversationId': typeof AuthenticatedChatConversationIdRoute
+  '/chat/': typeof AuthenticatedChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
+  '/api/chat': typeof ApiChatRoute
   '/district/$districtId': typeof DistrictDistrictIdRoute
+  '/chat/$conversationId': typeof AuthenticatedChatConversationIdRoute
+  '/chat': typeof AuthenticatedChatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
+  '/api/chat': typeof ApiChatRoute
   '/district/$districtId': typeof DistrictDistrictIdRoute
+  '/_authenticated/chat/$conversationId': typeof AuthenticatedChatConversationIdRoute
+  '/_authenticated/chat/': typeof AuthenticatedChatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/about' | '/compare' | '/heatmap' | '/kids' | '/district/$districtId'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    '/' | '/about' | '/compare' | '/heatmap' | '/kids' | '/district/$districtId'
-  id:
-    | '__root__'
     | '/'
     | '/about'
+    | '/auth'
     | '/compare'
     | '/heatmap'
     | '/kids'
+    | '/api/chat'
     | '/district/$districtId'
+    | '/chat/$conversationId'
+    | '/chat/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/compare'
+    | '/heatmap'
+    | '/kids'
+    | '/api/chat'
+    | '/district/$districtId'
+    | '/chat/$conversationId'
+    | '/chat'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/about'
+    | '/auth'
+    | '/compare'
+    | '/heatmap'
+    | '/kids'
+    | '/api/chat'
+    | '/district/$districtId'
+    | '/_authenticated/chat/$conversationId'
+    | '/_authenticated/chat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AuthRoute: typeof AuthRoute
   CompareRoute: typeof CompareRoute
   HeatmapRoute: typeof HeatmapRoute
   KidsRoute: typeof KidsRoute
+  ApiChatRoute: typeof ApiChatRoute
   DistrictDistrictIdRoute: typeof DistrictDistrictIdRoute
 }
 
@@ -107,11 +176,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compare': {
@@ -135,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KidsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/district/$districtId': {
       id: '/district/$districtId'
       path: '/district/$districtId'
@@ -142,15 +232,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DistrictDistrictIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/chat/': {
+      id: '/_authenticated/chat/'
+      path: '/chat'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof AuthenticatedChatIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/chat/$conversationId': {
+      id: '/_authenticated/chat/$conversationId'
+      path: '/chat/$conversationId'
+      fullPath: '/chat/$conversationId'
+      preLoaderRoute: typeof AuthenticatedChatConversationIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedChatConversationIdRoute: typeof AuthenticatedChatConversationIdRoute
+  AuthenticatedChatIndexRoute: typeof AuthenticatedChatIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedChatConversationIdRoute: AuthenticatedChatConversationIdRoute,
+  AuthenticatedChatIndexRoute: AuthenticatedChatIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  AuthRoute: AuthRoute,
   CompareRoute: CompareRoute,
   HeatmapRoute: HeatmapRoute,
   KidsRoute: KidsRoute,
+  ApiChatRoute: ApiChatRoute,
   DistrictDistrictIdRoute: DistrictDistrictIdRoute,
 }
 export const routeTree = rootRouteImport
