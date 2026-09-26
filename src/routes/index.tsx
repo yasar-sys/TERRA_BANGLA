@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { GlobeStage } from "@/components/GlobeStage";
 import { DistrictPicker } from "@/components/DistrictPicker";
-import { VARIABLE_KEYS, VARIABLE_LABEL_KEY, coveredDistrictIds, type VariableKey } from "@/lib/climate";
+import { coveredDistrictIds } from "@/lib/climate";
 import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -31,7 +31,6 @@ function Landing() {
   const { t, lang } = useLang();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<"world" | "bangladesh">("world");
-  const [variable, setVariable] = useState<VariableKey>("temperature");
   const covered = coveredDistrictIds().length;
 
   return (
@@ -52,27 +51,9 @@ function Landing() {
       </section>
 
       <section className="mx-auto mt-4 max-w-7xl px-3 sm:px-6">
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label={t("globe.pick")}>
-          {VARIABLE_KEYS.map((key) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setVariable(key)}
-              aria-pressed={variable === key}
-              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                variable === key
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
-              }`}
-            >
-              {t(VARIABLE_LABEL_KEY[key])}
-            </button>
-          ))}
-        </div>
-
         <div className="globe-frame mt-3 h-[58vh] min-h-[340px] overflow-hidden border border-border bg-elevated">
           <GlobeStage
-            variable={variable}
+            variable="temperature"
             phase={phase}
             onPhaseChange={setPhase}
             onSelectDistrict={(districtId) =>
