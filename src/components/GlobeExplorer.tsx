@@ -168,7 +168,7 @@ export default function GlobeExplorer({
     if (!hexMode) return;
     const g = globeRef.current;
     if (!g) return;
-    const r = view === "top" ? 0 : 5;
+    const r = view === "top" ? 0 : 2.6;
     const alt = view === "top" ? 0.26 : 0.32;
     let theta = 0;
     g.pointOfView({ lat: BD_CENTER.lat - r, lng: BD_CENTER.lng, altitude: alt }, prefersReducedMotion() ? 0 : 900);
@@ -177,7 +177,7 @@ export default function GlobeExplorer({
     const start = window.setTimeout(() => {
       const tick = () => {
         theta += 0.006;
-        const rr = r || 5;
+        const rr = r || 0.8;
         g.pointOfView({ lat: BD_CENTER.lat - rr * Math.cos(theta), lng: BD_CENTER.lng + rr * Math.sin(theta), altitude: alt }, 0);
         raf = requestAnimationFrame(tick);
       };
@@ -265,7 +265,7 @@ export default function GlobeExplorer({
         labelLat={(d: object) => (d as { lat: number }).lat}
         labelLng={(d: object) => (d as { lng: number }).lng}
         labelText={(d: object) => (d as { text: string }).text}
-        labelSize={phase === "world" ? 1.6 : 0.11}
+        labelSize={phase === "world" ? 1.6 : 0.09}
         labelDotRadius={phase === "world" ? 0.7 : 0.03}
         labelAltitude={phase === "world" ? 0.002 : 0.036}
         labelColor={() => (phase === "world" ? "#F2A93B" : "rgba(232,230,225,0.95)")}
