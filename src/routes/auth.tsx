@@ -35,22 +35,11 @@ function AuthPage() {
     return () => data.subscription.unsubscribe();
   }, [navigate]);
 
-  // The Lovable sign-in broker only exists on Lovable-hosted surfaces. Anywhere
-  // else (Vercel, a custom host, a self-built preview) we talk to the auth
-  // service directly and come back through the public /auth-callback page.
-  function usesLovableBroker() {
-    const host = window.location.hostname;
-    const zones = ["lovable.app", "lovableproject.com", "lovableproject-dev.com", "gpt-eng.com", "gptengineer.run"];
-    if (host === "localhost" || host === "127.0.0.1") return true;
-    return zones.some((z) => host === z || host.endsWith("." + z));
-  }
-
   async function signIn() {
     setBusy(true); setError("");
-    const stored = sessionStorage.getItem("terrabangla-auth-next");
-    const next = stored === "/admin" ? "/admin" : "/chat";
+    const next = safeAuthNext(sessionStorage.getItem("terrabangla-auth-next"));
 
-    if (!usesLovableBroker()) {
+    if (!usesLovableAuthBroker()) {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
