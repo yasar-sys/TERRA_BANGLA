@@ -48,7 +48,7 @@ function Landing() {
           {t("app.tagline")}
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
-          {covered}/64 {t("globe.districts")} · {t("hero.cta")}
+          {covered} / 64 {t("globe.districts")} · {t("hero.cta")}
         </p>
       </section>
 

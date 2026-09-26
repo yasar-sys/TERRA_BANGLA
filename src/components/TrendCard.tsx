@@ -88,7 +88,7 @@ export function TrendCard({
         </div>
       </div>
 
-      <div className="mt-3 h-24" aria-hidden>
+      <div className="mt-3 h-24 w-full min-w-0" aria-hidden>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={analysis.series} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
             <defs>
