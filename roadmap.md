@@ -15,3 +15,4 @@
 - [x] Build and verify the four-location Bangladesh Earth Trend Detective game for ages 7–12
 - [x] Redesign the children’s game as “আমার হাতে বাংলাদেশ” with polished scenes and tactile interaction
 - [x] Connect every game mission to real district NASA records and make phone taps reliable
+- [ ] Polish the kids’ game scenes, clue feedback, sound, travel transitions, star motion, and quiz celebrations
