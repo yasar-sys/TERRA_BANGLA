@@ -11,6 +11,7 @@ import {
 import { normalize, rampColor, spectralColor } from "@/lib/colors";
 import { fmt, useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { Vector3 } from "three";
 
 const BD_CENTER = { lat: 23.75, lng: 90.35 };
 const FLY_MS = 1600;
@@ -164,43 +165,46 @@ export default function GlobeExplorer({
     [lang],
   );
 
-  // Move the camera south of Bangladesh to expose the hexagon walls and height differences.
+  // Aim at Bangladesh instead of the globe's centre so low camera angles keep the data in frame.
   useEffect(() => {
     if (!hexMode) return;
     const g = globeRef.current;
     if (!g) return;
     const viewSettings = {
-      top: { radius: 0, altitude: 0.28 },
-      tilt: { radius: 8, altitude: 0.3 },
-      side: { radius: 18, altitude: 0.42 },
+      top: { outward: 54, tangent: 0 },
+      tilt: { outward: 40, tangent: 45 },
+      side: { outward: 22, tangent: 72 },
     } as const;
-    const { radius, altitude } = viewSettings[view];
-    let theta = 0;
-    g.pointOfView(
-      { lat: BD_CENTER.lat - radius, lng: BD_CENTER.lng, altitude },
-      prefersReducedMotion() ? 0 : 900,
-    );
-    if (!spin || prefersReducedMotion()) return;
-    let raf = 0;
-    const start = window.setTimeout(() => {
-      const tick = () => {
-        theta += 0.006;
-        const orbitRadius = radius || 8;
-        g.pointOfView(
-          {
-            lat: BD_CENTER.lat - orbitRadius * Math.cos(theta),
-            lng: BD_CENTER.lng + orbitRadius * Math.sin(theta),
-            altitude,
-          },
-          0,
-        );
-        raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
-    }, 950);
+    const targetCoords = g.getCoords(BD_CENTER.lat, BD_CENTER.lng, 0.035);
+    const southCoords = g.getCoords(BD_CENTER.lat - 2, BD_CENTER.lng, 0.035);
+    const target = new Vector3(targetCoords.x, targetCoords.y, targetCoords.z);
+    const outward = target.clone().normalize();
+    const south = new Vector3(southCoords.x, southCoords.y, southCoords.z);
+    const tangent = south.sub(target).normalize();
+    const setting = viewSettings[view];
+    const destination = target
+      .clone()
+      .addScaledVector(outward, setting.outward)
+      .addScaledVector(tangent, setting.tangent);
+    const camera = g.camera();
+    const controls = g.controls() as {
+      target: Vector3;
+      autoRotate: boolean;
+      autoRotateSpeed: number;
+      minDistance: number;
+      maxDistance: number;
+      update: () => void;
+    };
+    camera.position.copy(destination);
+    camera.lookAt(target);
+    controls.target.copy(target);
+    controls.minDistance = 30;
+    controls.maxDistance = 180;
+    controls.autoRotate = spin && !prefersReducedMotion();
+    controls.autoRotateSpeed = 0.7;
+    controls.update();
     return () => {
-      window.clearTimeout(start);
-      cancelAnimationFrame(raf);
+      controls.autoRotate = false;
     };
   }, [hexMode, view, spin, size]);
 
