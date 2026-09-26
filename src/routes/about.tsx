@@ -43,6 +43,8 @@ export const Route = createFileRoute("/about")({
         property: "og:description",
         content: "Mann-Kendall, Theil-Sen, cached NASA sources and the no-fabricated-data rule.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AboutPage,

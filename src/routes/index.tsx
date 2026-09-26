@@ -20,6 +20,8 @@ export const Route = createFileRoute("/")({
         content:
           "Mann-Kendall and Theil-Sen trend tests on cached NASA POWER and MODIS records, district by district.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Landing,

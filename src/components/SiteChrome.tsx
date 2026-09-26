@@ -88,7 +88,7 @@ export function SiteFooter() {
           <h2 className="text-xs font-semibold uppercase text-foreground">{L("Investigate", "অনুসন্ধান")}</h2>
           <div className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
             <Link to="/heatmap" className="hover:text-foreground">{t("nav.heatmap")}</Link>
-            <Link to="/compare" className="hover:text-foreground">{t("nav.compare")}</Link>
+            <Link to="/compare" search={{ districtA: undefined, districtB: undefined }} className="hover:text-foreground">{t("nav.compare")}</Link>
             <Link to="/kids" className="hover:text-foreground">{t("nav.kids")}</Link>
           </div>
         </div>
