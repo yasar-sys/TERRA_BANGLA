@@ -5,7 +5,9 @@ and merge annual means into the local cache. No API key required.
 
 Docs: https://modis.ornl.gov/data/modis_webservice.html
 """
+import fcntl
 import json
+import sys
 import os
 import threading
 import time
@@ -114,7 +116,8 @@ def fetch_variable(d, key):
         "retrieved": datetime.now(timezone.utc).isoformat(),
         "mode": "cache",
     }
-    with LOCK:
+    with LOCK, open(path + ".lock", "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
         doc = json.load(open(path)) if os.path.exists(path) else doc
         doc.setdefault("variables", {})
         doc["variables"][key] = {
@@ -138,6 +141,8 @@ def work(job):
 
 if __name__ == "__main__":
     jobs = [(d, k) for d in DISTRICTS for k in ("ndvi", "lst")]
+    if "--reverse" in sys.argv:
+        jobs.reverse()
     with ThreadPoolExecutor(max_workers=12) as pool:
         for line in pool.map(work, jobs):
             print(line, flush=True)
