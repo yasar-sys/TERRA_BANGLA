@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { BarChart3, BookOpen, Gamepad2, Globe2, Languages, Map, Menu, MessageCircle, Satellite } from "lucide-react";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
+import { ArrowLeft, BarChart3, BookOpen, Gamepad2, Globe2, Languages, Map, Menu, MessageCircle, Satellite } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -44,12 +44,30 @@ function NavItems({ mobile = false }: { mobile?: boolean }) {
   });
 }
 
+function BackButton() {
+  const { lang } = useLang();
+  const router = useRouter();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname === "/") return null;
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => (window.history.length > 1 ? router.history.back() : router.navigate({ to: "/" }))}
+      aria-label={lang === "bn" ? "আগের পাতায় ফিরে যান" : "Go back"}
+    >
+      <ArrowLeft aria-hidden /> {lang === "bn" ? "ফিরে যান" : "Back"}
+    </Button>
+  );
+}
+
 export function SiteHeader() {
   const { t, lang, setLang } = useLang();
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/82 backdrop-blur-xl">
       <div className="h-0.5 bg-gradient-to-r from-transparent via-accent to-primary" />
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-3 sm:px-6">
+        <BackButton />
         <Brand />
         <nav aria-label="Main" className="ml-auto hidden lg:block">
           <ul className="flex items-center gap-1"><NavItems /></ul>
