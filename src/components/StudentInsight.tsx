@@ -28,6 +28,18 @@ export function StudentInsight({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function renderedAnswer(text: string) {
+    return text.split(/\n+/).filter(Boolean).map((line, index) => {
+      const clean = line.replace(/^#{1,3}\s*/, "").replace(/\*\*/g, "");
+      const heading = /^#{1,3}\s/.test(line) || /^(Evidence|Possible explanation|Follow-up comparison|প্রমাণ|সম্ভাব্য ব্যাখ্যা|পরবর্তী তুলনা)/i.test(clean);
+      return heading ? (
+        <h3 key={`${index}-${clean}`} className="mt-4 text-sm font-semibold text-accent first:mt-0">{clean}</h3>
+      ) : (
+        <p key={`${index}-${clean}`} className="mt-2 text-sm leading-7 text-foreground">{clean}</p>
+      );
+    });
+  }
+
   async function submit() {
     setError("");
     setLoading(true);
@@ -80,7 +92,7 @@ export function StudentInsight({
         <div className="min-h-64 p-5 sm:p-6" aria-live="polite">
           <p className="text-xs font-semibold uppercase text-primary">{L("Data-backed interpretation", "উপাত্তভিত্তিক ব্যাখ্যা")}</p>
           {answer ? (
-            <div className="mt-3 whitespace-pre-wrap text-sm leading-7 text-foreground">{answer}</div>
+            <div className="mt-3">{renderedAnswer(answer)}</div>
           ) : (
             <div className="flex min-h-48 items-center justify-center border border-dashed border-border p-5 text-center text-sm text-muted-foreground">
               {L("Your explanation will appear here. Scientific values always come from the app’s calculations, never from AI.", "তোমার ব্যাখ্যা এখানে আসবে। বৈজ্ঞানিক মান সবসময় অ্যাপের গণনা থেকে আসে, AI থেকে নয়।")}
