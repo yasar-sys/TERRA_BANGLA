@@ -37,3 +37,27 @@ export const TREND_COLOR = {
   declining: "var(--color-declining)",
   flat: "var(--color-muted-foreground)",
 } as const;
+
+const SPECTRAL: Record<VariableKey, string[]> = {
+  ndvi: ["#8C5A2B", "#D9C36A", "#9BD35A", "#2FA85A", "#0E6B3A"],
+  lst: ["#2B4C9B", "#3EC9C1", "#F2E23B", "#F2A93B", "#C4544A"],
+  temperature: ["#2B4C9B", "#3EC9C1", "#F2E23B", "#F2A93B", "#C4544A"],
+  solar: ["#4A3B8F", "#7C6FF0", "#E06FB0", "#F2A93B", "#F2E23B"],
+  precipitation: ["#F2E23B", "#9BD35A", "#3EC9C1", "#3B7BE0", "#5B3BB8"],
+};
+
+/** Multi-stop colour scale so neighbouring grid cells are easier to tell apart. */
+export function spectralColor(variable: VariableKey, t: number, alpha = 1) {
+  const stops = SPECTRAL[variable];
+  const k = Math.min(1, Math.max(0, Number.isFinite(t) ? t : 0)) * (stops.length - 1);
+  const i = Math.min(stops.length - 2, Math.floor(k));
+  const a = hexToRgb(stops[i]!);
+  const b = hexToRgb(stops[i + 1]!);
+  const f = k - i;
+  const mix = a.map((c, j) => Math.round(c + (b[j]! - c) * f));
+  return `rgba(${mix[0]}, ${mix[1]}, ${mix[2]}, ${alpha})`;
+}
+
+export function spectralGradient(variable: VariableKey) {
+  return `linear-gradient(90deg, ${SPECTRAL[variable].join(", ")})`;
+}
