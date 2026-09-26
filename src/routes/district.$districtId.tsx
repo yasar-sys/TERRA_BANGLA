@@ -11,6 +11,7 @@ import {
 } from "@/lib/climate";
 import { useLang } from "@/lib/i18n";
 import { StudentInsight } from "@/components/StudentInsight";
+import { useUploadedAnalyses } from "@/lib/public-content";
 
 export const Route = createFileRoute("/district/$districtId")({
   loader: ({ params }) => {
@@ -53,9 +54,14 @@ function DistrictDetail() {
   const { t, lang } = useLang();
   const district = getDistrict(districtId)!;
   const available = availableVariables(districtId);
-  const analyses = VARIABLE_KEYS.map((key) => analyzeVariable(districtId, key)).filter(
+  const cachedAnalyses = VARIABLE_KEYS.map((key) => analyzeVariable(districtId, key)).filter(
     (a): a is NonNullable<typeof a> => a !== null,
   );
+  // Admin-uploaded files fill in variables the NASA cache does not have yet.
+  const uploaded = useUploadedAnalyses(districtId).filter(
+    (u) => !cachedAnalyses.some((c) => c.variable === u.variable),
+  );
+  const analyses = [...cachedAnalyses, ...uploaded];
   const biome = classifyBiome(districtId);
   const name = lang === "bn" ? district.bn : district.name;
 

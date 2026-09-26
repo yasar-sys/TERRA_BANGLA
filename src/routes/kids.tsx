@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useLang } from "@/lib/i18n";
+import { usePublishedQuiz } from "@/lib/public-content";
 
 export const Route = createFileRoute("/kids")({
   head: () => ({
@@ -43,7 +44,7 @@ const SOLUTIONS: Step[] = [
 ];
 
 interface Q { q: T2; options: T2[]; answer: number; why: T2 }
-const QUIZ: Q[] = [
+const BUILT_IN_QUIZ: Q[] = [
   { q: { en: "Which gas traps heat like a blanket?", bn: "কোন গ্যাস কম্বলের মতো তাপ আটকে রাখে?" }, options: [{ en: "Oxygen", bn: "অক্সিজেন" }, { en: "Carbon dioxide", bn: "কার্বন ডাই-অক্সাইড" }, { en: "Helium", bn: "হিলিয়াম" }], answer: 1, why: { en: "Carbon dioxide is a greenhouse gas that keeps heat near the Earth.", bn: "কার্বন ডাই-অক্সাইড একটি গ্রিনহাউস গ্যাস যা তাপ পৃথিবীর কাছে ধরে রাখে।" } },
   { q: { en: "What do trees take out of the air?", bn: "গাছ বাতাস থেকে কী নেয়?" }, options: [{ en: "Carbon dioxide", bn: "কার্বন ডাই-অক্সাইড" }, { en: "Water vapour only", bn: "শুধু জলীয় বাষ্প" }, { en: "Smoke colour", bn: "ধোঁয়ার রং" }], answer: 0, why: { en: "Trees use carbon dioxide to grow, cleaning the air.", bn: "গাছ বড় হতে কার্বন ডাই-অক্সাইড ব্যবহার করে, বাতাস পরিষ্কার করে।" } },
   { q: { en: "Which is a fossil fuel?", bn: "কোনটি জীবাশ্ম জ্বালানি?" }, options: [{ en: "Sunlight", bn: "সূর্যের আলো" }, { en: "Wind", bn: "বাতাস" }, { en: "Coal", bn: "কয়লা" }], answer: 2, why: { en: "Coal formed from ancient plants over millions of years, and burning it releases CO₂.", bn: "কয়লা লক্ষ লক্ষ বছরের পুরোনো গাছ থেকে তৈরি; পোড়ালে CO₂ বের হয়।" } },
@@ -93,6 +94,9 @@ function Walkthrough({ steps, tone }: { steps: Step[]; tone: "warn" | "good" }) 
 }
 
 function Quiz() {
+  const published = usePublishedQuiz();
+  // Admin-published questions replace the built-in set when any exist.
+  const QUIZ: Q[] = published && published.length > 0 ? published : BUILT_IN_QUIZ;
   const { lang } = useLang();
   const L = (x: T2) => (lang === "bn" ? x.bn : x.en);
   const [idx, setIdx] = useState(0);
@@ -105,12 +109,12 @@ function Quiz() {
   if (done) {
     return (
       <div className="panel p-6 text-center" aria-live="polite">
-        <div className="text-6xl motion-safe:animate-bounce" aria-hidden>{score.correct >= 5 ? "🏆" : "🌱"}</div>
+        <div className="text-6xl motion-safe:animate-bounce" aria-hidden>{score.correct >= Math.ceil(QUIZ.length * 0.7) ? "🏆" : "🌱"}</div>
         <h3 className="mt-2 font-display text-2xl text-foreground">
           {lang === "bn" ? `তোমার স্কোর: ${n(score.correct)} / ${n(QUIZ.length)}` : `Your score: ${score.correct} / ${QUIZ.length}`}
         </h3>
         <p className="mt-2 text-muted-foreground">
-          {score.correct >= 5
+          {score.correct >= Math.ceil(QUIZ.length * 0.7)
             ? lang === "bn" ? "দারুণ! তুমি একজন ক্লাইমেট গোয়েন্দা!" : "Brilliant! You are a climate detective!"
             : lang === "bn" ? "ভালো চেষ্টা! আবার খেলে দেখো।" : "Good try! Play again to learn more."}
         </p>
