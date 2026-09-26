@@ -251,7 +251,14 @@ function MapScreen({ lang, completed, stars, onOpen, onFinal }: { lang: "en" | "
   </div>;
 }
 
-function MissionScreen({ mission, lang, completed, onBack, onComplete }: { mission: Mission; lang: "en" | "bn"; completed: boolean; onBack: () => void; onComplete: () => void }) {
+function MissionScore({ stars, lang }: { stars: number; lang: "en" | "bn" }) {
+  return <div className="td-mission-score" aria-label={lang === "bn" ? `স্কোর ${stars.toLocaleString("bn-BD")} এর মধ্যে ৪` : `Score ${stars} out of 4`}>
+    <span>⭐ <b>{stars.toLocaleString(lang === "bn" ? "bn-BD" : "en-US")}/4</b></span>
+    <div className="td-score-dots" aria-hidden="true">{Array.from({ length: 4 }).map((_, index) => <i key={index} className={index < stars ? "is-earned" : ""}/>)}</div>
+  </div>;
+}
+
+function MissionScreen({ mission, lang, completed, stars, onBack, onComplete }: { mission: Mission; lang: "en" | "bn"; completed: boolean; stars: number; onBack: () => void; onComplete: () => void }) {
   const [feedback, setFeedback] = useState<"idle" | "wrong" | "right">(completed ? "right" : "idle");
   const analysis = useMemo(() => analyzeVariable(mission.districtId, mission.variable), [mission.districtId, mission.variable]);
   const dataCorrect = trendFromAnalysis(analysis);
@@ -261,14 +268,14 @@ function MissionScreen({ mission, lang, completed, onBack, onComplete }: { missi
     if (right) onComplete();
   };
   return <div className="td-paper td-mission-shell overflow-hidden rounded-[2rem] border-4 border-game-paper shadow-game">
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b-4 border-game-ink bg-game-yellow px-3 py-3 sm:px-5"><Button type="button" variant="ghost" onClick={onBack} className="text-game-ink hover:bg-game-paper"><ArrowLeft /> {lang === "bn" ? "মানচিত্র" : "Map"}</Button><p className="font-black text-game-ink">{mission.icon} {lang === "bn" ? `মিশন ${mission.number.toLocaleString("bn-BD")}` : `Mission ${mission.number}`}: {mission.name[lang]}</p><span className="rounded-full bg-game-paper px-3 py-1 text-xs font-bold text-game-ink">{lang === "bn" ? "ছবি দেখে শেখো" : "Picture practice"}</span></div>
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b-4 border-game-ink bg-game-yellow px-3 py-3 sm:px-5"><Button type="button" variant="ghost" onClick={onBack} className="text-game-ink hover:bg-game-paper"><ArrowLeft /> {lang === "bn" ? "মানচিত্র" : "Map"}</Button><p className="font-black text-game-ink">{mission.icon} {lang === "bn" ? `মিশন ${mission.number.toLocaleString("bn-BD")}` : `Mission ${mission.number}`}: {mission.name[lang]}</p><MissionScore stars={stars} lang={lang}/></div>
     <div className="p-4 sm:p-6">
       <DataWeatherCard mission={mission} analysis={analysis} lang={lang}/>
       <div className="mb-4 rounded-xl border-2 border-dashed border-game-water bg-game-paper/70 px-3 py-2 text-center text-xs font-semibold text-game-muted">ⓘ {lang === "bn" ? "সংখ্যা ও প্রবণতা NASA রেকর্ড থেকে; দৃশ্যটি শুধু শেখার কার্টুন, আজকের লাইভ আবহাওয়া নয়।" : "Numbers and trend use NASA records; the scene is a learning cartoon, not today’s live weather."}</div>
       {mission.id === "village" ? <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]"><SceneCard label={lang === "bn" ? "ময়মনসিংহের গ্রাম" : "MYMENSINGH VILLAGE"} kind="village" now trend={dataCorrect}/><div className="rounded-2xl border-4 border-game-ink bg-game-paper p-4 text-game-ink shadow-game"><p className="text-center font-black">{lang === "bn" ? "বাস্তব বার্ষিক রেকর্ড" : "REAL ANNUAL RECORD"}</p><div className="mt-4 space-y-4 text-center text-lg font-black"><p>{analysis?.result.period.start} → {analysis?.result.first_value?.toFixed(1)} {analysis?.unit}</p><p>{analysis?.result.period.end} → {analysis?.result.current_value?.toFixed(1)} {analysis?.unit}</p><p className="text-3xl">{TREND_LABELS[dataCorrect].icon}</p></div></div></div> : <div className="grid gap-4 sm:grid-cols-2"><SceneCard label={`${lang === "bn" ? "আগে" : "BEFORE"} · ${analysis?.result.period.start ?? "—"}`} kind={mission.id} now={false} trend={dataCorrect}/><SceneCard label={`${lang === "bn" ? "সাম্প্রতিক" : "RECENT"} · ${analysis?.result.period.end ?? "—"}`} kind={mission.id} now trend={dataCorrect}/></div>}
       <div className="mx-auto mt-6 max-w-2xl text-center"><h3 className="font-display text-2xl text-game-ink">🔎 {lang === "bn" ? `${VARIABLE_NAMES[mission.variable].bn}-এর কী প্রবণতা দেখছ?` : `What trend do you see in ${VARIABLE_NAMES[mission.variable].en.toLowerCase()}?`}</h3>{feedback !== "right" && <div className="mt-4"><TrendChoices lang={lang} onChoose={answer}/></div>}
         {feedback === "wrong" && <div className="td-feedback-wrong mt-4 animate-fade-in rounded-2xl border-2 border-game-red bg-game-paper p-4 font-bold text-game-red" role="status">🤔 {lang === "bn" ? "প্রায় হয়েছে! দুইটি ছবি আবার ভালো করে দেখো।" : "Almost! Look closely at both pictures and try again."}</div>}
-        {feedback === "right" && <div className="td-celebrate relative mt-4 overflow-hidden rounded-2xl border-4 border-game-ink bg-game-yellow p-4 text-game-ink shadow-game" role="status"><span className="td-sparkle left-[12%] top-2">✦</span><span className="td-sparkle right-[14%] top-5">★</span><div className="mx-auto w-20"><Detective celebrate /></div><p className="font-display text-2xl">✨ {mission.success[lang]}</p><p className="mt-1 font-black">🔎 {lang === "bn" ? "সূত্র ব্যাজ অর্জিত!" : "Clue Badge earned!"}</p><Button type="button" onClick={onBack} className="mt-3 border-2 border-game-ink bg-game-green text-game-ink shadow-game hover:bg-game-green/80">{lang === "bn" ? "পরের জায়গা বেছে নাও" : "Choose another place"}</Button></div>}
+        {feedback === "right" && <div className="td-celebrate relative mt-4 overflow-hidden rounded-2xl border-4 border-game-ink bg-game-yellow p-4 text-game-ink shadow-game" role="status"><span className="td-sparkle left-[12%] top-2">✦</span><span className="td-sparkle right-[14%] top-5">★</span><div className="mx-auto w-20"><Detective celebrate /></div><p className="font-display text-2xl">✨ {mission.success[lang]}</p><p className="mt-1 font-black">🔎 {lang === "bn" ? "সূত্র ব্যাজ অর্জিত!" : "Clue Badge earned!"}</p><div className="td-score-earned">⭐ {completed ? (lang === "bn" ? `মোট স্কোর: ${stars.toLocaleString("bn-BD")}/৪` : `Total score: ${stars}/4`) : (lang === "bn" ? "+১ গোয়েন্দা তারা" : "+1 Detective Star")}</div><Button type="button" onClick={onBack} className="mt-3 border-2 border-game-ink bg-game-green text-game-ink shadow-game hover:bg-game-green/80">{lang === "bn" ? "পরের জায়গা বেছে নাও" : "Choose another place"}</Button></div>}
       </div>
     </div>
   </div>;
@@ -305,5 +312,5 @@ export function TrendDetectiveGame() {
   if (screen === "final") return <FinalMission lang={lang} alreadyWon={won} onBack={() => setScreen("map")} onWin={(bonus) => { setStars((s) => s + bonus); setWon(true); setScreen("award"); }}/>;
   if (screen === "award") return <AwardScreen lang={lang} stars={stars} onRestart={restart}/>;
   if (!activeMission) return null;
-  return <MissionScreen mission={activeMission} lang={lang} completed={completed.has(activeMission.id)} onBack={() => setScreen("map")} onComplete={() => complete(activeMission.id)}/>;
+  return <MissionScreen mission={activeMission} lang={lang} completed={completed.has(activeMission.id)} stars={stars} onBack={() => setScreen("map")} onComplete={() => complete(activeMission.id)}/>;
 }
