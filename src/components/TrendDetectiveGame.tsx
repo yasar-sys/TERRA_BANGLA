@@ -161,9 +161,9 @@ function WeatherFriends() {
   </div>;
 }
 
-function SceneDecor({ kind, now, interactive, onObject }: { kind: MissionId; now: boolean; interactive?: boolean | undefined; onObject?: ((correct: boolean) => void) | undefined }) {
+function SceneDecor({ kind, now, trend = "same" }: { kind: MissionId; now: boolean; trend?: Trend }) {
   if (kind === "padma") {
-    const top = now ? 142 : 112;
+    const top = !now || trend === "same" ? 122 : trend === "up" ? 103 : 145;
     return <svg viewBox="0 0 360 220" className="h-full w-full" role="img" aria-label={now ? "Now: lower illustrated river water" : "Before: higher illustrated river water"}>
       <rect className="td-sky" width="360" height="220" /><g className="td-sun-friend"><circle className="td-sun" cx="305" cy="38" r="22"/><circle className="td-ink" cx="297" cy="36" r="2"/><circle className="td-ink" cx="313" cy="36" r="2"/><path className="td-line" d="M299 45q6 5 12 0"/></g>
       <path className="td-bank" d={`M0 ${top - 20}q95-23 180 0t180 0v100H0z`} />
@@ -174,11 +174,11 @@ function SceneDecor({ kind, now, interactive, onObject }: { kind: MissionId; now
     </svg>;
   }
   if (kind === "sundarbans") {
-    const trees = now ? [68, 154] : [52, 112, 175, 238];
+    const trees = !now || trend === "same" ? [52, 112, 175, 238] : trend === "up" ? [40, 88, 136, 184, 232] : [68, 154];
     return <svg viewBox="0 0 360 220" className="h-full w-full" role="img" aria-label={now ? "Now: fewer illustrated mangrove trees" : "Before: more illustrated mangrove trees"}>
       <rect className="td-sky" width="360" height="220" /><g className="td-cloud-drift"><path className="td-cloud-shape" d="M250 54c0-13 11-23 24-21 5-15 27-16 34-2 17-3 29 8 29 22z"/><circle className="td-ink" cx="283" cy="45" r="2"/><circle className="td-ink" cx="297" cy="45" r="2"/><path className="td-line" d="M285 51q5 4 10 0"/></g><path className="td-water" d="M0 157q90-15 180 0t180 0v63H0z" />
-      {trees.map((x) => <g key={x} transform={`translate(${x} 135)`} onClick={() => interactive && onObject?.(true)} className={interactive ? "td-clickable" : ""}><path className="td-trunk" d="M0 35V0m0 14-14 24m14-18 14 18" /><circle className="td-leaf" cy="-9" r="24" /></g>)}
-      <g transform="translate(276 160)" onClick={() => interactive && onObject?.(false)} className={interactive ? "td-clickable" : ""}><path className="td-boat-hull" d="M-29 0h58l-8 12h-42z" /><path className="td-line" d="M0 0v-29" /><path className="td-sail" d="M2-28v22h22z" /></g>
+      {trees.map((x) => <g key={x} transform={`translate(${x} 135)`}><path className="td-trunk" d="M0 35V0m0 14-14 24m14-18 14 18" /><circle className="td-leaf" cy="-9" r="24" /></g>)}
+      <g transform="translate(276 160)"><path className="td-boat-hull" d="M-29 0h58l-8 12h-42z" /><path className="td-line" d="M0 0v-29" /><path className="td-sail" d="M2-28v22h22z" /></g>
       <g transform="translate(217 187)"><path className="td-fish-body" d="M-11 0q11-9 22 0-11 9-22 0m-1 0-9-7v14z" /></g>
       <g transform="translate(309 131)"><ellipse className="td-deer" rx="17" ry="10"/><circle className="td-deer" cx="18" cy="-10" r="8"/><path className="td-line" d="M-10 8v16m20-16v16m13-24 5-11m-5 11-2-12" /></g>
     </svg>;
@@ -193,20 +193,20 @@ function SceneDecor({ kind, now, interactive, onObject }: { kind: MissionId; now
       {Array.from({ length: 7 }).map((_, i) => <path key={i} className="td-rice" d={`M${18 + i * 30} 178v30m0-18-9-9m9 16 9-9`} />)}
     </svg>;
   }
-  const buildings = now ? [34, 82, 128, 182, 231] : [62, 142, 224];
+  const buildings = [45, 105, 172, 238];
   return <svg viewBox="0 0 360 220" className="h-full w-full" role="img" aria-label={now ? "Now: more illustrated city buildings" : "Earlier: fewer illustrated city buildings"}>
     <rect className="td-sky" width="360" height="220" /><g className={now ? "td-sun-friend td-sun-hot" : "td-sun-friend"}><circle className="td-sun" cx="310" cy="35" r="21"/><circle className="td-ink" cx="303" cy="33" r="2"/><circle className="td-ink" cx="317" cy="33" r="2"/><path className="td-line" d={now ? "M303 44q7-5 14 0" : "M303 42q7 6 14 0"}/>{now && <path className="td-rain" d="M326 40q7 8 0 14q-7-6 0-14"/>}</g>
-    {buildings.map((x, i) => <g key={x} onClick={() => interactive && onObject?.(true)} className={interactive ? "td-clickable" : ""}><rect className={i % 2 ? "td-building-alt" : "td-building"} x={x} y={80 - (i % 3) * 16} width="42" height={104 + (i % 3) * 16}/>{[0,1,2].map(r => [0,1].map(c => <rect key={`${r}-${c}`} className="td-window" x={x + 8 + c*18} y={94 + r*23 - (i % 3)*16} width="8" height="10"/>))}</g>)}
+    {buildings.map((x, i) => <g key={x}><rect className={i % 2 ? "td-building-alt" : "td-building"} x={x} y={80 - (i % 3) * 16} width="42" height={104 + (i % 3) * 16}/>{[0,1,2].map(r => [0,1].map(c => <rect key={`${r}-${c}`} className="td-window" x={x + 8 + c*18} y={94 + r*23 - (i % 3)*16} width="8" height="10"/>))}</g>)}
     <path className="td-road" d="M0 178h360v42H0z"/><path className="td-road-line" d="M0 199h360"/>
     <g transform="translate(87 186)" onClick={() => interactive && onObject?.(false)} className={interactive ? "td-clickable td-car" : "td-car"}><rect className="td-car-body" x="-25" y="0" width="50" height="20" rx="6"/><path className="td-car-body" d="M-14 0-5-12h21l12 12"/><circle className="td-wheel" cx="-14" cy="20" r="6"/><circle className="td-wheel" cx="16" cy="20" r="6"/></g>
     <g transform="translate(287 151)"><path className="td-trunk" d="M0 32V0"/><circle className="td-leaf" cy="-7" r="20"/></g>
   </svg>;
 }
 
-function SceneCard({ label, kind, now, interactive, onObject }: { label: string; kind: MissionId; now: boolean; interactive?: boolean; onObject?: (correct: boolean) => void }) {
+function SceneCard({ label, kind, now, trend }: { label: string; kind: MissionId; now: boolean; trend: Trend }) {
   return <div className="overflow-hidden rounded-2xl border-4 border-game-ink bg-game-paper shadow-game">
     <div className="bg-game-ink px-3 py-2 text-center text-sm font-black uppercase text-game-paper">{label}</div>
-    <div className="aspect-[16/10]"><SceneDecor kind={kind} now={now} interactive={interactive} onObject={onObject} /></div>
+    <div className="aspect-[16/10]"><SceneDecor kind={kind} now={now} trend={trend} /></div>
   </div>;
 }
 
@@ -260,18 +260,13 @@ function MissionScreen({ mission, lang, completed, onBack, onComplete }: { missi
     setFeedback(right ? "right" : "wrong");
     if (right) onComplete();
   };
-  const objectLevel = mission.id === "sundarbans" || mission.id === "dhaka";
   return <div className="td-paper td-mission-shell overflow-hidden rounded-[2rem] border-4 border-game-paper shadow-game">
     <div className="flex flex-wrap items-center justify-between gap-2 border-b-4 border-game-ink bg-game-yellow px-3 py-3 sm:px-5"><Button type="button" variant="ghost" onClick={onBack} className="text-game-ink hover:bg-game-paper"><ArrowLeft /> {lang === "bn" ? "মানচিত্র" : "Map"}</Button><p className="font-black text-game-ink">{mission.icon} {lang === "bn" ? `মিশন ${mission.number.toLocaleString("bn-BD")}` : `Mission ${mission.number}`}: {mission.name[lang]}</p><span className="rounded-full bg-game-paper px-3 py-1 text-xs font-bold text-game-ink">{lang === "bn" ? "ছবি দেখে শেখো" : "Picture practice"}</span></div>
     <div className="p-4 sm:p-6">
       <DataWeatherCard mission={mission} analysis={analysis} lang={lang}/>
       <div className="mb-4 rounded-xl border-2 border-dashed border-game-water bg-game-paper/70 px-3 py-2 text-center text-xs font-semibold text-game-muted">ⓘ {lang === "bn" ? "সংখ্যা ও প্রবণতা NASA রেকর্ড থেকে; দৃশ্যটি শুধু শেখার কার্টুন, আজকের লাইভ আবহাওয়া নয়।" : "Numbers and trend use NASA records; the scene is a learning cartoon, not today’s live weather."}</div>
-      {mission.id === "village" ? <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]"><SceneCard label={lang === "bn" ? "বাংলাদেশের গ্রাম" : "BANGLADESH VILLAGE"} kind="village" now /><div className="rounded-2xl border-4 border-game-ink bg-game-paper p-4 text-game-ink shadow-game"><p className="text-center font-black">{lang === "bn" ? "সহজ ছবির সময়রেখা" : "SIMPLE PICTURE TIMELINE"}</p><div className="mt-4 space-y-4 text-center text-xl font-black"><p>2010 → 🌧️ 🌧️ 🌧️</p><p>2020 → 🌧️ 🌧️</p><p>2030 → 🌧️</p></div></div></div> : <div className="grid gap-4 sm:grid-cols-2"><SceneCard label={mission.id === "dhaka" ? (lang === "bn" ? "আগে" : "EARLIER") : (lang === "bn" ? "আগে" : "BEFORE")} kind={mission.id} now={false}/><SceneCard label={lang === "bn" ? "এখন" : "NOW"} kind={mission.id} now interactive={objectLevel && feedback !== "right"} onObject={answer}/></div>}
-      <div className="mx-auto mt-6 max-w-2xl text-center"><h3 className="font-display text-2xl text-game-ink">🔎 {mission.prompt[lang]}</h3>{!objectLevel && feedback !== "right" && <div className="mt-4"><TrendChoices lang={lang} onChoose={answer}/></div>}{objectLevel && feedback === "idle" && <p className="mt-2 font-semibold text-game-muted">{lang === "bn" ? "এখন-এর ছবিতে গাছ বা ভবনে চাপ দাও।" : "Tap a tree or building in the NOW picture."}</p>}
-        {objectLevel && feedback !== "right" && <div className="mt-4 grid grid-cols-2 gap-3">
-          <Button type="button" variant="outline" onClick={() => answer(dataCorrect)} className="td-pressable h-auto min-h-16 border-2 border-game-ink bg-game-paper text-base font-black text-game-ink shadow-game hover:bg-game-yellow">{mission.id === "sundarbans" ? (lang === "bn" ? "🌳 ম্যানগ্রোভ গাছ" : "🌳 Mangrove trees") : (lang === "bn" ? "🏙️ ভবন" : "🏙️ Buildings")}</Button>
-          <Button type="button" variant="outline" onClick={() => answer(false)} className="td-pressable h-auto min-h-16 border-2 border-game-ink bg-game-paper text-base font-black text-game-ink shadow-game hover:bg-game-yellow">{mission.id === "sundarbans" ? (lang === "bn" ? "⛵ নৌকা" : "⛵ Boat") : (lang === "bn" ? "🚗 গাড়ি" : "🚗 Cars")}</Button>
-        </div>}
+      {mission.id === "village" ? <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]"><SceneCard label={lang === "bn" ? "ময়মনসিংহের গ্রাম" : "MYMENSINGH VILLAGE"} kind="village" now trend={dataCorrect}/><div className="rounded-2xl border-4 border-game-ink bg-game-paper p-4 text-game-ink shadow-game"><p className="text-center font-black">{lang === "bn" ? "বাস্তব বার্ষিক রেকর্ড" : "REAL ANNUAL RECORD"}</p><div className="mt-4 space-y-4 text-center text-lg font-black"><p>{analysis?.result.period.start} → {analysis?.result.first_value?.toFixed(1)} {analysis?.unit}</p><p>{analysis?.result.period.end} → {analysis?.result.current_value?.toFixed(1)} {analysis?.unit}</p><p className="text-3xl">{TREND_LABELS[dataCorrect].icon}</p></div></div></div> : <div className="grid gap-4 sm:grid-cols-2"><SceneCard label={`${lang === "bn" ? "আগে" : "BEFORE"} · ${analysis?.result.period.start ?? "—"}`} kind={mission.id} now={false} trend={dataCorrect}/><SceneCard label={`${lang === "bn" ? "সাম্প্রতিক" : "RECENT"} · ${analysis?.result.period.end ?? "—"}`} kind={mission.id} now trend={dataCorrect}/></div>}
+      <div className="mx-auto mt-6 max-w-2xl text-center"><h3 className="font-display text-2xl text-game-ink">🔎 {lang === "bn" ? `${VARIABLE_NAMES[mission.variable].bn}-এর কী প্রবণতা দেখছ?` : `What trend do you see in ${VARIABLE_NAMES[mission.variable].en.toLowerCase()}?`}</h3>{feedback !== "right" && <div className="mt-4"><TrendChoices lang={lang} onChoose={answer}/></div>}
         {feedback === "wrong" && <div className="td-feedback-wrong mt-4 animate-fade-in rounded-2xl border-2 border-game-red bg-game-paper p-4 font-bold text-game-red" role="status">🤔 {lang === "bn" ? "প্রায় হয়েছে! দুইটি ছবি আবার ভালো করে দেখো।" : "Almost! Look closely at both pictures and try again."}</div>}
         {feedback === "right" && <div className="td-celebrate relative mt-4 overflow-hidden rounded-2xl border-4 border-game-ink bg-game-yellow p-4 text-game-ink shadow-game" role="status"><span className="td-sparkle left-[12%] top-2">✦</span><span className="td-sparkle right-[14%] top-5">★</span><div className="mx-auto w-20"><Detective celebrate /></div><p className="font-display text-2xl">✨ {mission.success[lang]}</p><p className="mt-1 font-black">🔎 {lang === "bn" ? "সূত্র ব্যাজ অর্জিত!" : "Clue Badge earned!"}</p><Button type="button" onClick={onBack} className="mt-3 border-2 border-game-ink bg-game-green text-game-ink shadow-game hover:bg-game-green/80">{lang === "bn" ? "পরের জায়গা বেছে নাও" : "Choose another place"}</Button></div>}
       </div>
