@@ -53,14 +53,16 @@ function Quiz() {
   const n = (x: number) => (lang === "bn" ? x.toLocaleString("bn-BD") : String(x));
 
   if (done) {
+    const highScore = score.correct >= Math.ceil(QUIZ.length * 0.7);
     return (
-      <div className="panel p-6 text-center" aria-live="polite">
-        <div className="text-6xl motion-safe:animate-bounce" aria-hidden>{score.correct >= Math.ceil(QUIZ.length * 0.7) ? "🏆" : "🌱"}</div>
+      <div className={`panel quiz-finish relative overflow-hidden p-6 text-center ${highScore ? "quiz-finish-high" : "quiz-finish-growing"}`} aria-live="polite">
+        <div className="quiz-celebration" aria-hidden>{highScore ? "★ ✦ ★ ✦ ★" : "✦ ★ ✦"}</div>
+        <div className="quiz-trophy text-6xl" aria-hidden>{highScore ? "🏆" : "🌱"}</div>
         <h3 className="mt-2 font-display text-2xl text-foreground">
           {lang === "bn" ? `তোমার স্কোর: ${n(score.correct)} / ${n(QUIZ.length)}` : `Your score: ${score.correct} / ${QUIZ.length}`}
         </h3>
         <p className="mt-2 text-muted-foreground">
-          {score.correct >= Math.ceil(QUIZ.length * 0.7)
+          {highScore
             ? lang === "bn" ? "দারুণ! তুমি একজন ক্লাইমেট গোয়েন্দা!" : "Brilliant! You are a climate detective!"
             : lang === "bn" ? "ভালো চেষ্টা! আবার খেলে দেখো।" : "Good try! Play again to learn more."}
         </p>
@@ -82,22 +84,22 @@ function Quiz() {
     <div className="panel p-5">
       <div className="flex justify-between text-xs text-muted-foreground">
         <span>{lang === "bn" ? `প্রশ্ন ${n(idx + 1)} / ${n(QUIZ.length)}` : `Question ${idx + 1} of ${QUIZ.length}`}</span>
-        <span>{lang === "bn" ? `স্কোর ${n(score.correct)}` : `Score ${score.correct}`}</span>
+        <span key={score.correct} className="quiz-score-pop">{lang === "bn" ? `স্কোর ${n(score.correct)}` : `Score ${score.correct}`}</span>
       </div>
       <h3 className="mt-2 font-display text-xl text-foreground">{L(q.q)}</h3>
       <div className="mt-4 grid gap-2">
         {q.options.map((o, k) => {
-          const state = picked === null ? "" : k === q.answer ? "border-[#3EC98A] bg-[color-mix(in_oklab,#3EC98A_15%,transparent)]" : k === picked ? "border-[var(--declining)] bg-[color-mix(in_oklab,var(--declining)_15%,transparent)]" : "opacity-60";
+          const state = picked === null ? "quiz-answer-idle" : k === q.answer ? "quiz-answer-correct" : k === picked ? "quiz-answer-incorrect" : "quiz-answer-muted";
           return (
-            <Button key={k} type="button" variant="outline" onClick={() => choose(k)} aria-disabled={picked !== null} className={`h-auto min-h-12 justify-start whitespace-normal rounded-xl px-4 py-3 text-left ${state}`}>
-              {L(o)}
+            <Button key={k} type="button" variant="outline" onClick={() => choose(k)} aria-disabled={picked !== null} className={`quiz-answer h-auto min-h-12 justify-start whitespace-normal rounded-xl px-4 py-3 text-left ${state}`}>
+              {picked !== null && k === q.answer && <span className="quiz-check" aria-hidden>✓</span>}{L(o)}
             </Button>
           );
         })}
       </div>
       {picked !== null && (
         <div className="mt-4 animate-fade-in" aria-live="polite">
-          <p className={`font-semibold ${picked === q.answer ? "text-[#3EC98A]" : "text-[var(--declining)]"}`}>
+          <p className={`font-semibold ${picked === q.answer ? "text-stable" : "text-declining"}`}>
             {picked === q.answer ? (lang === "bn" ? "✓ সঠিক!" : "✓ Correct!") : lang === "bn" ? "✗ ঠিক হয়নি" : "✗ Not quite"}
           </p>
           <p className="mt-1 text-sm text-foreground/90">{L(q.why)}</p>
