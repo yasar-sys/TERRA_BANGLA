@@ -198,7 +198,7 @@ function SceneDecor({ kind, now, trend = "same" }: { kind: MissionId; now: boole
     <rect className="td-sky" width="360" height="220" /><g className={now ? "td-sun-friend td-sun-hot" : "td-sun-friend"}><circle className="td-sun" cx="310" cy="35" r="21"/><circle className="td-ink" cx="303" cy="33" r="2"/><circle className="td-ink" cx="317" cy="33" r="2"/><path className="td-line" d={now ? "M303 44q7-5 14 0" : "M303 42q7 6 14 0"}/>{now && <path className="td-rain" d="M326 40q7 8 0 14q-7-6 0-14"/>}</g>
     {buildings.map((x, i) => <g key={x}><rect className={i % 2 ? "td-building-alt" : "td-building"} x={x} y={80 - (i % 3) * 16} width="42" height={104 + (i % 3) * 16}/>{[0,1,2].map(r => [0,1].map(c => <rect key={`${r}-${c}`} className="td-window" x={x + 8 + c*18} y={94 + r*23 - (i % 3)*16} width="8" height="10"/>))}</g>)}
     <path className="td-road" d="M0 178h360v42H0z"/><path className="td-road-line" d="M0 199h360"/>
-    <g transform="translate(87 186)" onClick={() => interactive && onObject?.(false)} className={interactive ? "td-clickable td-car" : "td-car"}><rect className="td-car-body" x="-25" y="0" width="50" height="20" rx="6"/><path className="td-car-body" d="M-14 0-5-12h21l12 12"/><circle className="td-wheel" cx="-14" cy="20" r="6"/><circle className="td-wheel" cx="16" cy="20" r="6"/></g>
+    <g transform="translate(87 186)" className="td-car"><rect className="td-car-body" x="-25" y="0" width="50" height="20" rx="6"/><path className="td-car-body" d="M-14 0-5-12h21l12 12"/><circle className="td-wheel" cx="-14" cy="20" r="6"/><circle className="td-wheel" cx="16" cy="20" r="6"/></g>
     <g transform="translate(287 151)"><path className="td-trunk" d="M0 32V0"/><circle className="td-leaf" cy="-7" r="20"/></g>
   </svg>;
 }
