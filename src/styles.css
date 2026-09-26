@@ -310,6 +310,36 @@
 .td-trend-state { display: inline-flex; margin-top: .25rem; border: 2px solid var(--game-ink); border-radius: 999px; background: var(--game-yellow); padding: .12rem .45rem; font-size: .66rem !important; font-weight: 900 !important; }
 .td-mission-score { display: flex; align-items: center; gap: .55rem; border: 2px solid var(--game-ink); border-radius: 999px; background: var(--game-paper); padding: .35rem .65rem; color: var(--game-ink); font-size: .78rem; font-weight: 900; box-shadow: 0 3px 0 var(--game-shadow); }.td-score-dots { display: flex; gap: .2rem; }.td-score-dots i { width: .55rem; height: .55rem; border: 2px solid var(--game-ink); border-radius: 50%; background: transparent; }.td-score-dots i.is-earned { background: var(--game-yellow); }.td-score-earned { width: fit-content; margin: .75rem auto 0; border: 2px solid var(--game-ink); border-radius: 999px; background: var(--game-paper); padding: .35rem .8rem; font-size: .9rem; font-weight: 900; animation: td-score-pop .45s cubic-bezier(.2,1.6,.4,1); }
 .td-pressable { touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: transform .2s cubic-bezier(.2,1.5,.35,1), box-shadow .16s ease; }.td-pressable:active { transform: translateY(5px) scale(.94); box-shadow: 0 1px 0 var(--game-shadow); }
+.td-sound-toggle { width: 2.5rem; height: 2.5rem; border: 2px solid var(--game-ink); border-radius: 50%; background: color-mix(in oklab, var(--game-paper) 92%, transparent); color: var(--game-ink); box-shadow: 0 3px 0 var(--game-shadow); }.td-sound-toggle svg { width: 1.1rem; }
+.td-scene-card { --td-px: 0; --td-py: 0; isolation: isolate; transition: box-shadow .3s ease, transform .3s ease; }
+.td-scene-stage { position: relative; overflow: hidden; perspective: 700px; }
+.td-scene-stage svg { overflow: hidden; }
+.td-layer { transform-box: view-box; transform-origin: center; transition: transform .18s ease-out; will-change: transform; }
+.td-layer-back { transform: translate(calc(var(--td-px) * -2px), calc(var(--td-py) * -1px)) scale(1.025); }
+.td-layer-mid { transform: translate(calc(var(--td-px) * 4px), calc(var(--td-py) * 2px)) scale(1.02); }
+.td-layer-front { transform: translate(calc(var(--td-px) * 8px), calc(var(--td-py) * 4px)) scale(1.04); }
+.td-scene-revealed { box-shadow: 0 0 0 5px color-mix(in oklab, var(--game-yellow) 45%, transparent), 0 7px 0 var(--game-shadow), 0 16px 28px oklch(0.255 0.045 248 / .18); animation: td-reveal-card .48s cubic-bezier(.2,1.4,.3,1); }
+.td-clue-hint { transform-box: fill-box; transform-origin: center; animation: td-clue-breathe 3.2s ease-in-out infinite; }
+.td-clue-found { transform-box: fill-box; transform-origin: center; animation: td-clue-found .48s cubic-bezier(.2,1.7,.4,1); filter: drop-shadow(0 0 8px var(--game-yellow)); }
+.td-clue-burst { position: absolute; left: 66%; top: 54%; width: 1px; height: 1px; pointer-events: none; }
+.td-clue-burst i { position: absolute; width: .45rem; height: .45rem; border-radius: 50%; background: var(--game-yellow); animation: td-particle .46s ease-out both; }
+.td-clue-burst i:nth-child(1){--tx:34px;--ty:-24px}.td-clue-burst i:nth-child(2){--tx:-30px;--ty:-30px}.td-clue-burst i:nth-child(3){--tx:42px;--ty:10px}.td-clue-burst i:nth-child(4){--tx:-42px;--ty:9px}.td-clue-burst i:nth-child(5){--tx:14px;--ty:38px}.td-clue-burst i:nth-child(6){--tx:-18px;--ty:35px}
+.td-distant-bank { fill: color-mix(in oklab, var(--game-green) 62%, var(--game-water)); opacity: .8; }
+.td-ripple { fill: none; stroke: color-mix(in oklab, var(--game-paper) 76%, transparent); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 8 8; animation: td-ripple 3.8s linear infinite; }.td-ripple-two { animation-delay: -1.7s; }
+.td-boat-drift { animation: td-boat-drift 7s ease-in-out infinite; }
+.td-foliage-sway { transform-box: fill-box; transform-origin: bottom center; animation: td-foliage 3.4s ease-in-out infinite alternate; }.td-sway-1 { animation-delay: -1.6s; }
+.td-bird-flight { transform: translate(-35px,55px); animation: td-bird-flight 10s linear infinite; }.td-bird { fill: none; stroke: var(--game-ink); stroke-width: 3; stroke-linecap: round; }
+.td-smoke { fill: color-mix(in oklab, var(--game-paper) 72%, var(--game-muted)); opacity: .72; animation: td-smoke 4s ease-out infinite; transform-box: fill-box; transform-origin: bottom; }
+.td-water-wheel { fill: color-mix(in oklab, var(--game-yellow) 62%, var(--game-red)); stroke: var(--game-ink); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: td-wheel-turn 9s linear infinite; }
+.td-rice { transform-box: fill-box; transform-origin: bottom; animation: td-rice-sway 3s ease-in-out infinite alternate; }.td-rice-1 { animation-delay: -1.5s; }
+.td-city-sky { fill: color-mix(in oklab, var(--game-water) 72%, var(--game-blue)); }.td-city-cloud { transform: translateX(-70px); animation: td-city-cloud 12s linear infinite; }
+.td-window { animation: td-window-twinkle 3.4s ease-in-out infinite; }.td-window-1 { animation-delay: -1.2s; }.td-window-2 { animation-delay: -2.2s; }
+.td-thinking { animation: td-thinking 2s ease-in-out infinite; transform-origin: center; }
+.td-score-bounce { animation: td-score-bounce .62s cubic-bezier(.2,1.7,.3,1); }
+.td-star-flight { position: absolute; left: 50%; top: 55%; z-index: 20; color: var(--game-red); font-size: 2rem; animation: td-star-flight .72s cubic-bezier(.2,.75,.3,1) both; }.td-star-flight i { position: absolute; width: .28rem; height: .28rem; border-radius: 50%; background: var(--game-paper); animation: td-star-trail .5s ease-out both; }.td-star-flight i:nth-child(2){animation-delay:.08s}.td-star-flight i:nth-child(3){animation-delay:.16s}
+.td-mini-star-shower { position: absolute; inset: .35rem 0 auto; color: var(--game-red); word-spacing: 1.4rem; animation: td-star-shower .8s ease-out both; }
+.td-travel { position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; min-height: 24rem; border-radius: 2rem; background: color-mix(in oklab, var(--game-water) 90%, var(--game-paper)); color: var(--game-ink); animation: td-travel-in .18s ease-out both; }.td-travel-card { width: min(28rem, calc(100% - 2rem)); border: 4px solid var(--game-ink); border-radius: 1.5rem; background: var(--game-paper); padding: 1.25rem; text-align: center; box-shadow: var(--shadow-game); }.td-travel-card p { font-family: "Outfit", "Noto Sans Bengali", sans-serif; font-size: 1.25rem; font-weight: 800; }.td-travel-path { position: relative; height: 4rem; border-bottom: 3px dashed var(--game-blue); }.td-travel-path i { position: absolute; inset: auto 0 -.3rem; height: 1rem; background: var(--game-water); opacity: .45; }.td-travel-path span { position: absolute; left: 0; bottom: .2rem; font-size: 2rem; animation: td-travel-boat .72s ease-in-out both; }.td-travel-path b { position: absolute; right: 0; bottom: .35rem; font-size: 2rem; }
+.quiz-answer { position: relative; transition: opacity .2s ease, transform .2s ease, border-color .2s ease, background-color .2s ease, box-shadow .2s ease; }.quiz-answer-idle:hover { transform: translateY(-2px); }.quiz-answer-correct { border-color: var(--stable); background: color-mix(in oklab, var(--stable) 17%, var(--card)); box-shadow: 0 0 0 3px color-mix(in oklab, var(--stable) 15%, transparent); animation: quiz-correct .42s cubic-bezier(.2,1.5,.4,1); }.quiz-answer-incorrect { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 10%, var(--card)); animation: quiz-soft-shake .36s ease-in-out; }.quiz-answer-muted { opacity: .58; }.quiz-check { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; margin-right: .55rem; border-radius: 50%; background: var(--stable); color: var(--accent-foreground); animation: quiz-check-pop .4s cubic-bezier(.2,1.7,.3,1); }.quiz-score-pop { animation: td-score-pop .42s cubic-bezier(.2,1.5,.4,1); }.quiz-celebration { position: absolute; inset: 1rem 0 auto; color: var(--accent); word-spacing: 1rem; animation: quiz-stars 1.4s ease-in-out infinite alternate; }.quiz-trophy { position: relative; animation: quiz-trophy .75s cubic-bezier(.2,1.6,.3,1) both; }.quiz-finish-high { box-shadow: 0 0 0 1px var(--accent), var(--shadow-panel); }.quiz-finish-growing { box-shadow: 0 0 0 1px var(--stable), var(--shadow-panel); }
 .td-sky { fill: oklch(0.88 0.08 218); }
 .td-sun { fill: var(--game-yellow); stroke: var(--game-ink); stroke-width: 3; }
 .td-bank, .td-field { fill: oklch(0.76 0.15 130); }
@@ -371,6 +401,31 @@
 @keyframes td-map-pulse { 50% { fill: var(--game-red); } }
 @keyframes td-weather-react { 50% { transform: translateY(-5px) rotate(4deg) scale(1.06); } }
 @keyframes td-score-pop { 0% { transform: scale(.65); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes td-reveal-card { 0% { transform: scale(.98); } 60% { transform: scale(1.015); } }
+@keyframes td-clue-breathe { 50% { filter: drop-shadow(0 0 3px color-mix(in oklab, var(--game-yellow) 50%, transparent)); transform: scale(1.008); } }
+@keyframes td-clue-found { 0% { transform: scale(.92); filter: drop-shadow(0 0 0 transparent); } 65% { transform: scale(1.07); } 100% { transform: scale(1); filter: drop-shadow(0 0 8px var(--game-yellow)); } }
+@keyframes td-particle { from { transform: translate(0,0) scale(.2); opacity: 1; } to { transform: translate(var(--tx),var(--ty)) scale(1); opacity: 0; } }
+@keyframes td-ripple { to { stroke-dashoffset: -32; opacity: .45; } }
+@keyframes td-boat-drift { 0%,100% { transform: translateX(-7px) rotate(-2deg); } 50% { transform: translateX(10px) translateY(-4px) rotate(2deg); } }
+@keyframes td-foliage { to { transform: rotate(3deg) skewX(1deg); } }
+@keyframes td-bird-flight { 0%,15% { transform: translate(-35px,55px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 90%,100% { transform: translate(390px,28px); opacity: 0; } }
+@keyframes td-smoke { to { transform: translate(8px,-15px) scale(1.18); opacity: 0; } }
+@keyframes td-wheel-turn { to { transform: rotate(360deg); } }
+@keyframes td-rice-sway { to { transform: rotate(3deg); } }
+@keyframes td-city-cloud { to { transform: translateX(390px); } }
+@keyframes td-window-twinkle { 45% { opacity: .52; } 55% { opacity: 1; filter: drop-shadow(0 0 5px var(--game-yellow)); } }
+@keyframes td-thinking { 50% { transform: translateY(-3px) rotate(2deg); } }
+@keyframes td-score-bounce { 0%,100% { transform: scale(1); } 45% { transform: scale(1.18) rotate(-2deg); } }
+@keyframes td-star-flight { from { transform: translate(-50%,0) scale(.6); opacity: 1; } to { transform: translate(165px,-430px) scale(.3) rotate(270deg); opacity: 0; } }
+@keyframes td-star-trail { from { transform: translate(0,0); opacity: 1; } to { transform: translate(-24px,35px); opacity: 0; } }
+@keyframes td-star-shower { from { transform: translateY(-18px); opacity: 0; } 60% { opacity: 1; } to { transform: translateY(10px); opacity: 0; } }
+@keyframes td-travel-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes td-travel-boat { from { transform: translateX(0) rotate(-4deg); } to { transform: translateX(330px) rotate(3deg); } }
+@keyframes quiz-correct { 0% { transform: scale(.98); } 70% { transform: scale(1.02); } }
+@keyframes quiz-soft-shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@keyframes quiz-check-pop { from { transform: scale(0) rotate(-30deg); } to { transform: scale(1); } }
+@keyframes quiz-stars { to { transform: translateY(8px); opacity: .72; } }
+@keyframes quiz-trophy { from { transform: scale(.45) rotate(-12deg); opacity: 0; } 75% { transform: scale(1.12) rotate(3deg); } to { transform: scale(1); opacity: 1; } }
 
 @media (max-width: 520px) {
   .td-game-shell { border-radius: 1.5rem; }
@@ -385,7 +440,10 @@
   .td-game-hud { grid-template-columns: 1fr; }.td-final-button { width: 100%; }
   .td-data-weather { grid-template-columns: 4.2rem 1fr auto; gap: .55rem; }.td-data-copy h4 { font-size: .9rem; }.td-reading strong { font-size: 1.25rem; }.td-weather-reaction { font-size: 2rem; }
   .td-mission-score { margin-left: auto; padding: .3rem .5rem; }.td-score-dots i { width: .48rem; height: .48rem; }
+  .td-star-flight { display: none; }
+  .td-travel-path span { animation-name: td-travel-boat-mobile; }
 }
+@keyframes td-travel-boat-mobile { from { transform: translateX(0) rotate(-4deg); } to { transform: translateX(230px) rotate(3deg); } }
 
 /* Weather Friends chat (kids) */
 @keyframes wc-bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
@@ -406,5 +464,6 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .wc-bob, .wc-jump, .wc-shake, .wc-spin, .wc-dot { animation: none; }
-  .td-wave, .td-boat, .td-fish, .td-car, .td-float, .td-jump, .td-sparkle, .td-confetti, .td-cloudscape span, .td-weather-sun, .td-weather-cloud, .td-weather-cloud i, .td-stop-next::after, .td-district-active, .td-weather-reaction, .td-score-earned, .td-sun-friend, .td-cloud-drift { animation: none; }
+  .td-wave, .td-boat, .td-fish, .td-car, .td-float, .td-jump, .td-thinking, .td-sparkle, .td-confetti, .td-cloudscape span, .td-weather-sun, .td-weather-cloud, .td-weather-cloud i, .td-stop-next::after, .td-district-active, .td-weather-reaction, .td-score-earned, .td-score-bounce, .td-sun-friend, .td-cloud-drift, .td-clue-hint, .td-clue-found, .td-clue-burst i, .td-foliage-sway, .td-bird-flight, .td-smoke, .td-water-wheel, .td-rice, .td-city-cloud, .td-window, .td-star-flight, .td-mini-star-shower, .td-travel-path span, .quiz-answer, .quiz-check, .quiz-score-pop, .quiz-celebration, .quiz-trophy { animation: none; }
+  .td-layer-back, .td-layer-mid, .td-layer-front { transform: none; transition: none; }
 }
