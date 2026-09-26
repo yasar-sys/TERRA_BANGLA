@@ -52,7 +52,7 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --shadow-panel: 0 24px 60px -24px oklch(0 0 0 / 0.75);
   --shadow-glow: 0 0 0 1px var(--border), 0 18px 40px -20px oklch(0.6185 0.1871 284.06 / 0.45);
-  --shadow-game: 5px 6px 0 var(--game-ink);
+  --shadow-game: 0 7px 0 var(--game-shadow), 0 16px 28px oklch(0.255 0.045 248 / 0.18);
 }
 
 :root {
@@ -80,14 +80,15 @@
   --border: oklch(0.3275 0.0369 269.39);
   --input: oklch(0.3275 0.0369 269.39);
   --ring: oklch(0.6185 0.1871 284.06);
-  --game-paper: oklch(0.965 0.035 92);
-  --game-ink: oklch(0.255 0.045 248);
-  --game-muted: oklch(0.42 0.052 246);
-  --game-water: oklch(0.72 0.13 228);
-  --game-green: oklch(0.78 0.16 147);
-  --game-yellow: oklch(0.88 0.17 89);
-  --game-red: oklch(0.64 0.2 29);
-  --game-blue: oklch(0.53 0.17 250);
+  --game-paper: oklch(0.97 0.018 92);
+  --game-ink: oklch(0.32 0.075 225);
+  --game-muted: oklch(0.44 0.06 221);
+  --game-water: oklch(0.73 0.1 206);
+  --game-green: oklch(0.78 0.15 137);
+  --game-yellow: oklch(0.84 0.15 86);
+  --game-red: oklch(0.67 0.17 34);
+  --game-blue: oklch(0.5 0.12 220);
+  --game-shadow: oklch(0.39 0.09 220);
 }
 
 @layer base {
@@ -258,12 +259,51 @@
 @utility animate-fade-in { animation: fade-in 0.45s ease-out both; }
 @utility animate-spin-slow { animation: spin 6s linear infinite; }
 
-/* Bangladesh Earth Trend Detective */
+/* Amar Hate Bangladesh children’s adventure */
 .td-paper {
   background-color: var(--game-paper);
   background-image: radial-gradient(color-mix(in oklab, var(--game-ink) 9%, transparent) 1px, transparent 1px);
   background-size: 18px 18px;
 }
+.td-game-shell, .td-mission-shell, .td-award { font-family: "Figtree", "Noto Sans Bengali", sans-serif; }
+.td-game-shell { background: linear-gradient(180deg, var(--game-water) 0%, oklch(0.9 0.07 208) 42%, var(--game-green) 100%); color: var(--game-ink); }
+.td-game-title { font-family: "Outfit", "Noto Sans Bengali", sans-serif; font-weight: 800; color: var(--game-paper); line-height: 1.02; font-size: clamp(2.4rem, 8vw, 5rem); text-shadow: 0 4px 0 var(--game-shadow), 0 8px 20px oklch(0.255 0.045 248 / .18); }
+.td-kicker { display: inline-flex; border-radius: 999px; background: color-mix(in oklab, var(--game-paper) 72%, transparent); padding: .35rem .8rem; color: var(--game-ink); font-size: .7rem; font-weight: 800; }
+.td-game-subtitle { display: inline-flex; margin-top: .7rem; border-radius: 999px; background: color-mix(in oklab, var(--game-paper) 78%, transparent); padding: .4rem 1rem; font-weight: 800; color: var(--game-ink); }
+.td-cloudscape span { position: absolute; border-radius: 999px; background: color-mix(in oklab, var(--game-paper) 82%, transparent); animation: td-cloud-float 9s ease-in-out infinite alternate; }
+.td-cloudscape span::before, .td-cloudscape span::after { content: ""; position: absolute; border-radius: 50%; background: inherit; }
+.td-cloudscape span:nth-child(1) { top: 4.5rem; left: -2rem; width: 8rem; height: 2.6rem; }
+.td-cloudscape span:nth-child(1)::before { width: 3.6rem; height: 3.6rem; left: 2rem; bottom: 0; }
+.td-cloudscape span:nth-child(2) { top: 8rem; right: -1.5rem; width: 9rem; height: 3rem; animation-delay: -3s; }
+.td-cloudscape span:nth-child(2)::before { width: 4rem; height: 4rem; left: 2rem; bottom: 0; }
+.td-cloudscape span:nth-child(3) { top: 18rem; left: 20%; width: 5rem; height: 1.5rem; opacity: .5; animation-delay: -6s; }
+.td-weather-friends { position: absolute; inset: 0; pointer-events: none; z-index: 12; }
+.td-weather-sun { position: absolute; right: 5%; top: 3.5%; display: grid; place-items: center; width: 4.6rem; height: 4.6rem; border: 3px solid var(--game-ink); border-radius: 50%; background: var(--game-yellow); color: var(--game-ink); font-weight: 900; box-shadow: 0 0 0 10px color-mix(in oklab, var(--game-yellow) 30%, transparent); animation: td-sun-breathe 3s ease-in-out infinite; }
+.td-weather-cloud { position: absolute; left: 4%; top: 12%; display: grid; place-items: center; width: 5rem; height: 2.6rem; border: 3px solid var(--game-ink); border-radius: 999px; background: var(--game-paper); color: var(--game-ink); font-weight: 900; animation: td-cloud-float 4s ease-in-out infinite alternate; }
+.td-weather-cloud::before, .td-weather-cloud::after { content: ""; position: absolute; z-index: -1; border: 3px solid var(--game-ink); border-radius: 50%; background: var(--game-paper); }
+.td-weather-cloud::before { width: 2.8rem; height: 2.8rem; left: .35rem; top: -1.2rem; }.td-weather-cloud::after { width: 2.2rem; height: 2.2rem; right: .35rem; top: -.8rem; }
+.td-weather-cloud i { position: absolute; top: 2.8rem; width: .32rem; height: .85rem; border-radius: 999px; background: var(--game-blue); animation: td-rain-drop 1.2s linear infinite; }.td-weather-cloud i:nth-of-type(1){left:1rem}.td-weather-cloud i:nth-of-type(2){left:2.35rem;animation-delay:-.4s}.td-weather-cloud i:nth-of-type(3){right:.8rem;animation-delay:-.8s}
+.td-adventure-map { overflow: hidden; }
+.td-hills { position: absolute; inset: 12% -10% -5%; }
+.td-hills i { position: absolute; left: 0; right: 0; bottom: 0; height: 72%; border-radius: 50% 50% 0 0; background: color-mix(in oklab, var(--game-green) 84%, var(--game-blue)); transform: scaleX(1.25) translateY(26%); }
+.td-hills i:nth-child(2) { height: 52%; left: -20%; right: 16%; background: var(--game-green); transform: scaleX(1.3) translateY(20%) rotate(2deg); }
+.td-hills i:nth-child(3) { height: 35%; left: 12%; right: -22%; background: color-mix(in oklab, var(--game-green) 72%, var(--game-yellow)); transform: scaleX(1.2) translateY(16%) rotate(-2deg); }
+.td-route { position: absolute; inset: 5% 4%; width: 92%; height: 82%; overflow: visible; }
+.td-route path { fill: none; stroke: var(--game-paper); stroke-width: 18; stroke-linecap: round; stroke-dasharray: 2 30; opacity: .86; }
+.td-route .td-route-progress { stroke: var(--game-yellow); stroke-width: 11; stroke-dasharray: 0 4; opacity: 1; transition: stroke-dasharray .65s ease; }
+.td-map-pin { position: absolute; z-index: 20; width: min(10rem, 40vw); height: auto; min-height: 5.5rem; display: grid; grid-template-columns: 2.5rem 1fr; grid-template-rows: 1fr auto; gap: 0 .35rem; border: 3px solid var(--game-ink); border-radius: 1.5rem; background: var(--game-paper); padding: .55rem .7rem; color: var(--game-ink); box-shadow: 0 7px 0 var(--game-shadow), 0 12px 20px oklch(0.255 0.045 248 / .18); transition: transform .3s cubic-bezier(.2,1.5,.35,1), box-shadow .2s ease; }
+.td-map-pin:hover { transform: translateY(-5px) rotate(-1deg); }.td-map-pin:active { transform: translateY(6px) scale(.94); box-shadow: 0 1px 0 var(--game-shadow); }
+.td-stop-one { left: 8%; top: 8%; }.td-stop-two { right: 7%; top: 29%; }.td-stop-three { left: 8%; top: 53%; }.td-stop-four { right: 7%; top: 74%; }
+.td-pin-number { grid-row: 1 / 3; align-self: center; display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border: 2px solid var(--game-ink); border-radius: 50%; background: var(--game-yellow); font-weight: 900; }.td-pin-number svg { width: 1.2rem; }
+.td-pin-icon { align-self: end; font-size: 1.55rem; }.td-pin-copy { align-self: start; font-size: .78rem; font-weight: 800; line-height: 1.1; }
+.td-stop-done { background: var(--game-yellow); }.td-stop-next { animation: td-pin-ready 1.5s ease-in-out infinite; }
+.td-river { position: absolute; inset: 22% 30% 6% 39%; border-radius: 52% 48% 43% 57%; border: 4px solid color-mix(in oklab, var(--game-paper) 75%, transparent); background: var(--game-water); transform: rotate(8deg); opacity: .9; }.td-mini-boat { position: absolute; left: 25%; top: 45%; font-size: 2rem; animation: td-boat 2.4s ease-in-out infinite; }
+.td-map-detective { position: absolute; z-index: 19; left: 50%; bottom: 4%; width: 8rem; transform: translateX(-50%); }.td-map-flora { position: absolute; z-index: 5; bottom: 3%; color: var(--game-ink); font-size: 5rem; opacity: .25; }.td-flora-left{left:2%}.td-flora-right{right:2%}
+.td-game-hud { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; margin: 0 1rem 1rem; border: 3px solid var(--game-ink); border-radius: 1.35rem; background: color-mix(in oklab, var(--game-paper) 92%, transparent); padding: .85rem; box-shadow: 0 5px 0 var(--game-shadow); }
+.td-progress-top { display: flex; justify-content: space-between; gap: 1rem; color: var(--game-ink); font-weight: 900; }.td-progress-top span { display: flex; align-items: center; gap: .3rem; }.td-progress-top svg { width: 1.1rem; color: var(--game-yellow); }
+.td-progress-track { margin-top: .45rem; height: .6rem; overflow: hidden; border: 2px solid var(--game-ink); border-radius: 999px; background: var(--game-paper); }.td-progress-track i { display: block; height: 100%; background: var(--game-green); transition: width .5s ease; }
+.td-final-button { min-height: 3.25rem; border: 2px solid var(--game-ink); background: var(--game-red); color: var(--game-paper); font-weight: 900; box-shadow: 0 4px 0 var(--game-shadow); }.td-final-button:active, .td-pressable:active { transform: translateY(4px) scale(.96); box-shadow: none; }
+.td-honesty { position: relative; z-index: 20; margin: 0 auto 1rem; max-width: 42rem; padding: 0 1rem; text-align: center; color: var(--game-ink); font-size: .68rem; font-weight: 800; opacity: .8; }
 .td-sky { fill: oklch(0.88 0.08 218); }
 .td-sun { fill: var(--game-yellow); stroke: var(--game-ink); stroke-width: 3; }
 .td-bank, .td-field { fill: oklch(0.76 0.15 130); }
@@ -294,11 +334,11 @@
 .td-line { fill: none; stroke: var(--game-ink); stroke-width: 3; stroke-linecap: round; }
 .td-glass { fill: oklch(0.9 0.05 220 / .6); stroke: var(--game-ink); stroke-width: 5; }
 .td-glass-line { stroke: var(--game-ink); stroke-width: 7; stroke-linecap: round; }
+.td-shadow { fill: var(--game-ink); opacity: .14; }
+.td-cloud-shape { fill: var(--game-paper); stroke: var(--game-ink); stroke-width: 3; }
 .td-detective { width: 100%; filter: drop-shadow(3px 5px 0 oklch(0.25 0.04 248 / .18)); }
 .td-clickable { cursor: pointer; transform-box: fill-box; transform-origin: center; transition: transform .18s ease; }
 .td-clickable:hover, .td-clickable:focus { transform: scale(1.08); }
-.td-map-pin { transition: transform .2s ease; }
-.td-map-pin:hover { transform: translateY(-4px) rotate(-1deg); }
 .td-wave { animation: td-wave 3s ease-in-out infinite alternate; }
 .td-boat { animation: td-boat 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 .td-fish { animation: td-fish 4s ease-in-out infinite; }
@@ -307,6 +347,7 @@
 .td-jump { animation: td-jump .65s ease-in-out infinite alternate; }
 .td-sparkle { position: absolute; color: var(--game-red); font-size: 2rem; animation: td-sparkle .9s ease-in-out infinite alternate; }
 .td-confetti { color: var(--game-red); font-size: clamp(1.5rem, 6vw, 4rem); word-spacing: 1.2rem; animation: td-confetti 1.8s ease-in-out infinite alternate; }
+.td-sun-friend { transform-box: fill-box; transform-origin: center; animation: td-sun-breathe 3s ease-in-out infinite; }.td-sun-hot { animation: td-sun-hot .8s ease-in-out infinite alternate; }.td-cloud-drift { transform-box: fill-box; transform-origin: center; animation: td-cloud-float 4s ease-in-out infinite alternate; }.td-feedback-wrong { animation: td-wobble .35s ease-in-out 2; }
 @keyframes td-wave { to { transform: translateY(4px); } }
 @keyframes td-boat { 50% { transform: translateY(-5px) rotate(2deg); } }
 @keyframes td-fish { 50% { transform: translateX(30px); } }
@@ -315,6 +356,24 @@
 @keyframes td-jump { to { transform: translateY(-9px) rotate(-2deg); } }
 @keyframes td-sparkle { to { transform: scale(1.5) rotate(25deg); opacity: .55; } }
 @keyframes td-confetti { to { transform: translateY(10px) rotate(2deg); } }
+@keyframes td-cloud-float { to { transform: translateX(14px) translateY(-4px); } }
+@keyframes td-rain-drop { 0% { transform: translateY(-4px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(18px); opacity: 0; } }
+@keyframes td-sun-breathe { 50% { transform: scale(1.08) rotate(4deg); } }
+@keyframes td-sun-hot { to { transform: scale(1.08) rotate(-3deg); } }
+@keyframes td-pin-ready { 50% { transform: translateY(-7px) scale(1.03); } }
+@keyframes td-wobble { 25% { transform: translateX(-6px) rotate(-1deg); } 75% { transform: translateX(6px) rotate(1deg); } }
+
+@media (max-width: 520px) {
+  .td-game-shell { border-radius: 1.5rem; }
+  .td-weather-sun { width: 3.2rem; height: 3.2rem; top: 2%; right: 3%; font-size: .72rem; }
+  .td-weather-cloud { top: 15%; transform: scale(.75); transform-origin: left; }
+  .td-adventure-map { min-height: 560px; }
+  .td-map-pin { width: 8.4rem; min-height: 4.8rem; grid-template-columns: 2rem 1fr; padding: .45rem; border-radius: 1.15rem; }
+  .td-pin-number { width: 2rem; height: 2rem; }.td-pin-copy { font-size: .68rem; }.td-pin-icon { font-size: 1.2rem; }
+  .td-route { inset: 4% -7%; width: 114%; }
+  .td-stop-one { left: 3%; }.td-stop-two { right: 3%; }.td-stop-three { left: 3%; }.td-stop-four { right: 3%; }
+  .td-game-hud { grid-template-columns: 1fr; }.td-final-button { width: 100%; }
+}
 
 /* Weather Friends chat (kids) */
 @keyframes wc-bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
@@ -335,5 +394,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .wc-bob, .wc-jump, .wc-shake, .wc-spin, .wc-dot { animation: none; }
-  .td-wave, .td-boat, .td-fish, .td-car, .td-float, .td-jump, .td-sparkle, .td-confetti { animation: none; }
+  .td-wave, .td-boat, .td-fish, .td-car, .td-float, .td-jump, .td-sparkle, .td-confetti, .td-cloudscape span, .td-weather-sun, .td-weather-cloud, .td-weather-cloud i, .td-stop-next, .td-sun-friend, .td-cloud-drift { animation: none; }
 }

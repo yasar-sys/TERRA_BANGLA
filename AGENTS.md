@@ -2,6 +2,7 @@ AI explanations are generated only from server-recomputed cached statistics; the
 Google is the only sign-in method; saved chat is split into URL-addressable conversations owned by each authenticated user.
 Admin authorization is granted only after server-side verification of the exact approved email and is enforced through database roles and row policies.
 The children’s detective game uses explicitly labeled fictional observation-practice illustrations; never present its visual changes as measured environmental claims.
+The children’s game is branded “আমার হাতে বাংলাদেশ” / “Bangladesh in My Hands”; preserve its bilingual, monsoon-adventure identity.
 <!-- LOVABLE:BEGIN -->
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting

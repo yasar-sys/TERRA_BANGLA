@@ -8,16 +8,16 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/kids")({
   head: () => ({
     meta: [
-      { title: "Bangladesh Earth Trend Detective — TerraBangla" },
+      { title: "আমার হাতে বাংলাদেশ — TerraBangla Kids Game" },
       {
         name: "description",
         content:
-          "A colorful bilingual picture adventure where children ages 7–12 observe change and identify simple Earth trends across Bangladesh.",
+          "আমার হাতে বাংলাদেশ is a colorful bilingual picture adventure where children ages 7–12 observe change across Bangladesh.",
       },
-      { property: "og:title", content: "Bangladesh Earth Trend Detective" },
+      { property: "og:title", content: "আমার হাতে বাংলাদেশ — A Children’s Adventure" },
       {
         property: "og:description",
-        content: "Explore four illustrated Bangladesh mysteries, collect clues, and learn to spot simple trends.",
+        content: "Travel a playful Bangladesh adventure path, solve four illustrated mysteries, and collect detective stars.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -114,7 +114,7 @@ function KidsPage() {
   const { lang } = useLang();
   return (
     <div className="mx-auto max-w-6xl px-3 py-6 sm:px-6 sm:py-9">
-      <h1 className="sr-only">Bangladesh Earth Trend Detective</h1>
+      <h1 className="sr-only">আমার হাতে বাংলাদেশ — Bangladesh in My Hands</h1>
       <TrendDetectiveGame />
       <section className="mx-auto mt-10 max-w-4xl" aria-labelledby="quiz">
         <div className="mb-3 flex items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase text-muted-foreground">{lang === "bn" ? "অতিরিক্ত অনুশীলন" : "Bonus activity"}</p><h2 id="quiz" className="font-display text-2xl text-primary">{lang === "bn" ? "দ্রুত কুইজ" : "Quick quiz"}</h2></div><span className="text-3xl" aria-hidden="true">🧠</span></div>
