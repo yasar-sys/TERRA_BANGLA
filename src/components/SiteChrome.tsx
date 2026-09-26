@@ -99,6 +99,7 @@ export function SiteFooter() {
           <h2 className="text-xs font-semibold uppercase text-foreground">{L("Open science", "উন্মুক্ত বিজ্ঞান")}</h2>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("footer.license")}</p>
           <Link to="/about" className="mt-2 inline-block text-sm text-primary hover:underline">{t("nav.about")}</Link>
+          <Link to="/admin" className="mt-2 ml-4 inline-block text-sm text-muted-foreground hover:underline">Admin</Link>
         </div>
       </div>
       <div className="border-t border-border/70 px-3 py-3 text-center text-[11px] text-muted-foreground">MEC TERRA_DETECTORS · Bangladesh · 2026</div>
