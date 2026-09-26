@@ -3,8 +3,8 @@ import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/compare")({
   validateSearch: (search: Record<string, unknown>) => ({
-    districtA: typeof search.districtA === "string" ? search.districtA : undefined,
-    districtB: typeof search.districtB === "string" ? search.districtB : undefined,
+    districtA: typeof search["districtA"] === "string" ? (search["districtA"] as string) : undefined,
+    districtB: typeof search["districtB"] === "string" ? (search["districtB"] as string) : undefined,
   }),
   head: () => ({
     meta: [

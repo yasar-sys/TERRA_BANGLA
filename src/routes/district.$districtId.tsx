@@ -76,7 +76,7 @@ function DistrictDetail() {
         <div className="flex flex-wrap gap-2">
           <Link
             to="/compare"
-            search={{ districtA: districtId }}
+            search={{ districtA: districtId, districtB: undefined }}
             className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-secondary"
           >
             {t("nav.compare")}
