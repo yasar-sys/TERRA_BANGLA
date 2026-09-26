@@ -117,11 +117,11 @@ export default function GlobeExplorer({
 
   useEffect(() => {
     if (phase === "world") flyTo(20, 60, 2.4);
-    else flyTo(BD_CENTER.lat, BD_CENTER.lng, 0.42);
+    else flyTo(BD_CENTER.lat, BD_CENTER.lng, 0.24);
   }, [phase, flyTo]);
 
   const enterBangladesh = useCallback(() => {
-    const ms = flyTo(BD_CENTER.lat, BD_CENTER.lng, 0.42);
+    const ms = flyTo(BD_CENTER.lat, BD_CENTER.lng, 0.24);
     window.setTimeout(() => onPhaseChange("bangladesh"), ms);
   }, [flyTo, onPhaseChange]);
 
