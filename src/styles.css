@@ -116,6 +116,15 @@
   content: "";
   position: absolute;
   inset: 0;
+  background:
+    linear-gradient(to bottom, color-mix(in oklab, var(--background) 32%, transparent), var(--background) 94%),
+    radial-gradient(circle at 50% 28%, transparent 0 18%, color-mix(in oklab, var(--background) 55%, transparent) 72%);
+}
+
+.site-atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: linear-gradient(to bottom, oklch(0.1673 0.0257 272.63 / 0.76), var(--color-background) 62%);
 }
 

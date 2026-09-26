@@ -15,14 +15,15 @@ async function requireAdmin(context: { userId: string; claims: Record<string, un
 
 export const getAdminDashboard = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const admin = await requireAdmin(context);
-  const [announcements, content, uploads, conversations] = await Promise.all([
+  const [announcements, content, uploads, conversations, chatMessages] = await Promise.all([
     admin.from("announcements").select("*").order("created_at", { ascending: false }),
     admin.from("district_content").select("*").order("created_at", { ascending: false }),
     admin.from("data_uploads").select("id,district_id,variable,source_name,source_url,created_at").order("created_at", { ascending: false }),
     admin.from("conversations").select("id,title,user_id,updated_at").order("updated_at", { ascending: false }).limit(100),
+    admin.from("chat_messages").select("id,conversation_id,role,content,created_at").order("created_at", { ascending: false }).limit(100),
   ]);
-  for (const result of [announcements, content, uploads, conversations]) if (result.error) throw new Error(result.error.message);
-  return { announcements: announcements.data, content: content.data, uploads: uploads.data, conversations: conversations.data };
+  for (const result of [announcements, content, uploads, conversations, chatMessages]) if (result.error) throw new Error(result.error.message);
+  return { announcements: announcements.data, content: content.data, uploads: uploads.data, conversations: conversations.data, chatMessages: chatMessages.data };
 });
 
 export const addAnnouncement = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input) => z.object({ titleEn: z.string(), titleBn: z.string(), bodyEn: z.string(), bodyBn: z.string(), published: z.boolean() }).parse(input)).handler(async ({ context, data }) => {
