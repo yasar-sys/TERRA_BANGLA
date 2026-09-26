@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useLang } from "@/lib/i18n";
 import { usePublishedQuiz } from "@/lib/public-content";
+import { WeatherChat } from "@/components/WeatherChat";
 
 export const Route = createFileRoute("/kids")({
   head: () => ({
@@ -172,6 +173,12 @@ function KidsPage() {
       <p className="mt-2 text-muted-foreground">
         {lang === "bn" ? "৮-১৪ বছর বয়সীদের জন্য। জানো, তারপর কুইজ খেলো!" : "For ages 8–14. Learn, then play the quiz!"}
       </p>
+      <section className="mt-8" aria-labelledby="story">
+        <h2 id="story" className="mb-3 font-display text-2xl text-[#7CC4F0]">
+          {lang === "bn" ? "গল্পের খেলা: আবহাওয়া বন্ধুদের চ্যাট" : "Story game: chat with the Weather Friends"}
+        </h2>
+        <WeatherChat />
+      </section>
       <section className="mt-8" aria-labelledby="partA">
         <h2 id="partA" className="mb-3 font-display text-2xl text-[var(--rising)]">
           {lang === "bn" ? "পর্ব ক: তাপমাত্রা কেন বাড়ছে?" : "Part A: Why is it getting hotter?"}
