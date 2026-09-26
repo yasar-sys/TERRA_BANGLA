@@ -5,6 +5,7 @@ import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { safeAuthNext, usesLovableAuthBroker } from "@/lib/auth-host";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [
