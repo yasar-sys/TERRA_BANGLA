@@ -14,7 +14,16 @@ export function AuthButton() {
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      if (event === "SIGNED_IN" && session) {
+        const next = sessionStorage.getItem("terrabangla-auth-next");
+        if (next === "/admin" || next?.startsWith("/chat")) {
+          sessionStorage.removeItem("terrabangla-auth-next");
+          window.location.assign(next);
+        }
+      }
+    });
     return () => data.subscription.unsubscribe();
   }, []);
 
@@ -22,7 +31,7 @@ export function AuthButton() {
     setBusy(true);
     sessionStorage.setItem("terrabangla-auth-next", window.location.pathname);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth`,
+      redirect_uri: window.location.origin,
       extraParams: { prompt: "select_account" },
     });
     if (result.error) setBusy(false);
