@@ -171,9 +171,9 @@ export default function GlobeExplorer({
     const g = globeRef.current;
     if (!g) return;
     const viewSettings = {
-      top: { outward: 54, tangent: 0 },
-      tilt: { outward: 40, tangent: 45 },
-      side: { outward: 22, tangent: 72 },
+      top: { outward: 52, tangent: 0 },
+      tilt: { outward: 52, tangent: 18 },
+      side: { outward: 52, tangent: 32 },
     } as const;
     const targetCoords = g.getCoords(BD_CENTER.lat, BD_CENTER.lng, 0.035);
     const southCoords = g.getCoords(BD_CENTER.lat - 2, BD_CENTER.lng, 0.035);
