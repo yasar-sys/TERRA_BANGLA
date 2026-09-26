@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as KidsRouteImport } from './routes/kids'
@@ -39,6 +40,11 @@ const AboutRoute = AboutRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth-callback',
+  path: '/auth-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompareRoute = CompareRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/compare': typeof CompareRoute
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/compare': typeof CompareRoute
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/auth-callback': typeof AuthCallbackRoute
   '/compare': typeof CompareRoute
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/auth'
+    | '/auth-callback'
     | '/compare'
     | '/heatmap'
     | '/kids'
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/auth'
+    | '/auth-callback'
     | '/compare'
     | '/heatmap'
     | '/kids'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/auth'
+    | '/auth-callback'
     | '/compare'
     | '/heatmap'
     | '/kids'
@@ -172,6 +184,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   CompareRoute: typeof CompareRoute
   HeatmapRoute: typeof HeatmapRoute
   KidsRoute: typeof KidsRoute
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth-callback': {
+      id: '/auth-callback'
+      path: '/auth-callback'
+      fullPath: '/auth-callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compare': {
@@ -288,6 +308,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   CompareRoute: CompareRoute,
   HeatmapRoute: HeatmapRoute,
   KidsRoute: KidsRoute,

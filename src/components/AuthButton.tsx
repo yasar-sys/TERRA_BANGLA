@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
 import { Link } from "@tanstack/react-router";
+import { safeAuthNext, usesLovableAuthBroker } from "@/lib/auth-host";
 
 export function AuthButton() {
   const { lang } = useLang();
@@ -30,6 +31,18 @@ export function AuthButton() {
   async function signIn() {
     setBusy(true);
     sessionStorage.setItem("terrabangla-auth-next", window.location.pathname);
+    if (!usesLovableAuthBroker()) {
+      const next = safeAuthNext(window.location.pathname);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth-callback?next=${encodeURIComponent(next)}`,
+          queryParams: { prompt: "select_account" },
+        },
+      });
+      if (error) setBusy(false);
+      return;
+    }
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
       extraParams: { prompt: "select_account" },
