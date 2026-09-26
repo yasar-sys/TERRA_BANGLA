@@ -35,16 +35,40 @@ function AuthPage() {
     return () => data.subscription.unsubscribe();
   }, [navigate]);
 
+  // The Lovable sign-in broker only exists on Lovable-hosted surfaces. Anywhere
+  // else (Vercel, a custom host, a self-built preview) we talk to the auth
+  // service directly and come back through the public /auth-callback page.
+  function usesLovableBroker() {
+    const host = window.location.hostname;
+    const zones = ["lovable.app", "lovableproject.com", "lovableproject-dev.com", "gpt-eng.com", "gptengineer.run"];
+    if (host === "localhost" || host === "127.0.0.1") return true;
+    return zones.some((z) => host === z || host.endsWith("." + z));
+  }
+
   async function signIn() {
     setBusy(true); setError("");
+    const stored = sessionStorage.getItem("terrabangla-auth-next");
+    const next = stored === "/admin" ? "/admin" : "/chat";
+
+    if (!usesLovableBroker()) {
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth-callback?next=${encodeURIComponent(next)}`,
+          queryParams: { prompt: "select_account" },
+        },
+      });
+      if (oauthError) { setError(oauthError.message); setBusy(false); }
+      return;
+    }
+
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin, extraParams: { prompt: "select_account" },
     });
     if (result.error) { setError(result.error.message); setBusy(false); return; }
     if (result.redirected) return;
-    const next = sessionStorage.getItem("terrabangla-auth-next") || "/chat";
     sessionStorage.removeItem("terrabangla-auth-next");
-    void navigate({ to: next === "/admin" ? "/admin" : "/chat" });
+    void navigate({ to: next });
   }
 
   return <div className="mx-auto flex min-h-[65vh] max-w-lg items-center px-4 py-12">
