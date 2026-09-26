@@ -32,7 +32,7 @@
    "provenance": {
     "dataset_id": "MOD13Q1.061",
     "mode": "cache",
-    "retrieved": "2026-09-26T18:36:37.962974+00:00",
+    "retrieved": "2026-09-26T18:37:07.212503+00:00",
     "source_url": "https://modis.ornl.gov/rst/api/v1/MOD13Q1/subset (lat=23.8644, lon=90.0047, band=250m_16_days_NDVI)"
    },
    "unit": "NDVI"
