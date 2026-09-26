@@ -210,7 +210,7 @@ function SceneCard({ label, kind, now, trend, revealed }: { label: string; kind:
   const reset = () => { sceneRef.current?.style.setProperty("--td-px", "0"); sceneRef.current?.style.setProperty("--td-py", "0"); };
   return <div ref={sceneRef} onPointerMove={move} onPointerLeave={reset} className={`td-scene-card overflow-hidden rounded-2xl border-4 border-game-ink bg-game-paper shadow-game ${revealed ? "td-scene-revealed" : ""}`}>
     <div className="bg-game-ink px-3 py-2 text-center text-sm font-black uppercase text-game-paper">{label}</div>
-    <div className="td-scene-stage aspect-[16/10]"><SceneDecor kind={kind} now={now} trend={trend} revealed={revealed} />{revealed && <div className="td-clue-burst" aria-hidden="true"><i/><i/><i/><i/><i/><i/></div>}</div>
+    <div className="td-scene-stage aspect-[16/10]"><SceneDecor kind={kind} now={now} trend={trend} revealed={revealed ?? false} />{revealed && <div className="td-clue-burst" aria-hidden="true"><i/><i/><i/><i/><i/><i/></div>}</div>
   </div>;
 }
 
