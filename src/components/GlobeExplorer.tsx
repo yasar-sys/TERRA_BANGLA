@@ -12,6 +12,12 @@ import { fmt, useLang } from "@/lib/i18n";
 
 const BD_CENTER = { lat: 23.75, lng: 90.35 };
 const FLY_MS = 1600;
+const EMPTY: object[] = [];
+const WORLD_LABELS = [{ lat: BD_CENTER.lat, lng: BD_CENTER.lng, text: "Bangladesh" }];
+const WORLD_RINGS = [{ lat: BD_CENTER.lat, lng: BD_CENTER.lng }];
+const sideColor = () => "rgba(26, 31, 46, 0.7)";
+const strokeColor = () => "#0B0E1A";
+const ringColorFn = () => () => "rgba(242, 169, 59, 0.75)";
 
 interface Feature {
   type: "Feature";
@@ -65,11 +71,14 @@ export default function GlobeExplorer({
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => {
-      setSize({ w: el.clientWidth, h: el.clientHeight });
-    });
+    const update = () => {
+      const w = Math.floor(el.clientWidth);
+      const h = Math.floor(el.clientHeight);
+      setSize((prev) => (prev.w === w && prev.h === h ? prev : { w, h }));
+    };
+    const ro = new ResizeObserver(update);
     ro.observe(el);
-    setSize({ w: el.clientWidth, h: el.clientHeight });
+    update();
     return () => ro.disconnect();
   }, []);
 
@@ -108,11 +117,11 @@ export default function GlobeExplorer({
 
   useEffect(() => {
     if (phase === "world") flyTo(20, 60, 2.4);
-    else flyTo(BD_CENTER.lat, BD_CENTER.lng, 0.42);
+    else flyTo(BD_CENTER.lat, BD_CENTER.lng, 0.24);
   }, [phase, flyTo]);
 
   const enterBangladesh = useCallback(() => {
-    const ms = flyTo(BD_CENTER.lat, BD_CENTER.lng, 0.42);
+    const ms = flyTo(BD_CENTER.lat, BD_CENTER.lng, 0.24);
     window.setTimeout(() => onPhaseChange("bangladesh"), ms);
   }, [flyTo, onPhaseChange]);
 
@@ -130,6 +139,12 @@ export default function GlobeExplorer({
     [values, bounds, variable, hovered, phase],
   );
 
+  const polygonAltitude = useCallback(
+    (f: object) =>
+      phase === "world" ? 0.02 : hovered === (f as Feature).properties.districtId ? 0.035 : 0.012,
+    [phase, hovered],
+  );
+
   const hexBounds = useMemo(() => {
     const vals = gridPoints.map((p) => p.value);
     return vals.length
@@ -138,7 +153,7 @@ export default function GlobeExplorer({
   }, [gridPoints]);
 
   return (
-    <div ref={wrapRef} className="relative h-full w-full">
+    <div ref={wrapRef} className="relative h-full w-full overflow-hidden">
       <Globe
         ref={globeRef as React.MutableRefObject<GlobeMethods | undefined>}
         width={size.w}
@@ -150,14 +165,14 @@ export default function GlobeExplorer({
         atmosphereAltitude={0.18}
         showGraticules={phase === "world"}
         showAtmosphere
-        polygonsData={!hexMode ? features : []}
+        polygonsData={!hexMode ? features : EMPTY}
         polygonGeoJsonGeometry={(f: object) => (f as Feature).geometry as never}
         polygonCapColor={polygonColor}
-        polygonSideColor={() => "rgba(26, 31, 46, 0.7)"}
-        polygonStrokeColor={() => "#0B0E1A"}
-        polygonAltitude={(f: object) =>
-          phase === "world" ? 0.02 : hovered === (f as Feature).properties.districtId ? 0.035 : 0.012
-        }
+        polygonSideColor={sideColor}
+        polygonStrokeColor={strokeColor}
+        polygonAltitude={polygonAltitude}
+        polygonCapCurvatureResolution={10}
+        polygonsTransitionDuration={0}
         polygonLabel={(f: object) => {
           if (phase === "world") return `<div style="font-family:Inter,sans-serif;background:#1A1F2E;border:1px solid #2D3448;border-radius:8px;padding:6px 9px;color:#F2A93B;font-size:12px"><strong>${lang === "bn" ? "বাংলাদেশ — ক্লিক করুন" : "Bangladesh — click to enter"}</strong></div>`;
           const id = (f as Feature).properties.districtId;
@@ -180,7 +195,7 @@ export default function GlobeExplorer({
         onGlobeClick={({ lat, lng }: { lat: number; lng: number }) => {
           if (phase === "world" && lat > 20 && lat < 27 && lng > 88 && lng < 93) enterBangladesh();
         }}
-        hexBinPointsData={hexMode ? gridPoints : []}
+        hexBinPointsData={hexMode ? gridPoints : EMPTY}
         hexBinPointLat={(p: object) => (p as { lat: number }).lat}
         hexBinPointLng={(p: object) => (p as { lng: number }).lng}
         hexBinPointWeight={(p: object) => (p as { value: number }).value}
@@ -197,11 +212,7 @@ export default function GlobeExplorer({
           const mean = b.sumWeight / Math.max(1, b.points.length);
           return 0.01 + 0.09 * normalize(mean, hexBounds.min, hexBounds.max);
         }}
-        labelsData={
-          phase === "world"
-            ? [{ lat: BD_CENTER.lat, lng: BD_CENTER.lng, text: "Bangladesh" }]
-            : []
-        }
+        labelsData={phase === "world" ? WORLD_LABELS : EMPTY}
         labelLat={(d: object) => (d as { lat: number }).lat}
         labelLng={(d: object) => (d as { lng: number }).lng}
         labelText={(d: object) => (d as { text: string }).text}
@@ -210,12 +221,10 @@ export default function GlobeExplorer({
         labelColor={() => "#F2A93B"}
         labelResolution={2}
         onLabelClick={enterBangladesh}
-        ringsData={
-          phase === "world" ? [{ lat: BD_CENTER.lat, lng: BD_CENTER.lng }] : []
-        }
+        ringsData={phase === "world" ? WORLD_RINGS : EMPTY}
         ringLat={(d: object) => (d as { lat: number }).lat}
         ringLng={(d: object) => (d as { lng: number }).lng}
-        ringColor={() => () => "rgba(242, 169, 59, 0.75)"}
+        ringColor={ringColorFn}
         ringMaxRadius={6}
         ringPropagationSpeed={1.4}
         ringRepeatPeriod={prefersReducedMotion() ? 0 : 900}
