@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
 import { Link } from "@tanstack/react-router";
+import { safeAuthNext, usesLovableAuthBroker } from "@/lib/auth-host";
 
 export function AuthButton() {
   const { lang } = useLang();
