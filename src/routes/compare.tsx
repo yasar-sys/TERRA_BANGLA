@@ -41,7 +41,7 @@ export const Route = createFileRoute("/compare")({
   component: ComparePage,
 });
 
-const COLORS = ["#F2A93B", "#7C6FF0"];
+const COLORS: [string, string] = ["#F2A93B", "#7C6FF0"];
 
 interface CompareLine {
   key: string;
@@ -225,9 +225,9 @@ function ComparePage() {
             <Legend />
             {lines.map((l, i) =>
               l.analysis ? [
-                <Area key={`${l.key}b`} yAxisId={dualAxis ? l.key : "l0"} dataKey={`${l.key}band`} stroke="none" fill={COLORS[i]} fillOpacity={0.12} legendType="none" name={`${l.label} 95% CI`} isAnimationActive={false} />,
-                <Line key={`${l.key}f`} yAxisId={dualAxis ? l.key : "l0"} dataKey={`${l.key}fit`} stroke={COLORS[i]} strokeDasharray="6 4" dot={false} legendType="none" name={`${l.label} Theil-Sen`} isAnimationActive={false} />,
-                <Line key={l.key} yAxisId={dualAxis ? l.key : "l0"} dataKey={l.key} stroke={COLORS[i]} strokeWidth={2} dot={{ r: 2 }} name={`${l.label} (${l.analysis.unit})`} connectNulls isAnimationActive={false} />,
+                <Area key={`${l.key}b`} yAxisId={dualAxis ? l.key : "l0"} dataKey={`${l.key}band`} stroke="none" fill={COLORS[i as 0 | 1]} fillOpacity={0.12} legendType="none" name={`${l.label} 95% CI`} isAnimationActive={false} />,
+                <Line key={`${l.key}f`} yAxisId={dualAxis ? l.key : "l0"} dataKey={`${l.key}fit`} stroke={COLORS[i as 0 | 1]} strokeDasharray="6 4" dot={false} legendType="none" name={`${l.label} Theil-Sen`} isAnimationActive={false} />,
+                <Line key={l.key} yAxisId={dualAxis ? l.key : "l0"} dataKey={l.key} stroke={COLORS[i as 0 | 1]} strokeWidth={2} dot={{ r: 2 }} name={`${l.label} (${l.analysis.unit})`} connectNulls isAnimationActive={false} />,
               ] : null,
             )}
           </ComposedChart>
@@ -240,7 +240,7 @@ function ComparePage() {
         {lines.map((l, i) => (
           <div key={l.key} className="panel p-4">
             <h2 className="flex items-center gap-2 font-display text-lg text-foreground">
-              <span className="inline-block h-3 w-3 rounded-full" style={{ background: COLORS[i] }} aria-hidden />
+              <span className="inline-block h-3 w-3 rounded-full" style={{ background: COLORS[i as 0 | 1] }} aria-hidden />
               {l.label}
             </h2>
             {l.analysis ? (
