@@ -138,7 +138,7 @@ export function WeatherChat() {
   const { lang } = useLang();
   const L = (b: Bi) => (lang === "bn" ? b.bn : b.en);
   const [log, setLog] = useState<Msg[]>([]);
-  const [queue, setQueue] = useState<Msg[]>(STORY.start!.msgs);
+  const [queue, setQueue] = useState<Msg[]>(STORY["start"]!.msgs);
   const [scene, setScene] = useState("start");
   const [points, setPoints] = useState(0);
   const [typing, setTyping] = useState<Who | null>(null);
@@ -167,7 +167,7 @@ export function WeatherChat() {
     setScene(c.next);
     setQueue(STORY[c.next]!.msgs);
   };
-  const restart = () => { setLog([]); setPoints(0); setScene("start"); setQueue(STORY.start!.msgs); };
+  const restart = () => { setLog([]); setPoints(0); setScene("start"); setQueue(STORY["start"]!.msgs); };
 
   const lastMood = (w: Who) => [...log].reverse().find((m) => m.who === w)?.mood ?? "happy";
   const done = queue.length === 0;
@@ -198,7 +198,7 @@ export function WeatherChat() {
             </div>
           ) : (
             <div key={i} className="flex items-end gap-2 animate-fade-in">
-              <Character who={m.who} mood={m.mood} size={40} />
+              <Character who={m.who} mood={m.mood ?? "happy"} size={40} />
               <div className="max-w-[78%] rounded-2xl rounded-bl-sm bg-secondary px-3.5 py-2 text-sm text-foreground shadow">
                 <p className="text-[11px] font-semibold text-[var(--rising)]">{L(NAMES[m.who])}</p>
                 {L(m.text)}
