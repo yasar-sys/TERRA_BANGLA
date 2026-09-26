@@ -25,21 +25,26 @@ function AuthPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    void supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        const next = sessionStorage.getItem("terrabangla-auth-next") || "/chat";
-        sessionStorage.removeItem("terrabangla-auth-next");
-        void navigate({ to: next === "/admin" ? "/admin" : "/chat" });
-      } else setBusy(false);
-    });
+    const go = () => {
+      const next = sessionStorage.getItem("terrabangla-auth-next") || "/chat";
+      sessionStorage.removeItem("terrabangla-auth-next");
+      void navigate({ to: next === "/admin" ? "/admin" : "/chat" });
+    };
+    void supabase.auth.getSession().then(({ data }) => { if (data.session) go(); else setBusy(false); });
+    const { data } = supabase.auth.onAuthStateChange((event, session) => { if (session && event === "SIGNED_IN") go(); });
+    return () => data.subscription.unsubscribe();
   }, [navigate]);
 
   async function signIn() {
     setBusy(true); setError("");
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth`, extraParams: { prompt: "select_account" },
+      redirect_uri: window.location.origin, extraParams: { prompt: "select_account" },
     });
-    if (result.error) { setError(result.error.message); setBusy(false); }
+    if (result.error) { setError(result.error.message); setBusy(false); return; }
+    if (result.redirected) return;
+    const next = sessionStorage.getItem("terrabangla-auth-next") || "/chat";
+    sessionStorage.removeItem("terrabangla-auth-next");
+    void navigate({ to: next === "/admin" ? "/admin" : "/chat" });
   }
 
   return <div className="mx-auto flex min-h-[65vh] max-w-lg items-center px-4 py-12">

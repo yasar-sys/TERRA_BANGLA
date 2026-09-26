@@ -11,7 +11,7 @@ import { normalize, rampColor } from "@/lib/colors";
 import { fmt, useLang } from "@/lib/i18n";
 
 const BD_CENTER = { lat: 23.75, lng: 90.35 };
-const FLY_MS = 1200;
+const FLY_MS = 1600;
 
 interface Feature {
   type: "Feature";
@@ -120,13 +120,14 @@ export default function GlobeExplorer({
     (feat: object) => {
       const f = feat as Feature;
       const id = f.properties.districtId;
+      if (phase === "world") return "rgba(242, 169, 59, 0.9)";
       if (!hasData(id)) return "rgba(45, 52, 72, 0.55)";
       const v = values.get(id);
       if (v === undefined) return "rgba(45, 52, 72, 0.55)";
       const base = rampColor(variable, normalize(v, bounds.min, bounds.max), 0.86);
       return hovered === id ? "rgba(124, 111, 240, 0.95)" : base;
     },
-    [values, bounds, variable, hovered],
+    [values, bounds, variable, hovered, phase],
   );
 
   const hexBounds = useMemo(() => {
@@ -149,15 +150,16 @@ export default function GlobeExplorer({
         atmosphereAltitude={0.18}
         showGraticules={phase === "world"}
         showAtmosphere
-        polygonsData={phase === "bangladesh" && !hexMode ? features : []}
+        polygonsData={!hexMode ? features : []}
         polygonGeoJsonGeometry={(f: object) => (f as Feature).geometry as never}
         polygonCapColor={polygonColor}
         polygonSideColor={() => "rgba(26, 31, 46, 0.7)"}
         polygonStrokeColor={() => "#0B0E1A"}
         polygonAltitude={(f: object) =>
-          hovered === (f as Feature).properties.districtId ? 0.035 : 0.012
+          phase === "world" ? 0.02 : hovered === (f as Feature).properties.districtId ? 0.035 : 0.012
         }
         polygonLabel={(f: object) => {
+          if (phase === "world") return `<div style="font-family:Inter,sans-serif;background:#1A1F2E;border:1px solid #2D3448;border-radius:8px;padding:6px 9px;color:#F2A93B;font-size:12px"><strong>${lang === "bn" ? "বাংলাদেশ — ক্লিক করুন" : "Bangladesh — click to enter"}</strong></div>`;
           const id = (f as Feature).properties.districtId;
           const d = districts.find((x) => x.id === id);
           const v = values.get(id);
@@ -172,9 +174,12 @@ export default function GlobeExplorer({
           </div>`;
         }}
         onPolygonHover={(f: object | null) =>
-          setHovered(f ? (f as Feature).properties.districtId : null)
+          phase === "world" ? undefined : setHovered(f ? (f as Feature).properties.districtId : null)
         }
-        onPolygonClick={(f: object) => onSelectDistrict((f as Feature).properties.districtId)}
+        onPolygonClick={(f: object) => (phase === "world" ? enterBangladesh() : onSelectDistrict((f as Feature).properties.districtId))}
+        onGlobeClick={({ lat, lng }: { lat: number; lng: number }) => {
+          if (phase === "world" && lat > 20 && lat < 27 && lng > 88 && lng < 93) enterBangladesh();
+        }}
         hexBinPointsData={hexMode ? gridPoints : []}
         hexBinPointLat={(p: object) => (p as { lat: number }).lat}
         hexBinPointLng={(p: object) => (p as { lng: number }).lng}
