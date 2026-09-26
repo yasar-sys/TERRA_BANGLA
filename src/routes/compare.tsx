@@ -43,7 +43,7 @@ export const Route = createFileRoute("/compare")({
 
 const COLORS = ["#F2A93B", "#7C6FF0"];
 
-interface Line {
+interface CompareLine {
   key: string;
   label: string;
   analysis: VariableAnalysis | null;
@@ -68,7 +68,7 @@ function ComparePage() {
     return d ? (lang === "bn" ? d.bn : d.name) : id;
   };
 
-  const lines: Line[] = useMemo(() => {
+  const lines: CompareLine[] = useMemo(() => {
     const specs =
       mode === "districts"
         ? [
