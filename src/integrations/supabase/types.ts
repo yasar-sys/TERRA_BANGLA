@@ -119,6 +119,7 @@ export type Database = {
           district_id: string
           id: string
           payload: Json
+          published: boolean
           source_name: string
           source_url: string
           updated_at: string
@@ -130,6 +131,7 @@ export type Database = {
           district_id: string
           id?: string
           payload: Json
+          published?: boolean
           source_name: string
           source_url?: string
           updated_at?: string
@@ -141,6 +143,7 @@ export type Database = {
           district_id?: string
           id?: string
           payload?: Json
+          published?: boolean
           source_name?: string
           source_url?: string
           updated_at?: string
@@ -184,6 +187,54 @@ export type Database = {
           id?: string
           published?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      quiz_questions: {
+        Row: {
+          correct_index: number
+          created_at: string
+          created_by: string
+          id: string
+          options_bn: string[]
+          options_en: string[]
+          published: boolean
+          question_bn: string
+          question_en: string
+          sort_order: number
+          updated_at: string
+          why_bn: string
+          why_en: string
+        }
+        Insert: {
+          correct_index?: number
+          created_at?: string
+          created_by: string
+          id?: string
+          options_bn: string[]
+          options_en: string[]
+          published?: boolean
+          question_bn?: string
+          question_en: string
+          sort_order?: number
+          updated_at?: string
+          why_bn?: string
+          why_en?: string
+        }
+        Update: {
+          correct_index?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          options_bn?: string[]
+          options_en?: string[]
+          published?: boolean
+          question_bn?: string
+          question_en?: string
+          sort_order?: number
+          updated_at?: string
+          why_bn?: string
+          why_en?: string
         }
         Relationships: []
       }
