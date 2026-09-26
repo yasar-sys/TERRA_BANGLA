@@ -43,6 +43,14 @@ python3 scripts/fetch_power_grid.py   # heatmap grids
 python3 scripts/fetch_modis.py        # NDVI + LST (slow, chunked)
 ```
 
+## Pitch voiceover
+Video narration (English, 4 minutes) for the demo/pitch video:
+- `docs/voiceover/TerraBangla_voiceover_EN_240s_meet_the_site.mp3` — final narration, TerraBangla
+  speaks in first person; script with timing windows: `TerraBangla_voiceover_240s_EN_meet_the_site.md`.
+- `docs/voiceover/TerraBangla_voiceover_EN_240s.mp3` — earlier documentary-style version;
+  script: `TerraBangla_voiceover_240s_EN.md`.
+- Feature walkthrough: `docs/TerraBangla_README.md`.
+
 ## Accessibility
 Keyboard navigable, works at 360 px, respects `prefers-reduced-motion`, full English/Bangla toggle.
 
