@@ -89,6 +89,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Interactive 3D exploration of real NASA Earth-observation trends across all 64 districts of Bangladesh.",
       },
       { name: "author", content: "MEC TERRA_DETECTORS" },
+      { name: "theme-color", content: "#0B0E1A" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

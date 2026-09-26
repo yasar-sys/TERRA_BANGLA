@@ -5,6 +5,7 @@ import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { Link } from "@tanstack/react-router";
 
 export function AuthButton() {
   const { lang } = useLang();
@@ -29,9 +30,12 @@ export function AuthButton() {
 
   if (user) {
     return (
-      <Button variant="outline" size="sm" onClick={() => void supabase.auth.signOut()} title={user.email ?? ""}>
-        <LogOut aria-hidden /> {lang === "bn" ? "সাইন আউট" : "Sign out"}
-      </Button>
+      <div className="flex items-center gap-1">
+        {user.email?.toLowerCase() === "saminyasarsunny@gmail.com" ? <Button asChild variant="ghost" size="sm"><Link to="/admin">{lang === "bn" ? "অ্যাডমিন" : "Admin"}</Link></Button> : null}
+        <Button variant="outline" size="sm" onClick={() => void supabase.auth.signOut()} title={user.email ?? ""}>
+          <LogOut aria-hidden /> {lang === "bn" ? "সাইন আউট" : "Sign out"}
+        </Button>
+      </div>
     );
   }
   return (
