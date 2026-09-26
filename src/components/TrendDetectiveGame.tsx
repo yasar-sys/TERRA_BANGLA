@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { ArrowLeft, Check, LockKeyhole, RotateCcw, Search, Star } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { ArrowLeft, Check, LockKeyhole, RotateCcw, Search, Star, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
 import { analyzeVariable, getDistrict, type VariableAnalysis, type VariableKey } from "@/lib/climate";
@@ -9,6 +9,7 @@ type Bi = { en: string; bn: string };
 type MissionId = "padma" | "sundarbans" | "village" | "dhaka";
 type Trend = "up" | "down" | "same";
 type Screen = "map" | MissionId | "final" | "award";
+type DetectiveState = "idle" | "thinking" | "celebrate";
 
 interface Mission {
   id: MissionId;
@@ -137,9 +138,9 @@ function DataWeatherCard({ mission, analysis, lang }: { mission: Mission; analys
   </aside>;
 }
 
-function Detective({ celebrate = false }: { celebrate?: boolean }) {
+function Detective({ state = "idle" }: { state?: DetectiveState }) {
   return (
-    <svg viewBox="0 0 150 170" className={celebrate ? "td-detective td-jump" : "td-detective td-float"} aria-hidden="true">
+    <svg viewBox="0 0 150 170" className={`td-detective ${state === "celebrate" ? "td-jump" : state === "thinking" ? "td-thinking" : "td-float"}`} aria-hidden="true">
       <ellipse className="td-shadow" cx="75" cy="161" rx="38" ry="7" />
       <path className="td-coat" d="M40 156q4-48 35-52 31 4 35 52z" />
       <circle className="td-skin" cx="75" cy="70" r="34" />
@@ -147,7 +148,7 @@ function Detective({ celebrate = false }: { celebrate?: boolean }) {
       <path className="td-hat" d="M35 42h80q-9-13-21-14l-5-19H57l-4 19q-12 2-18 14z" />
       <path className="td-hat-band" d="M54 27h42l-3-9H57z" />
       <circle className="td-ink" cx="63" cy="70" r="3" /><circle className="td-ink" cx="87" cy="70" r="3" />
-      <path className="td-line" d="M66 84q9 8 18 0" />
+      <path className="td-line" d={state === "thinking" ? "M67 85q8-3 16 0" : "M66 84q9 8 18 0"} />
       <path className="td-shirt" d="M60 110l15 17 15-17 12 46H48z" />
       <g transform="translate(99 101) rotate(-22)"><circle className="td-glass" cx="0" cy="0" r="20" /><path className="td-glass-line" d="M15 15l24 24" /></g>
     </svg>
@@ -161,52 +162,55 @@ function WeatherFriends() {
   </div>;
 }
 
-function SceneDecor({ kind, now, trend = "same" }: { kind: MissionId; now: boolean; trend?: Trend }) {
+function SceneDecor({ kind, now, trend = "same", revealed = false }: { kind: MissionId; now: boolean; trend?: Trend; revealed?: boolean }) {
   if (kind === "padma") {
     const top = !now || trend === "same" ? 122 : trend === "up" ? 103 : 145;
     return <svg viewBox="0 0 360 220" className="h-full w-full" role="img" aria-label={now ? "Now: lower illustrated river water" : "Before: higher illustrated river water"}>
-      <rect className="td-sky" width="360" height="220" /><g className="td-sun-friend"><circle className="td-sun" cx="305" cy="38" r="22"/><circle className="td-ink" cx="297" cy="36" r="2"/><circle className="td-ink" cx="313" cy="36" r="2"/><path className="td-line" d="M299 45q6 5 12 0"/></g>
-      <path className="td-bank" d={`M0 ${top - 20}q95-23 180 0t180 0v100H0z`} />
-      <path className="td-water td-wave" d={`M0 ${top}q70-18 140 0t140 0 80 0v80H0z`} />
-      <g transform="translate(62 96)"><path className="td-tree" d="M0 40V5" /><circle className="td-leaf" cy="-2" r="22" /></g>
-      <g transform={`translate(${now ? 226 : 202} ${top - 10})`} className="td-boat"><path className="td-boat-hull" d="M-35 0h70l-10 15h-48z" /><path className="td-line" d="M0 0v-35" /><path className="td-sail" d="M2-34v27h27z" /></g>
-      <g transform={`translate(150 ${top + 28})`} className="td-fish"><path className="td-fish-body" d="M-15 0q15-14 30 0-15 14-30 0m-1 0-13-10v20z" /><circle className="td-ink" cx="8" cy="-2" r="1.5" /></g>
+      <g className="td-layer td-layer-back"><rect className="td-sky" width="360" height="220" /><g className="td-sun-friend"><circle className="td-sun" cx="305" cy="38" r="22"/><circle className="td-ink" cx="297" cy="36" r="2"/><circle className="td-ink" cx="313" cy="36" r="2"/><path className="td-line" d="M299 45q6 5 12 0"/></g><path className="td-distant-bank" d="M0 103q70-23 140 0t140 0 80 0v35H0z"/></g>
+      <g className="td-layer td-layer-mid"><path className="td-bank" d={`M0 ${top - 20}q95-23 180 0t180 0v100H0z`} /><path className={`td-water td-wave ${revealed ? "td-clue-found" : "td-clue-hint"}`} d={`M0 ${top}q70-18 140 0t140 0 80 0v80H0z`} /><path className="td-ripple td-ripple-one" d={`M25 ${top + 23}q36-8 72 0`}/><path className="td-ripple td-ripple-two" d={`M218 ${top + 48}q38-8 76 0`}/></g>
+      <g className="td-layer td-layer-front"><g transform="translate(62 96)" className="td-foliage-sway"><path className="td-tree" d="M0 40V5" /><circle className="td-leaf" cy="-2" r="22" /></g><g transform={`translate(${now ? 226 : 202} ${top - 10})`} className="td-boat td-boat-drift"><path className="td-boat-hull" d="M-35 0h70l-10 15h-48z" /><path className="td-line" d="M0 0v-35" /><path className="td-sail" d="M2-34v27h27z" /></g><g transform={`translate(150 ${top + 28})`} className="td-fish"><path className="td-fish-body" d="M-15 0q15-14 30 0-15 14-30 0m-1 0-13-10v20z" /><circle className="td-ink" cx="8" cy="-2" r="1.5" /></g></g>
     </svg>;
   }
   if (kind === "sundarbans") {
     const trees = !now || trend === "same" ? [52, 112, 175, 238] : trend === "up" ? [40, 88, 136, 184, 232] : [68, 154];
     return <svg viewBox="0 0 360 220" className="h-full w-full" role="img" aria-label={now ? "Now: fewer illustrated mangrove trees" : "Before: more illustrated mangrove trees"}>
-      <rect className="td-sky" width="360" height="220" /><g className="td-cloud-drift"><path className="td-cloud-shape" d="M250 54c0-13 11-23 24-21 5-15 27-16 34-2 17-3 29 8 29 22z"/><circle className="td-ink" cx="283" cy="45" r="2"/><circle className="td-ink" cx="297" cy="45" r="2"/><path className="td-line" d="M285 51q5 4 10 0"/></g><path className="td-water" d="M0 157q90-15 180 0t180 0v63H0z" />
-      {trees.map((x) => <g key={x} transform={`translate(${x} 135)`}><path className="td-trunk" d="M0 35V0m0 14-14 24m14-18 14 18" /><circle className="td-leaf" cy="-9" r="24" /></g>)}
-      <g transform="translate(276 160)"><path className="td-boat-hull" d="M-29 0h58l-8 12h-42z" /><path className="td-line" d="M0 0v-29" /><path className="td-sail" d="M2-28v22h22z" /></g>
+      <g className="td-layer td-layer-back"><rect className="td-sky" width="360" height="220" /><g className="td-cloud-drift"><path className="td-cloud-shape" d="M250 54c0-13 11-23 24-21 5-15 27-16 34-2 17-3 29 8 29 22z"/><circle className="td-ink" cx="283" cy="45" r="2"/><circle className="td-ink" cx="297" cy="45" r="2"/><path className="td-line" d="M285 51q5 4 10 0"/></g><g className="td-bird-flight"><path className="td-bird" d="M0 0q7-8 14 0 7-8 14 0"/></g></g><g className="td-layer td-layer-mid"><path className="td-water td-wave" d="M0 157q90-15 180 0t180 0v63H0z" />
+      <g className={revealed ? "td-clue-found" : "td-clue-hint"}>{trees.map((x, index) => <g key={x} transform={`translate(${x} 135)`} className={`td-foliage-sway td-sway-${index % 2}`}><path className="td-trunk" d="M0 35V0m0 14-14 24m14-18 14 18" /><circle className="td-leaf" cy="-9" r="24" /></g>)}</g></g>
+      <g className="td-layer td-layer-front"><g transform="translate(276 160)" className="td-boat"><path className="td-boat-hull" d="M-29 0h58l-8 12h-42z" /><path className="td-line" d="M0 0v-29" /><path className="td-sail" d="M2-28v22h22z" /></g>
       <g transform="translate(217 187)"><path className="td-fish-body" d="M-11 0q11-9 22 0-11 9-22 0m-1 0-9-7v14z" /></g>
-      <g transform="translate(309 131)"><ellipse className="td-deer" rx="17" ry="10"/><circle className="td-deer" cx="18" cy="-10" r="8"/><path className="td-line" d="M-10 8v16m20-16v16m13-24 5-11m-5 11-2-12" /></g>
+      <g transform="translate(309 131)"><ellipse className="td-deer" rx="17" ry="10"/><circle className="td-deer" cx="18" cy="-10" r="8"/><path className="td-line" d="M-10 8v16m20-16v16m13-24 5-11m-5 11-2-12" /></g></g>
     </svg>;
   }
   if (kind === "village") {
     return <svg viewBox="0 0 360 220" className="h-full w-full" role="img" aria-label="Illustrated Bangladesh village with rice field, farmer, pond and rain">
-      <rect className="td-sky" width="360" height="220" /><g className="td-cloud td-cloud-drift" transform="translate(75 44)"><circle cx="0" cy="0" r="20"/><circle cx="25" cy="-8" r="27"/><circle cx="52" cy="2" r="20"/><rect x="0" y="0" width="55" height="20"/><circle className="td-ink" cx="18" cy="3" r="2"/><circle className="td-ink" cx="34" cy="3" r="2"/><path className="td-line" d="M20 10q6 4 12 0"/></g>
+      <g className="td-layer td-layer-back"><rect className="td-sky" width="360" height="220" /><g className="td-cloud td-cloud-drift" transform="translate(75 44)"><circle cx="0" cy="0" r="20"/><circle cx="25" cy="-8" r="27"/><circle cx="52" cy="2" r="20"/><rect x="0" y="0" width="55" height="20"/><circle className="td-ink" cx="18" cy="3" r="2"/><circle className="td-ink" cx="34" cy="3" r="2"/><path className="td-line" d="M20 10q6 4 12 0"/></g></g>
       {[74,102,130].map((x) => <path key={x} className="td-rain" d={`M${x} 70v18`} />)}
-      <path className="td-field" d="M0 125q90-16 180 0t180 0v95H0z" /><ellipse className="td-water" cx="278" cy="170" rx="62" ry="26" />
-      <g transform="translate(52 112)"><rect className="td-house" x="0" y="20" width="70" height="55"/><path className="td-roof" d="M-8 23 35-8l43 31z"/><rect className="td-door" x="27" y="47" width="17" height="28"/></g>
+      <g className="td-layer td-layer-mid"><path className="td-field" d="M0 125q90-16 180 0t180 0v95H0z" /><ellipse className="td-water td-wave" cx="278" cy="170" rx="62" ry="26" /><g transform="translate(52 112)"><rect className="td-house" x="0" y="20" width="70" height="55"/><path className="td-roof" d="M-8 23 35-8l43 31z"/><rect className="td-door" x="27" y="47" width="17" height="28"/><g className="td-smoke"><circle cx="56" cy="-2" r="5"/><circle cx="60" cy="-14" r="7"/><circle cx="54" cy="-27" r="9"/></g></g></g>
+      <g className="td-layer td-layer-front">
       <g transform="translate(175 137)"><circle className="td-skin" cy="-17" r="9"/><path className="td-hat" d="M-14-22h28l-7-7H-7z"/><path className="td-shirt" d="M0-8v34m0-4-16 24m16-24 16 24m-1-37 15 18M-15 9-28 24" /></g>
-      {Array.from({ length: 7 }).map((_, i) => <path key={i} className="td-rice" d={`M${18 + i * 30} 178v30m0-18-9-9m9 16 9-9`} />)}
+      <g className={revealed ? "td-clue-found" : "td-clue-hint"}>{Array.from({ length: 7 }).map((_, i) => <path key={i} className={`td-rice td-rice-${i % 2}`} d={`M${18 + i * 30} 178v30m0-18-9-9m9 16 9-9`} />)}</g><g className="td-water-wheel" transform="translate(274 165)"><circle cx="0" cy="0" r="18"/><path d="M-24 0h48M0-24v48M-17-17l34 34M17-17l-34 34"/></g></g>
     </svg>;
   }
   const buildings = [45, 105, 172, 238];
   return <svg viewBox="0 0 360 220" className="h-full w-full" role="img" aria-label={now ? "Now: more illustrated city buildings" : "Earlier: fewer illustrated city buildings"}>
-    <rect className="td-sky" width="360" height="220" /><g className={now ? "td-sun-friend td-sun-hot" : "td-sun-friend"}><circle className="td-sun" cx="310" cy="35" r="21"/><circle className="td-ink" cx="303" cy="33" r="2"/><circle className="td-ink" cx="317" cy="33" r="2"/><path className="td-line" d={now ? "M303 44q7-5 14 0" : "M303 42q7 6 14 0"}/>{now && <path className="td-rain" d="M326 40q7 8 0 14q-7-6 0-14"/>}</g>
-    {buildings.map((x, i) => <g key={x}><rect className={i % 2 ? "td-building-alt" : "td-building"} x={x} y={80 - (i % 3) * 16} width="42" height={104 + (i % 3) * 16}/>{[0,1,2].map(r => [0,1].map(c => <rect key={`${r}-${c}`} className="td-window" x={x + 8 + c*18} y={94 + r*23 - (i % 3)*16} width="8" height="10"/>))}</g>)}
-    <path className="td-road" d="M0 178h360v42H0z"/><path className="td-road-line" d="M0 199h360"/>
-    <g transform="translate(87 186)" className="td-car"><rect className="td-car-body" x="-25" y="0" width="50" height="20" rx="6"/><path className="td-car-body" d="M-14 0-5-12h21l12 12"/><circle className="td-wheel" cx="-14" cy="20" r="6"/><circle className="td-wheel" cx="16" cy="20" r="6"/></g>
-    <g transform="translate(287 151)"><path className="td-trunk" d="M0 32V0"/><circle className="td-leaf" cy="-7" r="20"/></g>
+    <g className="td-layer td-layer-back"><rect className="td-sky td-city-sky" width="360" height="220" /><g className={now ? "td-sun-friend td-sun-hot" : "td-sun-friend"}><circle className="td-sun" cx="310" cy="35" r="21"/><circle className="td-ink" cx="303" cy="33" r="2"/><circle className="td-ink" cx="317" cy="33" r="2"/><path className="td-line" d={now ? "M303 44q7-5 14 0" : "M303 42q7 6 14 0"}/>{now && <path className="td-rain" d="M326 40q7 8 0 14q-7-6 0-14"/>}</g><path className="td-cloud-shape td-city-cloud" d="M5 48c8-18 28-17 36-3 15-5 29 5 30 18H4z"/></g>
+    <g className={`td-layer td-layer-mid ${revealed ? "td-clue-found" : "td-clue-hint"}`}>{buildings.map((x, i) => <g key={x}><rect className={i % 2 ? "td-building-alt" : "td-building"} x={x} y={80 - (i % 3) * 16} width="42" height={104 + (i % 3) * 16}/>{[0,1,2].map(r => [0,1].map(c => <rect key={`${r}-${c}`} className={`td-window td-window-${(r+c+i)%3}`} x={x + 8 + c*18} y={94 + r*23 - (i % 3)*16} width="8" height="10"/>))}</g>)}</g>
+    <g className="td-layer td-layer-front"><path className="td-road" d="M0 178h360v42H0z"/><path className="td-road-line" d="M0 199h360"/><g transform="translate(87 186)" className="td-car"><rect className="td-car-body" x="-25" y="0" width="50" height="20" rx="6"/><path className="td-car-body" d="M-14 0-5-12h21l12 12"/><circle className="td-wheel" cx="-14" cy="20" r="6"/><circle className="td-wheel" cx="16" cy="20" r="6"/></g><g transform="translate(287 151)" className="td-foliage-sway"><path className="td-trunk" d="M0 32V0"/><circle className="td-leaf" cy="-7" r="20"/></g></g>
   </svg>;
 }
 
-function SceneCard({ label, kind, now, trend }: { label: string; kind: MissionId; now: boolean; trend: Trend }) {
-  return <div className="overflow-hidden rounded-2xl border-4 border-game-ink bg-game-paper shadow-game">
+function SceneCard({ label, kind, now, trend, revealed }: { label: string; kind: MissionId; now: boolean; trend: Trend; revealed?: boolean }) {
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const move = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "touch" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty("--td-px", `${((event.clientX - box.left) / box.width - 0.5) * 2}`);
+    event.currentTarget.style.setProperty("--td-py", `${((event.clientY - box.top) / box.height - 0.5) * 2}`);
+  };
+  const reset = () => { sceneRef.current?.style.setProperty("--td-px", "0"); sceneRef.current?.style.setProperty("--td-py", "0"); };
+  return <div ref={sceneRef} onPointerMove={move} onPointerLeave={reset} className={`td-scene-card overflow-hidden rounded-2xl border-4 border-game-ink bg-game-paper shadow-game ${revealed ? "td-scene-revealed" : ""}`}>
     <div className="bg-game-ink px-3 py-2 text-center text-sm font-black uppercase text-game-paper">{label}</div>
-    <div className="aspect-[16/10]"><SceneDecor kind={kind} now={now} trend={trend} /></div>
+    <div className="td-scene-stage aspect-[16/10]"><SceneDecor kind={kind} now={now} trend={trend} revealed={revealed} />{revealed && <div className="td-clue-burst" aria-hidden="true"><i/><i/><i/><i/><i/><i/></div>}</div>
   </div>;
 }
 
