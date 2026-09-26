@@ -21,10 +21,10 @@ export const Route = createFileRoute("/district/$districtId")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "District unavailable — MEC TERRA_DETECTORS" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: "District unavailable — TerraBangla" }, { name: "robots", content: "noindex" }],
       };
     }
-    const title = `${loaderData.name} climate trends — MEC TERRA_DETECTORS`;
+    const title = `${loaderData.name} climate trends — TerraBangla`;
     const description = `NASA-derived vegetation, temperature, solar and rainfall trends for ${loaderData.name} district, ${loaderData.division} division, Bangladesh.`;
     return {
       meta: [

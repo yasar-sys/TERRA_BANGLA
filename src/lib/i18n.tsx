@@ -14,7 +14,7 @@ type Dict = Record<string, { en: string; bn: string }>;
 
 export const strings: Dict = {
   "team.name": { en: "MEC TERRA_DETECTORS", bn: "MEC TERRA_DETECTORS" },
-  "app.title": { en: "Bangladesh Trend Detective", bn: "বাংলাদেশ ট্রেন্ড ডিটেকটিভ" },
+  "app.title": { en: "TerraBangla", bn: "টেরা বাংলা" },
   "app.tagline": {
     en: "Real NASA Earth-observation records, tested for real trends — district by district.",
     bn: "নাসার প্রকৃত পৃথিবী-পর্যবেক্ষণ উপাত্ত, জেলা ধরে ধরে প্রকৃত প্রবণতা পরীক্ষা করা।",
@@ -24,6 +24,8 @@ export const strings: Dict = {
   "nav.compare": { en: "Compare", bn: "তুলনা" },
   "nav.kids": { en: "Kids' Climate Game", bn: "শিশুদের ক্লাইমেট গেম" },
   "nav.about": { en: "Data & Methods", bn: "উপাত্ত ও পদ্ধতি" },
+  "nav.chat": { en: "Ask TerraBangla", bn: "টেরা বাংলাকে জিজ্ঞেস করুন" },
+  "nav.admin": { en: "Admin", bn: "অ্যাডমিন" },
   "nav.menu": { en: "Open navigation", bn: "নেভিগেশন খুলুন" },
   "nav.skip": { en: "Skip to main content", bn: "মূল অংশে যান" },
   "lang.toggle": { en: "বাংলা", bn: "English" },

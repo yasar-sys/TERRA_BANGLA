@@ -1,64 +1,34 @@
-import { Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { districts, hasData } from "@/lib/climate";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { MapPin } from "lucide-react";
+import { districts } from "@/lib/climate";
 import { useLang } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
 
 export function DistrictPicker() {
   const { t, lang } = useLang();
-  const [query, setQuery] = useState("");
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return districts;
-    return districts.filter(
-      (d) =>
-        d.name.toLowerCase().includes(q) ||
-        d.bn.includes(query.trim()) ||
-        d.division.toLowerCase().includes(q),
-    );
-  }, [query]);
+  const navigate = useNavigate();
+  const [districtId, setDistrictId] = useState("dhaka");
 
   return (
-    <section aria-labelledby="picker-heading" className="panel p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <section aria-labelledby="picker-heading" className="panel mx-auto max-w-3xl p-4 sm:p-5">
+      <div className="grid items-end gap-3 sm:grid-cols-[1fr_1.4fr_auto]">
+        <div>
         <h2 id="picker-heading" className="font-display text-lg font-semibold text-foreground">
           {t("globe.pick")}
         </h2>
-        <label className="flex items-center gap-2 text-sm">
-          <span className="sr-only">{t("globe.search")}</span>
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t("globe.search")}
-            className="w-44 rounded-md border border-border bg-elevated px-2.5 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
-          />
+          <p className="mt-1 text-xs text-muted-foreground">{lang === "bn" ? "একটি জেলা বেছে বিস্তারিত উপাত্ত দেখুন।" : "Choose one district to open its evidence."}</p>
+        </div>
+        <label className="text-xs text-muted-foreground">
+          <span className="sr-only">{t("globe.pick")}</span>
+          <select value={districtId} onChange={(e) => setDistrictId(e.target.value)} className="mt-1 h-10 w-full rounded-md border border-border bg-elevated px-3 text-sm text-foreground">
+            {districts.map((d) => <option key={d.id} value={d.id}>{lang === "bn" ? d.bn : d.name} · {d.division}</option>)}
+          </select>
         </label>
+        <Button onClick={() => navigate({ to: "/district/$districtId", params: { districtId } })}>
+          <MapPin aria-hidden />{lang === "bn" ? "দেখুন" : "Explore"}
+        </Button>
       </div>
-
-      <ul className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4">
-        {filtered.map((d) => {
-          const ready = hasData(d.id);
-          return (
-            <li key={d.id}>
-              <Link
-                to="/district/$districtId"
-                params={{ districtId: d.id }}
-                className="flex items-center justify-between gap-2 rounded-md border border-border bg-elevated px-2.5 py-2 text-sm text-foreground transition-colors hover:border-primary hover:bg-secondary"
-              >
-                <span className="min-w-0 truncate">{lang === "bn" ? d.bn : d.name}</span>
-                <span
-                  aria-hidden
-                  className={`h-1.5 w-1.5 shrink-0 rounded-full ${ready ? "bg-stable" : "bg-border"}`}
-                />
-                <span className="sr-only">
-                  {ready ? "" : t("district.nodata")}
-                </span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
     </section>
   );
 }

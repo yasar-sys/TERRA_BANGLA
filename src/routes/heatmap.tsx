@@ -12,7 +12,7 @@ import solarGrid from "@/data/grid/solar.json";
 export const Route = createFileRoute("/heatmap")({
   head: () => ({
     meta: [
-      { title: "Gridded NASA heatmap of Bangladesh — MEC TERRA_DETECTORS" },
+      { title: "Gridded NASA heatmap of Bangladesh — TerraBangla" },
       {
         name: "description",
         content:

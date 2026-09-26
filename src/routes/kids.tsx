@@ -5,7 +5,7 @@ import { useLang } from "@/lib/i18n";
 export const Route = createFileRoute("/kids")({
   head: () => ({
     meta: [
-      { title: "Kids' Climate Game — MEC TERRA_DETECTORS" },
+      { title: "Kids' Climate Game — TerraBangla" },
       {
         name: "description",
         content:

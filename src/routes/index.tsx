@@ -8,13 +8,13 @@ import { useLang } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MEC TERRA_DETECTORS — Bangladesh Trend Detective" },
+      { title: "TerraBangla — Bangladesh Climate Trend Explorer" },
       {
         name: "description",
         content:
           "Spin a 3D Earth, fly into Bangladesh and inspect real NASA vegetation, temperature, solar and rainfall trends for all 64 districts.",
       },
-      { property: "og:title", content: "MEC TERRA_DETECTORS — Bangladesh Trend Detective" },
+      { property: "og:title", content: "TerraBangla — Bangladesh Climate Trend Explorer" },
       {
         property: "og:description",
         content:
@@ -43,9 +43,6 @@ function Landing() {
         <h1 className="mt-2 max-w-4xl font-display text-4xl leading-tight text-foreground sm:text-6xl">
           {t("app.title")}
         </h1>
-        <p className="mt-1 font-display text-sm font-semibold tracking-wide text-primary">
-          {t("team.name")}
-        </p>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
           {t("app.tagline")}
         </p>

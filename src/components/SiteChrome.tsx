@@ -1,14 +1,16 @@
 import { Link } from "@tanstack/react-router";
-import { BarChart3, BookOpen, Gamepad2, Globe2, Languages, Map, Menu, Orbit, Satellite } from "lucide-react";
+import { BarChart3, BookOpen, Gamepad2, Globe2, Languages, Map, Menu, MessageCircle, Satellite } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { AuthButton } from "@/components/AuthButton";
 
 const NAV = [
   { to: "/", key: "nav.globe", icon: Globe2 },
   { to: "/heatmap", key: "nav.heatmap", icon: Map },
   { to: "/compare", key: "nav.compare", icon: BarChart3 },
   { to: "/kids", key: "nav.kids", icon: Gamepad2 },
+  { to: "/chat", key: "nav.chat", icon: MessageCircle },
   { to: "/about", key: "nav.about", icon: BookOpen },
 ] as const;
 
@@ -16,10 +18,9 @@ function Brand() {
   const { t } = useLang();
   return (
     <Link to="/" className="group flex min-w-0 items-center gap-3 rounded-md">
-      <span className="brand-orbit" aria-hidden><Orbit /></span>
       <span className="min-w-0">
-        <span className="block truncate font-display text-sm font-semibold text-foreground">{t("team.name")}</span>
-        <span className="block truncate text-[10px] uppercase text-muted-foreground">{t("app.title")}</span>
+        <span className="block truncate font-display text-lg font-semibold text-foreground">{t("app.title")}</span>
+        <span className="block truncate text-[10px] uppercase text-muted-foreground">Bangladesh climate evidence</span>
       </span>
     </Link>
   );
@@ -56,6 +57,7 @@ export function SiteHeader() {
         <Button variant="outline" size="sm" onClick={() => setLang(lang === "en" ? "bn" : "en")} className="ml-auto lg:ml-0" aria-label={t("lang.label")}>
           <Languages aria-hidden /> {t("lang.toggle")}
         </Button>
+        <div className="hidden sm:block"><AuthButton /></div>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="lg:hidden" aria-label={t("nav.menu")}><Menu aria-hidden /></Button>
@@ -63,6 +65,7 @@ export function SiteHeader() {
           <SheetContent className="border-border bg-background/95 backdrop-blur-xl">
             <SheetHeader><SheetTitle><Brand /></SheetTitle></SheetHeader>
             <nav aria-label="Mobile" className="mt-8 flex flex-col gap-2"><NavItems mobile /></nav>
+            <div className="mt-5"><AuthButton /></div>
             <div className="mt-8 border-t border-border pt-5 text-xs leading-6 text-muted-foreground">
               {t("app.tagline")}
             </div>

@@ -32,13 +32,13 @@ const DATASETS = [
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "Data & methods — MEC TERRA_DETECTORS" },
+      { title: "Data & methods — TerraBangla" },
       {
         name: "description",
         content:
           "Every dataset, statistic and honesty rule behind the Bangladesh Trend Detective: Mann-Kendall, Theil-Sen, offline caches and provenance.",
       },
-      { property: "og:title", content: "Data & methods — MEC TERRA_DETECTORS" },
+      { property: "og:title", content: "Data & methods — TerraBangla" },
       {
         property: "og:description",
         content: "Mann-Kendall, Theil-Sen, cached NASA sources and the no-fabricated-data rule.",
@@ -88,7 +88,7 @@ function AboutPage() {
 
       <h2 className="mt-8 font-display text-xl text-foreground">Team</h2>
       <p className="mt-2 text-sm text-muted-foreground">
-        MEC TERRA_DETECTORS · NASA Space Apps Challenge 2026, Bangladesh · challenge “Be An Earth
+        TerraBangla · NASA Space Apps Challenge 2026, Bangladesh · challenge “Be An Earth
         System Trend Detective!” · Apache-2.0 licensed.
       </p>
     </div>

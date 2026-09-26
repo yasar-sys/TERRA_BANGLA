@@ -82,13 +82,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "MEC TERRA_DETECTORS — Bangladesh Trend Detective" },
+      { title: "TerraBangla — Bangladesh Climate Trend Explorer" },
       {
         name: "description",
         content:
           "Interactive 3D exploration of real NASA Earth-observation trends across all 64 districts of Bangladesh.",
       },
       { name: "author", content: "MEC TERRA_DETECTORS" },
+      { name: "theme-color", content: "#0B0E1A" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -100,7 +101,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600&display=swap",
       },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/pwa-192.png" },
+      { rel: "icon", href: "/pwa-192.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,

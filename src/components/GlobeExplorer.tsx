@@ -145,9 +145,10 @@ export default function GlobeExplorer({
         backgroundColor="rgba(0,0,0,0)"
         globeImageUrl="/textures/earth-blue-marble.jpg"
         bumpImageUrl="/textures/earth-topology.png"
-        atmosphereColor="#7C6FF0"
+        atmosphereColor="#66c8c1"
         atmosphereAltitude={0.18}
         showGraticules={phase === "world"}
+        showAtmosphere
         polygonsData={phase === "bangladesh" && !hexMode ? features : []}
         polygonGeoJsonGeometry={(f: object) => (f as Feature).geometry as never}
         polygonCapColor={polygonColor}
