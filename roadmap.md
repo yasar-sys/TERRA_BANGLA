@@ -10,4 +10,5 @@
 - [x] Add installable home-screen support without offline caching
 - [x] Add Google sign-in with saved multi-conversation climate chat
 - [x] Add a secure admin workspace for content, announcements, chat review, and data uploads
-- [ ] Verify sign-in, chat persistence, admin access, install metadata, and mobile layout
+- [x] Verify public sign-in flow, protected chat/admin access, install metadata, and mobile layout
+- [ ] Verify saved chat streaming and admin forms after the first Google account signs in (blocked: no auth user exists yet)
