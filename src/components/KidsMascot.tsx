@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import celebratingAsset from "@/assets/mascot/celebrating.png.asset.json";
@@ -48,7 +48,7 @@ export function KidsMascot({ state, context, districtId = "dhaka" }: { state: Ma
   if (minimized) return <Button type="button" variant="outline" size="sm" className="kids-guide-restore" onClick={() => setMinimized(false)}><ChevronUp />{lang === "bn" ? "গাইড দেখাও" : "Show guide"}</Button>;
 
   return (
-    <aside className={`kids-mascot is-${state}`} data-accessory={accent.accessory} style={{ "--district-guide-accent": accent.color } as React.CSSProperties} aria-live="polite" aria-atomic="true">
+    <aside className={`kids-mascot is-${state}`} data-accessory={accent.accessory} style={{ "--district-guide-accent": accent.color } as CSSProperties} aria-live="polite" aria-atomic="true">
       <div className="kids-mascot-copy"><span>{lang === "bn" ? "তথ্য গাইড" : "Evidence guide"}</span><p>{contextual}</p></div>
       <div className="kids-mascot-art" key={state}>
         <img src={POSES[state]} alt="" aria-hidden="true" draggable={false} />
