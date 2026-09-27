@@ -1,5 +1,5 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { ArrowLeft, BarChart3, BookOpen, Gamepad2, Globe2, Languages, Map, Menu, MessageCircle, Satellite } from "lucide-react";
+import { ArrowLeft, BarChart3, BookOpen, FlaskConical, Globe2, Languages, Map, Menu, MessageCircle, Satellite } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -9,7 +9,7 @@ const NAV = [
   { to: "/", key: "nav.globe", icon: Globe2 },
   { to: "/heatmap", key: "nav.heatmap", icon: Map },
   { to: "/compare", key: "nav.compare", icon: BarChart3 },
-  { to: "/kids", key: "nav.kids", icon: Gamepad2 },
+  { to: "/kids", key: "nav.kids", icon: FlaskConical },
   { to: "/chat", key: "nav.chat", icon: MessageCircle },
   { to: "/about", key: "nav.about", icon: BookOpen },
 ] as const;
@@ -69,16 +69,16 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-3 sm:px-6">
         <BackButton />
         <Brand />
-        <nav aria-label="Main" className="ml-auto hidden lg:block">
+        <nav aria-label="Main" className="ml-auto hidden xl:block">
           <ul className="flex items-center gap-1"><NavItems /></ul>
         </nav>
-        <Button variant="outline" size="sm" onClick={() => setLang(lang === "en" ? "bn" : "en")} className="ml-auto lg:ml-0" aria-label={t("lang.label")}>
+        <Button variant="outline" size="sm" onClick={() => setLang(lang === "en" ? "bn" : "en")} className="ml-auto shrink-0 xl:ml-0" aria-label={t("lang.label")}>
           <Languages aria-hidden /> {t("lang.toggle")}
         </Button>
         <div className="hidden sm:block"><AuthButton /></div>
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="lg:hidden" aria-label={t("nav.menu")}><Menu aria-hidden /></Button>
+            <Button variant="outline" size="icon" className="shrink-0 xl:hidden" aria-label={t("nav.menu")}><Menu aria-hidden /></Button>
           </SheetTrigger>
           <SheetContent className="border-border bg-background/95 backdrop-blur-xl">
             <SheetHeader><SheetTitle><Brand /></SheetTitle></SheetHeader>
