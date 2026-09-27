@@ -4,6 +4,7 @@ import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AuthButton } from "@/components/AuthButton";
+import terraBanglaLogo from "@/assets/brand/terrabangla-logo.png.asset.json";
 
 const NAV = [
   { to: "/", key: "nav.globe", icon: Globe2 },
@@ -18,6 +19,7 @@ function Brand() {
   const { t } = useLang();
   return (
     <Link to="/" className="group flex min-w-0 items-center gap-3 rounded-md">
+      <img className="site-brand-logo" src={terraBanglaLogo.url} alt="" width={768} height={768} />
       <span className="min-w-0">
         <span className="block truncate font-display text-lg font-semibold text-foreground">{t("app.title")}</span>
         <span className="block truncate text-[10px] uppercase text-muted-foreground">Bangladesh climate evidence</span>

@@ -5,6 +5,7 @@ The children’s section is a calm, museum-style 64-district data studio; compar
 The supplied detective character is an optional, understated evidence guide; it never represents measured evidence or introduces gamification.
 District visual themes use one shared layered CSS renderer with stable per-district compositions; they are geography-informed atmosphere only and never climate evidence.
 Student profiles, favorites, lesson attempts, and saved AI explanations use separate owner-scoped records; roles never live in profiles.
+The supplied TerraBangla artwork is the canonical brand logo; serve it through the project asset pointer and derive local favicon/PWA icons from it.
 <!-- LOVABLE:BEGIN -->
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
