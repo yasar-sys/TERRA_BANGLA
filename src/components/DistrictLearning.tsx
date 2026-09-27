@@ -59,7 +59,7 @@ function evidenceSentence(analysis: VariableAnalysis, districtName: string, lang
     : `${label} in ${districtName} has ${direction} significantly, by about ${amount} ${analysis.unit} per decade (p = ${p}).`;
 }
 
-export function DistrictLearning({ onMascotState, onContextChange }: { onMascotState?: (state: MascotState) => void; onContextChange?: (context: { district: string; variable: string; significant: boolean }) => void }) {
+export function DistrictLearning({ onMascotState, onContextChange }: { onMascotState?: (state: MascotState) => void; onContextChange?: (context: { districtId: string; district: string; variable: string; significant: boolean }) => void }) {
   const { lang } = useLang();
   const L = (en: string, bn: string) => lang === "bn" ? bn : en;
   const [districtId, setDistrictId] = useState("dhaka");
@@ -80,7 +80,7 @@ export function DistrictLearning({ onMascotState, onContextChange }: { onMascotS
   const ActiveVariableIcon = LABELS[activeVariable].icon;
 
   useEffect(() => {
-    onContextChange?.({ district: districtName, variable: LABELS[activeVariable][lang], significant: Boolean(analysis?.result.trend.significant_at_0_05) });
+    onContextChange?.({ districtId, district: districtName, variable: LABELS[activeVariable][lang], significant: Boolean(analysis?.result.trend.significant_at_0_05) });
   }, [activeVariable, analysis?.result.trend.significant_at_0_05, districtName, lang, onContextChange]);
 
   const chooseDistrict = (id: string) => { onMascotState?.("thinking"); setDistrictId(id); setPicked(null); setSaveMessage(""); const next = availableVariables(id); const first = next.at(0); if (first && !next.includes(variable)) setVariable(first); };

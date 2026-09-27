@@ -6,6 +6,7 @@ import { usePublishedQuiz } from "@/lib/public-content";
 import { DistrictLearning } from "@/components/DistrictLearning";
 import { Button } from "@/components/ui/button";
 import { KidsMascot, type MascotState } from "@/components/KidsMascot";
+import { DistrictThemeBackdrop } from "@/components/DistrictThemeBackdrop";
 
 export const Route = createFileRoute("/kids")({
   head: () => ({
@@ -65,6 +66,7 @@ function ArrowRightIcon() { return <span aria-hidden>→</span>; }
 function KidsPage() {
   const { lang, setLang } = useLang();
   const [mascotState, setMascotState] = useState<MascotState>("waving");
+  const [districtId, setDistrictId] = useState("dhaka");
   const [guideContext, setGuideContext] = useState({ district: lang === "bn" ? "ঢাকা" : "Dhaka", variable: lang === "bn" ? "ভূপৃষ্ঠের তাপমাত্রা" : "Land temperature" });
   const mascotTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showMascotState = useCallback((state: MascotState) => {
@@ -73,7 +75,8 @@ function KidsPage() {
     const duration = state === "thinking" ? 500 : state === "waving" ? 1000 : 1200;
     mascotTimer.current = setTimeout(() => setMascotState("idle"), duration);
   }, []);
-  const updateGuideContext = useCallback((context: { district: string; variable: string; significant: boolean }) => {
+  const updateGuideContext = useCallback((context: { districtId: string; district: string; variable: string; significant: boolean }) => {
+    setDistrictId(context.districtId);
     setGuideContext({ district: context.district, variable: context.variable });
     if (context.significant) showMascotState("celebrating");
   }, [showMascotState]);
@@ -86,9 +89,11 @@ function KidsPage() {
     return () => { observer.disconnect(); if (mascotTimer.current) clearTimeout(mascotTimer.current); };
   }, [setLang, showMascotState]);
 
-  return <div className="kids-page mx-auto max-w-7xl px-3 py-8 sm:px-6 sm:py-12">
-    <DistrictLearning onMascotState={showMascotState} onContextChange={updateGuideContext} />
-    <KidsMascot state={mascotState} context={guideContext} />
-    <section className="knowledge-section scroll-reveal" aria-labelledby="knowledge-title"><header><p className="learn-section-label">{lang === "bn" ? "ধারণা যাচাই" : "Concept review"}</p><h2 id="knowledge-title">{lang === "bn" ? "প্রমাণ থেকে শেখা" : "Learning from evidence"}</h2><p>{lang === "bn" ? "পরিবেশের পরিবর্তন বুঝতে কয়েকটি সংক্ষিপ্ত প্রশ্ন—কোনো পয়েন্ট বা পুরস্কার নয়।" : "A few short questions for connecting environmental ideas—without points or rewards."}</p></header><KnowledgeCheck onMascotState={showMascotState} /></section>
-  </div>;
+  return <DistrictThemeBackdrop districtId={districtId}>
+    <div className="kids-page mx-auto max-w-7xl px-3 py-8 sm:px-6 sm:py-12">
+      <DistrictLearning onMascotState={showMascotState} onContextChange={updateGuideContext} />
+      <KidsMascot state={mascotState} context={guideContext} districtId={districtId} />
+      <section className="knowledge-section scroll-reveal" aria-labelledby="knowledge-title"><header><p className="learn-section-label">{lang === "bn" ? "ধারণা যাচাই" : "Concept review"}</p><h2 id="knowledge-title">{lang === "bn" ? "প্রমাণ থেকে শেখা" : "Learning from evidence"}</h2><p>{lang === "bn" ? "পরিবেশের পরিবর্তন বুঝতে কয়েকটি সংক্ষিপ্ত প্রশ্ন—কোনো পয়েন্ট বা পুরস্কার নয়।" : "A few short questions for connecting environmental ideas—without points or rewards."}</p></header><KnowledgeCheck onMascotState={showMascotState} /></section>
+    </div>
+  </DistrictThemeBackdrop>;
 }
