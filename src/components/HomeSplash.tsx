@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowRight, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
@@ -10,14 +11,20 @@ export function HomeSplash({ onComplete }: { onComplete: () => void }) {
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     if (sessionStorage.getItem(SPLASH_KEY) === "1") {
+      document.body.style.overflow = previousOverflow;
       onComplete();
       return;
     }
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const timer = window.setTimeout(() => finish(), reducedMotion ? 350 : 4000);
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      document.body.style.overflow = previousOverflow;
+    };
   }, []);
 
   function finish() {
@@ -30,7 +37,7 @@ export function HomeSplash({ onComplete }: { onComplete: () => void }) {
     window.setTimeout(onComplete, 420);
   }
 
-  return (
+  return createPortal(
     <div className={`home-splash ${leaving ? "is-leaving" : ""}`} role="dialog" aria-modal="true" aria-label={lang === "bn" ? "টেরাবাংলা পরিচিতি" : "TerraBangla introduction"}>
       <div className="home-splash-stars" aria-hidden />
       <div className="home-splash-orbit" aria-hidden>
@@ -46,6 +53,7 @@ export function HomeSplash({ onComplete }: { onComplete: () => void }) {
       <Button variant="ghost" className="home-splash-skip" onClick={finish}>
         {lang === "bn" ? "এড়িয়ে যান" : "Skip"}<ArrowRight />
       </Button>
-    </div>
+    </div>,
+    document.body,
   );
 }
