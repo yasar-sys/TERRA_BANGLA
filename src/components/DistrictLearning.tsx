@@ -37,7 +37,7 @@ function DistrictMap({ activeId, onSelect, lang }: { activeId: string; onSelect:
     event.preventDefault();
     onSelect(id);
   };
-  return <svg viewBox="0 0 240 300" className="learn-map" role="group" aria-label={lang === "bn" ? "বাংলাদেশের ৬৪ জেলার মানচিত্র" : "Map of the 64 districts of Bangladesh"}>{(districtGeo.features as GeoFeature[]).map((feature) => { const active = feature.properties.districtId === activeId; return <path key={feature.properties.districtId} d={pathFor(feature)} className={active ? "learn-map-active" : "learn-map-district"} role="button" tabIndex={0} aria-pressed={active} aria-label={feature.properties.name} onClick={() => onSelect(feature.properties.districtId)} onKeyDown={(event) => chooseFromKey(event, feature.properties.districtId)}><title>{feature.properties.name}</title></path>; })}</svg>;
+  return <svg viewBox="0 0 240 300" className="learn-map" role="group" aria-label={lang === "bn" ? "বাংলাদেশের ৬৪ জেলার মানচিত্র" : "Map of the 64 districts of Bangladesh"}>{(districtGeo.features as GeoFeature[]).map((feature) => { const active = feature.properties.districtId === activeId; return <path key={feature.properties.districtId} d={pathFor(feature)} className={active ? "learn-map-active" : "learn-map-district"} role="button" tabIndex={0} aria-pressed={active} aria-label={lang === "bn" ? (districts.find(d => d.id === feature.properties.districtId)?.bn ?? feature.properties.name) : feature.properties.name} onClick={() => onSelect(feature.properties.districtId)} onKeyDown={(event) => chooseFromKey(event, feature.properties.districtId)}><title>{feature.properties.name}</title></path>; })}</svg>;
 }
 
 function pValue(value: number) { return value < 0.001 ? "< 0.001" : value.toFixed(3); }
@@ -104,7 +104,7 @@ export function DistrictLearning({ onMascotState, onContextChange }: { onMascotS
   return <section className="learn-studio" aria-labelledby="learn-title">
     <header className="learn-header scroll-reveal">
       <div><p className="learn-eyebrow"><Leaf /> {L("A guided Earth observation", "নির্দেশিত পৃথিবী পর্যবেক্ষণ")}</p><h1 id="learn-title">{L("Bangladesh in My Hands", "আমার হাতে বাংলাদেশ")}</h1><p>{L("Explore measured change across Bangladesh, one district and one climate record at a time.", "একটি জেলা ও একটি জলবায়ু রেকর্ড ধরে বাংলাদেশের পরিমাপ করা পরিবর্তন অনুসন্ধান করো।")}</p></div>
-      <div className="learn-record"><span>{L("Evidence coverage", "উপাত্তের আওতা")}</span><strong>{lang === "bn" ? "৬৪ জেলা" : "64 districts"}</strong><small>NASA Earth observations</small></div>
+      <div className="learn-record"><span>{L("Evidence coverage", "উপাত্তের আওতা")}</span><strong>{lang === "bn" ? "৬৪ জেলা" : "64 districts"}</strong><small>{L("NASA Earth observations", "নাসা আর্থ অবজারভেশনস")}</small></div>
     </header>
 
     <div className="learn-layout scroll-reveal">
