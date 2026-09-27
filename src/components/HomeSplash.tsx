@@ -16,7 +16,7 @@ export function HomeSplash({ onComplete }: { onComplete: () => void }) {
     }
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timer = window.setTimeout(() => finish(), reducedMotion ? 350 : 2800);
+    const timer = window.setTimeout(() => finish(), reducedMotion ? 350 : 4000);
     return () => window.clearTimeout(timer);
   }, []);
 
