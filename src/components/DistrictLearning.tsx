@@ -28,7 +28,7 @@ function DistrictMap({ activeId, onSelect }: { activeId: string; onSelect: (id: 
 }
 
 function Guides({ celebrate = false }: { celebrate?: boolean }) {
-  return <div className={`learn-guides ${celebrate ? "is-celebrating" : ""}`} aria-hidden="true"><span className="learn-guide">🧑🏽‍🎓</span><span className="learn-orbit"><Leaf /></span><span className="learn-guide">👩🏽‍🔬</span></div>;
+  return <div className={`learn-guides ${celebrate ? "is-celebrating" : ""}`} aria-hidden="true"><span className="learn-guide"><i className="learn-face"/><i className="learn-body"/><i className="learn-cap"/></span><span className="learn-orbit"><Leaf /></span><span className="learn-guide is-scientist"><i className="learn-face"/><i className="learn-body"/><i className="learn-hair"/></span></div>;
 }
 
 function sceneClass(variable: VariableKey) { return variable === "ndvi" ? "is-green" : variable === "precipitation" ? "is-rain" : variable === "solar" ? "is-solar" : "is-warm"; }

@@ -265,7 +265,14 @@
 .learn-eyebrow { display: inline-flex; align-items: center; gap: .45rem; color: var(--color-accent); font-size: .72rem; font-weight: 700; text-transform: uppercase; }
 .learn-eyebrow svg { width: 1rem; }
 .learn-guides { display: flex; align-items: center; justify-content: center; gap: 1.1rem; margin-top: 2rem; }
-.learn-guide { display: grid; place-items: center; width: 4.6rem; height: 4.6rem; border: 1px solid var(--color-border); border-radius: 50%; background: var(--color-elevated); font-size: 2.5rem; animation: learn-float 3.6s ease-in-out infinite; }
+.learn-guide { position: relative; display: block; width: 4.6rem; height: 4.6rem; overflow: hidden; border: 1px solid var(--color-border); border-radius: 50%; background: var(--color-elevated); animation: learn-float 3.6s ease-in-out infinite; }
+.learn-face { position: absolute; left: 50%; top: .72rem; width: 1.65rem; height: 1.65rem; transform: translateX(-50%); border-radius: 50%; background: color-mix(in oklab, var(--accent) 42%, var(--foreground)); }
+.learn-face::before { content: ""; position: absolute; left: .42rem; top: .7rem; width: .18rem; height: .18rem; border-radius: 50%; background: var(--color-background); box-shadow: .62rem 0 var(--color-background); }
+.learn-face::after { content: ""; position: absolute; left: .58rem; top: 1.08rem; width: .5rem; height: .22rem; border-bottom: 2px solid var(--color-background); border-radius: 50%; }
+.learn-body { position: absolute; left: 50%; bottom: -.6rem; width: 3.05rem; height: 2.45rem; transform: translateX(-50%); border-radius: 50% 50% 0 0; background: var(--color-primary); }
+.learn-cap { position: absolute; left: 50%; top: .35rem; width: 2.4rem; height: .7rem; transform: translateX(-50%) rotate(-3deg); background: var(--color-accent); clip-path: polygon(50% 0,100% 50%,50% 100%,0 50%); }
+.learn-hair { position: absolute; left: 50%; top: .5rem; width: 1.85rem; height: .9rem; transform: translateX(-50%); border-radius: 50% 50% 25% 25%; background: var(--color-foreground); }
+.learn-guide.is-scientist .learn-body { background: var(--color-stable); }
 .learn-guide:last-child { animation-delay: -1.8s; }
 .learn-orbit { display: grid; place-items: center; width: 2.8rem; height: 2.8rem; border-radius: 50%; background: var(--color-stable); color: var(--color-background); animation: learn-orbit 8s linear infinite; }
 .learn-guides.is-celebrating .learn-guide { animation: learn-celebrate .65s ease-in-out infinite alternate; }
