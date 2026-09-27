@@ -23,3 +23,4 @@
 - [x] Add 64 distinct procedural district themes and guide accents to `/kids`
 - [x] Upgrade all district themes into layered illustrated worlds with animated guide conversations
 - [x] Install the supplied TerraBangla logo across the site, splash screen, and app icons
+- [x] Add clear answers and learning takeaways to every children’s question
