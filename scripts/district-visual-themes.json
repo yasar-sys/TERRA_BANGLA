@@ -1,0 +1,450 @@
+{
+  "barguna": {
+    "name": "Barguna",
+    "division": "Barishal",
+    "category": "wave",
+    "rationale": "Low-lying coastal district facing the Bay of Bengal",
+    "landmark": "Bay of Bengal coastline"
+  },
+  "barishal": {
+    "name": "Barishal",
+    "division": "Barishal",
+    "category": "tide",
+    "rationale": "Dense delta of rivers and canals converging near the Kirtankhola",
+    "landmark": "Kirtankhola River"
+  },
+  "bhola": {
+    "name": "Bhola",
+    "division": "Barishal",
+    "category": "wave",
+    "rationale": "Bangladesh's largest riverine island shaped by tidal estuaries",
+    "landmark": "Meghna estuary island"
+  },
+  "jhalokati": {
+    "name": "Jhalokati",
+    "division": "Barishal",
+    "category": "tide",
+    "rationale": "Small district webbed by tidal distributary channels",
+    "landmark": "Sugandha River"
+  },
+  "patuakhali": {
+    "name": "Patuakhali",
+    "division": "Barishal",
+    "category": "wave",
+    "rationale": "Coastal lowland with mangrove fringe near Kuakata beach",
+    "landmark": "Kuakata sea beach"
+  },
+  "pirojpur": {
+    "name": "Pirojpur",
+    "division": "Barishal",
+    "category": "tide",
+    "rationale": "Canal-crossed delta land near the Sundarbans edge",
+    "landmark": "Sundarbans buffer waterways"
+  },
+  "bandarban": {
+    "name": "Bandarban",
+    "division": "Chattogram",
+    "category": "mist",
+    "rationale": "Highest hill district with cloud-wrapped peaks and valleys",
+    "landmark": "Keokradong hill range"
+  },
+  "brahmanbaria": {
+    "name": "Brahmanbaria",
+    "division": "Chattogram",
+    "category": "ripple",
+    "rationale": "Floodplain beside the Titas river's looping bends",
+    "landmark": "Titas River"
+  },
+  "chandpur": {
+    "name": "Chandpur",
+    "division": "Chattogram",
+    "category": "tide",
+    "rationale": "Meeting point of the Padma, Meghna and Dakatia rivers",
+    "landmark": "Padma-Meghna confluence"
+  },
+  "chattogram": {
+    "name": "Chattogram",
+    "division": "Chattogram",
+    "category": "wave",
+    "rationale": "Hilly port city facing the Bay of Bengal coastline",
+    "landmark": "Patenga sea beach"
+  },
+  "cumilla": {
+    "name": "Cumilla",
+    "division": "Chattogram",
+    "category": "sway",
+    "rationale": "Undulating red-soil plain dotted with lychee groves",
+    "landmark": "Lalmai hills"
+  },
+  "coxs-bazar": {
+    "name": "Cox's Bazar",
+    "division": "Chattogram",
+    "category": "wave",
+    "rationale": "World's longest natural sea beach along open coast",
+    "landmark": "Cox's Bazar beach"
+  },
+  "feni": {
+    "name": "Feni",
+    "division": "Chattogram",
+    "category": "tide",
+    "rationale": "Low estuarine plain near the Feni river mouth",
+    "landmark": "Feni River"
+  },
+  "khagrachhari": {
+    "name": "Khagrachhari",
+    "division": "Chattogram",
+    "category": "mist",
+    "rationale": "Forested hill valleys of the Chittagong Hill Tracts",
+    "landmark": "Alutila hill cave"
+  },
+  "lakshmipur": {
+    "name": "Lakshmipur",
+    "division": "Chattogram",
+    "category": "drift",
+    "rationale": "Shifting char lands along the shifting Meghna bank",
+    "landmark": "Meghna River chars"
+  },
+  "noakhali": {
+    "name": "Noakhali",
+    "division": "Chattogram",
+    "category": "wave",
+    "rationale": "Emerging coastal chars reshaped by Bay of Bengal tides",
+    "landmark": "Noakhali coastal chars"
+  },
+  "rangamati": {
+    "name": "Rangamati",
+    "division": "Chattogram",
+    "category": "mist",
+    "rationale": "Hilly lakeside district around a vast reservoir",
+    "landmark": "Kaptai Lake"
+  },
+  "dhaka": {
+    "name": "Dhaka",
+    "division": "Dhaka",
+    "category": "tide",
+    "rationale": "Capital built beside the busy Buriganga riverfront",
+    "landmark": "Buriganga River"
+  },
+  "faridpur": {
+    "name": "Faridpur",
+    "division": "Dhaka",
+    "category": "drift",
+    "rationale": "Padma riverside plain prone to shifting sandbars",
+    "landmark": "Padma River"
+  },
+  "gazipur": {
+    "name": "Gazipur",
+    "division": "Dhaka",
+    "category": "sway",
+    "rationale": "Sal forest tracts swaying north of the capital",
+    "landmark": "Bhawal Sal forest"
+  },
+  "gopalganj": {
+    "name": "Gopalganj",
+    "division": "Dhaka",
+    "category": "ripple",
+    "rationale": "Low wetland basin around Baikka-like haor pockets",
+    "landmark": "Modhumati floodplain"
+  },
+  "kishoreganj": {
+    "name": "Kishoreganj",
+    "division": "Dhaka",
+    "category": "ripple",
+    "rationale": "Seasonal haor basin flooding into a vast wetland",
+    "landmark": "Nikli haor"
+  },
+  "madaripur": {
+    "name": "Madaripur",
+    "division": "Dhaka",
+    "category": "drift",
+    "rationale": "Padma-adjacent lowland with migrating river chars",
+    "landmark": "Padma River chars"
+  },
+  "manikganj": {
+    "name": "Manikganj",
+    "division": "Dhaka",
+    "category": "drift",
+    "rationale": "Char-studded floodplain where the Padma shifts course",
+    "landmark": "Padma River"
+  },
+  "munshiganj": {
+    "name": "Munshiganj",
+    "division": "Dhaka",
+    "category": "tide",
+    "rationale": "Riverine district at the Padma-Meghna-Dhaleshwari junction",
+    "landmark": "Padma-Meghna junction"
+  },
+  "narayanganj": {
+    "name": "Narayanganj",
+    "division": "Dhaka",
+    "category": "tide",
+    "rationale": "River port town on the tidal Shitalakshya",
+    "landmark": "Shitalakshya River"
+  },
+  "narsingdi": {
+    "name": "Narsingdi",
+    "division": "Dhaka",
+    "category": "sway",
+    "rationale": "Fertile plain with breezy riverside cropfields",
+    "landmark": "Meghna River bank"
+  },
+  "rajbari": {
+    "name": "Rajbari",
+    "division": "Dhaka",
+    "category": "drift",
+    "rationale": "Padma riverbank district reshaped by seasonal erosion",
+    "landmark": "Padma River"
+  },
+  "shariatpur": {
+    "name": "Shariatpur",
+    "division": "Dhaka",
+    "category": "tide",
+    "rationale": "Low delta land facing the wide Padma-Meghna flow",
+    "landmark": "Padma River"
+  },
+  "tangail": {
+    "name": "Tangail",
+    "division": "Dhaka",
+    "category": "sway",
+    "rationale": "Sal forest highland with swaying woodland canopy",
+    "landmark": "Madhupur Sal forest"
+  },
+  "bagerhat": {
+    "name": "Bagerhat",
+    "division": "Khulna",
+    "category": "wave",
+    "rationale": "Coastal district bordering the mangrove Sundarbans",
+    "landmark": "Sundarbans mangrove forest"
+  },
+  "chuadanga": {
+    "name": "Chuadanga",
+    "division": "Khulna",
+    "category": "glow",
+    "rationale": "Dry western plain with warm open farmland horizons",
+    "landmark": "Mathabhanga River"
+  },
+  "jashore": {
+    "name": "Jashore",
+    "division": "Khulna",
+    "category": "sway",
+    "rationale": "Flat agricultural plain known for flower fields",
+    "landmark": "Jashore flower fields"
+  },
+  "jhenaidah": {
+    "name": "Jhenaidah",
+    "division": "Khulna",
+    "category": "sway",
+    "rationale": "Quiet plains along the meandering Nabaganga river",
+    "landmark": "Nabaganga River"
+  },
+  "khulna": {
+    "name": "Khulna",
+    "division": "Khulna",
+    "category": "wave",
+    "rationale": "Gateway to the Sundarbans mangrove delta and tidal creeks",
+    "landmark": "Sundarbans mangrove creeks"
+  },
+  "kushtia": {
+    "name": "Kushtia",
+    "division": "Khulna",
+    "category": "tide",
+    "rationale": "Riverside district beside the historic Padma's Hardinge Bridge",
+    "landmark": "Hardinge Bridge, Padma"
+  },
+  "magura": {
+    "name": "Magura",
+    "division": "Khulna",
+    "category": "sway",
+    "rationale": "Small quiet plain drained by the gentle Nabaganga",
+    "landmark": "Nabaganga River"
+  },
+  "meherpur": {
+    "name": "Meherpur",
+    "division": "Khulna",
+    "category": "glow",
+    "rationale": "Border plain with dry western farmland light",
+    "landmark": "Bhairab River"
+  },
+  "narail": {
+    "name": "Narail",
+    "division": "Khulna",
+    "category": "ripple",
+    "rationale": "River-laced plain along the winding Chitra river",
+    "landmark": "Chitra River"
+  },
+  "satkhira": {
+    "name": "Satkhira",
+    "division": "Khulna",
+    "category": "wave",
+    "rationale": "Southwestern coastal edge bordering Sundarbans tidal creeks",
+    "landmark": "Sundarbans mangrove edge"
+  },
+  "jamalpur": {
+    "name": "Jamalpur",
+    "division": "Mymensingh",
+    "category": "drift",
+    "rationale": "Jamuna riverside plain with shifting sandy chars",
+    "landmark": "Jamuna River chars"
+  },
+  "mymensingh": {
+    "name": "Mymensingh",
+    "division": "Mymensingh",
+    "category": "ripple",
+    "rationale": "Old Brahmaputra floodplain with looping oxbow channels",
+    "landmark": "Old Brahmaputra River"
+  },
+  "netrokona": {
+    "name": "Netrokona",
+    "division": "Mymensingh",
+    "category": "ripple",
+    "rationale": "Haor wetlands flooding wide in the monsoon basin",
+    "landmark": "Netrokona haor basin"
+  },
+  "sherpur": {
+    "name": "Sherpur",
+    "division": "Mymensingh",
+    "category": "mist",
+    "rationale": "Foothill district beneath the Garo Hills border ridge",
+    "landmark": "Garo Hills foothills"
+  },
+  "bogura": {
+    "name": "Bogura",
+    "division": "Rajshahi",
+    "category": "sway",
+    "rationale": "Broad Karatoya river plain of open farmland",
+    "landmark": "Karatoya River"
+  },
+  "joypurhat": {
+    "name": "Joypurhat",
+    "division": "Rajshahi",
+    "category": "glow",
+    "rationale": "Small Barind tract plain with dry upland fields",
+    "landmark": "Barind Tract"
+  },
+  "naogaon": {
+    "name": "Naogaon",
+    "division": "Rajshahi",
+    "category": "glow",
+    "rationale": "Barind upland tract known for mango orchards",
+    "landmark": "Barind Tract"
+  },
+  "natore": {
+    "name": "Natore",
+    "division": "Rajshahi",
+    "category": "glow",
+    "rationale": "Barind-adjacent plain with historic garden estates",
+    "landmark": "Uttara Gono Bhaban gardens"
+  },
+  "chapai-nawabganj": {
+    "name": "Chapai Nawabganj",
+    "division": "Rajshahi",
+    "category": "glow",
+    "rationale": "Dry Barind border plain famed for mango groves",
+    "landmark": "Mango orchards, Padma bank"
+  },
+  "pabna": {
+    "name": "Pabna",
+    "division": "Rajshahi",
+    "category": "tide",
+    "rationale": "Padma riverside plain with active char formation",
+    "landmark": "Padma River"
+  },
+  "rajshahi": {
+    "name": "Rajshahi",
+    "division": "Rajshahi",
+    "category": "glow",
+    "rationale": "Padma riverside city on the dry Barind Tract",
+    "landmark": "Padma River, Barind Tract"
+  },
+  "sirajganj": {
+    "name": "Sirajganj",
+    "division": "Rajshahi",
+    "category": "drift",
+    "rationale": "Jamuna riverside district facing constant channel shifts",
+    "landmark": "Jamuna River"
+  },
+  "dinajpur": {
+    "name": "Dinajpur",
+    "division": "Rangpur",
+    "category": "sway",
+    "rationale": "Wide northern plain of open rice fields",
+    "landmark": "Northern plains farmland"
+  },
+  "gaibandha": {
+    "name": "Gaibandha",
+    "division": "Rangpur",
+    "category": "drift",
+    "rationale": "Jamuna-Brahmaputra char lands reshaped every flood season",
+    "landmark": "Jamuna River chars"
+  },
+  "kurigram": {
+    "name": "Kurigram",
+    "division": "Rangpur",
+    "category": "drift",
+    "rationale": "Northern char district amid the braided Brahmaputra",
+    "landmark": "Brahmaputra River chars"
+  },
+  "lalmonirhat": {
+    "name": "Lalmonirhat",
+    "division": "Rangpur",
+    "category": "drift",
+    "rationale": "Teesta riverside plain with shifting sandy chars",
+    "landmark": "Teesta River chars"
+  },
+  "nilphamari": {
+    "name": "Nilphamari",
+    "division": "Rangpur",
+    "category": "glow",
+    "rationale": "Northern plain near the Teesta barrage headworks",
+    "landmark": "Teesta Barrage"
+  },
+  "panchagarh": {
+    "name": "Panchagarh",
+    "division": "Rangpur",
+    "category": "mist",
+    "rationale": "Northernmost district with Himalayan foothill views",
+    "landmark": "Kanchenjunga viewpoint"
+  },
+  "rangpur": {
+    "name": "Rangpur",
+    "division": "Rangpur",
+    "category": "sway",
+    "rationale": "Open northern plain beside the Ghaghot river",
+    "landmark": "Ghaghot River"
+  },
+  "thakurgaon": {
+    "name": "Thakurgaon",
+    "division": "Rangpur",
+    "category": "glow",
+    "rationale": "Quiet northwestern plain of the upper Tangon basin",
+    "landmark": "Tangon River"
+  },
+  "habiganj": {
+    "name": "Habiganj",
+    "division": "Sylhet",
+    "category": "mist",
+    "rationale": "Tea garden hills and haor wetlands combined",
+    "landmark": "Satchari hill forest"
+  },
+  "moulvibazar": {
+    "name": "Moulvibazar",
+    "division": "Sylhet",
+    "category": "mist",
+    "rationale": "Rolling tea garden hills of greater Sylhet",
+    "landmark": "Lawachara rainforest"
+  },
+  "sunamganj": {
+    "name": "Sunamganj",
+    "division": "Sylhet",
+    "category": "ripple",
+    "rationale": "Vast haor wetland flooding beneath the Meghalaya hills",
+    "landmark": "Tanguar Haor"
+  },
+  "sylhet": {
+    "name": "Sylhet",
+    "division": "Sylhet",
+    "category": "rain",
+    "rationale": "High-rainfall hill-fringed valley beside the Surma river",
+    "landmark": "Surma River valley"
+  }
+}
