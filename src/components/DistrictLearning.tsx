@@ -77,6 +77,7 @@ export function DistrictLearning({ onMascotState, onContextChange }: { onMascotS
   const districtName = lang === "bn" ? district?.bn ?? districtId : district?.name ?? districtId;
   const correct: Trend = !analysis?.result.trend.significant_at_0_05 ? "same" : (analysis.result.slope.slope_per_decade ?? 0) > 0 ? "up" : "down";
   const evidence = analysis ? evidenceSentence(analysis, districtName, lang) : null;
+  const ActiveVariableIcon = LABELS[activeVariable].icon;
 
   useEffect(() => {
     onContextChange?.({ district: districtName, variable: LABELS[activeVariable][lang], significant: Boolean(analysis?.result.trend.significant_at_0_05) });
@@ -123,9 +124,9 @@ export function DistrictLearning({ onMascotState, onContextChange }: { onMascotS
 
         {analysis ? <div key={`${districtId}-${activeVariable}`} className="learn-evidence-transition">
           <div className="learn-comparison">
-            <article className="learn-period-card is-earlier"><div className="learn-period-top"><span>{L("Earlier record", "আগের রেকর্ড")}</span><strong>{analysis.result.period.start}</strong></div><div className="learn-measure-icon"><LABELS[activeVariable].icon /></div><div><b>{fmt(analysis.result.first_value ?? 0, lang, activeVariable === "ndvi" ? 2 : 1)}</b><small>{analysis.unit}</small></div></article>
+            <article className="learn-period-card is-earlier"><div className="learn-period-top"><span>{L("Earlier record", "আগের রেকর্ড")}</span><strong>{analysis.result.period.start}</strong></div><div className="learn-measure-icon"><ActiveVariableIcon /></div><div><b>{fmt(analysis.result.first_value ?? 0, lang, activeVariable === "ndvi" ? 2 : 1)}</b><small>{analysis.unit}</small></div></article>
             <div className="learn-time" aria-hidden><span/><ArrowRight /></div>
-            <article className="learn-period-card is-recent"><div className="learn-period-top"><span>{L("Recent record", "সাম্প্রতিক রেকর্ড")}</span><strong>{analysis.result.period.end}</strong></div><div className="learn-measure-icon"><LABELS[activeVariable].icon /></div><div><b>{fmt(analysis.result.current_value ?? 0, lang, activeVariable === "ndvi" ? 2 : 1)}</b><small>{analysis.unit}</small></div></article>
+            <article className="learn-period-card is-recent"><div className="learn-period-top"><span>{L("Recent record", "সাম্প্রতিক রেকর্ড")}</span><strong>{analysis.result.period.end}</strong></div><div className="learn-measure-icon"><ActiveVariableIcon /></div><div><b>{fmt(analysis.result.current_value ?? 0, lang, activeVariable === "ndvi" ? 2 : 1)}</b><small>{analysis.unit}</small></div></article>
           </div>
           {evidence ? <div className={`learn-insight ${analysis.result.trend.significant_at_0_05 ? "is-significant" : "is-neutral"}`}><Info /><div><span>{L("What the trend test says", "প্রবণতা পরীক্ষায় যা দেখা যায়")}</span><p>{evidence}</p></div></div> : null}
           <p className="learn-source">NASA · {analysis.provenance.dataset_id} · {L(`${analysis.result.n_observations} annual observations`, `${analysis.result.n_observations.toLocaleString("bn-BD")}টি বার্ষিক পর্যবেক্ষণ`)}</p>
