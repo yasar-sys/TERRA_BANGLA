@@ -7,7 +7,7 @@ import idleAsset from "@/assets/mascot/idle.png.asset.json";
 import thinkingAsset from "@/assets/mascot/thinking.png.asset.json";
 import wavingAsset from "@/assets/mascot/waving.png.asset.json";
 import { useLang } from "@/lib/i18n";
-import { getDistrictTheme } from "@/lib/district-themes";
+import { getDistrictScene, getDistrictTheme } from "@/lib/district-themes";
 
 export type MascotState = "idle" | "celebrating" | "encouraging" | "thinking" | "waving";
 
@@ -31,6 +31,7 @@ export function KidsMascot({ state, context, districtId = "dhaka" }: { state: Ma
   const { lang } = useLang();
   const [minimized, setMinimized] = useState(false);
   const accent = getDistrictTheme(districtId).characterAccent;
+  const scene = getDistrictScene(districtId);
 
   useEffect(() => {
     Object.values(POSES).forEach((src) => {
@@ -48,8 +49,8 @@ export function KidsMascot({ state, context, districtId = "dhaka" }: { state: Ma
   if (minimized) return <Button type="button" variant="outline" size="sm" className="kids-guide-restore" onClick={() => setMinimized(false)}><ChevronUp />{lang === "bn" ? "গাইড দেখাও" : "Show guide"}</Button>;
 
   return (
-    <aside className={`kids-mascot is-${state}`} data-accessory={accent.accessory} style={{ "--district-guide-accent": accent.color } as CSSProperties} aria-live="polite" aria-atomic="true">
-      <div className="kids-mascot-copy"><span>{lang === "bn" ? "তথ্য গাইড" : "Evidence guide"}</span><p>{contextual}</p></div>
+    <aside className={`kids-mascot is-${state}`} data-accessory={accent.accessory} data-chat-style={scene.chatStyle} style={{ "--district-guide-accent": accent.color } as CSSProperties} aria-live="polite" aria-atomic="true">
+      <div className="kids-mascot-copy"><span><i aria-hidden="true" />{lang === "bn" ? "তথ্য গাইড" : "Evidence guide"}</span><p>{contextual}</p><small>{context?.district ?? (lang === "bn" ? "বাংলাদেশ" : "Bangladesh")}</small></div>
       <div className="kids-mascot-art" key={state}>
         <img src={POSES[state]} alt="" aria-hidden="true" draggable={false} />
         <i className="kids-mascot-accent" aria-hidden="true">{String(accent.mark).padStart(2, "0")}</i>

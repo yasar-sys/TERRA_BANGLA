@@ -21,3 +21,4 @@
 - [x] Add the uploaded five-pose animated mascot to the kids learning studio and quiz
 - [x] Overhaul `/kids` into a calm, museum-quality climate data learning experience
 - [x] Add 64 distinct procedural district themes and guide accents to `/kids`
+- [x] Upgrade all district themes into layered illustrated worlds with animated guide conversations

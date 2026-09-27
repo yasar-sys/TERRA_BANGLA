@@ -8,6 +8,18 @@ export interface DistrictTheme {
   themeRationale: string;
 }
 
+export type DistrictLandscape = "coast" | "wetland" | "hills" | "forest" | "fields" | "river" | "city" | "dryland";
+export type DistrictChatStyle = "notebook" | "river-glass" | "canopy" | "observatory" | "field-note" | "harbor" | "rain-window" | "lantern";
+
+export interface DistrictScene {
+  landscape: DistrictLandscape;
+  chatStyle: DistrictChatStyle;
+  composition: number;
+  horizon: number;
+  sunPosition: number;
+  foregroundScale: number;
+}
+
 export const DISTRICT_THEMES = {
   // Barguna: Low-lying coastal district facing the Bay of Bengal; visual cue: Bay of Bengal coastline.
   'barguna': { gradientColors: ['#162F36', '#1E2952', '#1D3C3F'], ambientAnimationType: 'wave', ambientAnimationParams: { speed: 8.2, opacity: 0.11, density: 3, angle: 0 }, characterAccent: { color: '#D3A75A', accessory: 'scarf', mark: 1 }, themeRationale: 'Low-lying coastal district facing the Bay of Bengal' },
@@ -143,4 +155,42 @@ export type DistrictThemeId = keyof typeof DISTRICT_THEMES;
 
 export function getDistrictTheme(id: string): DistrictTheme {
   return DISTRICT_THEMES[id as DistrictThemeId] ?? DISTRICT_THEMES.dhaka;
+}
+
+const LANDSCAPE_BY_AMBIENT: Record<AmbientAnimationType, DistrictLandscape> = {
+  wave: "coast",
+  tide: "river",
+  ripple: "wetland",
+  mist: "hills",
+  sway: "fields",
+  glow: "dryland",
+  rain: "forest",
+  drift: "river",
+};
+
+const CHAT_STYLES: DistrictChatStyle[] = ["notebook", "river-glass", "canopy", "observatory", "field-note", "harbor", "rain-window", "lantern"];
+
+/**
+ * Turns each explicit district record into a unique scenic composition. The
+ * configured mark is stable, so a district keeps the same horizon, framing,
+ * lighting and conversation treatment across visits.
+ */
+export function getDistrictScene(id: string): DistrictScene {
+  const theme = getDistrictTheme(id);
+  const mark = theme.characterAccent.mark;
+  const baseLandscape = LANDSCAPE_BY_AMBIENT[theme.ambientAnimationType];
+  const landscape: DistrictLandscape = id === "dhaka" || id === "narayanganj"
+    ? "city"
+    : id === "gazipur" || id === "bagerhat" || id === "khulna"
+      ? "forest"
+      : baseLandscape;
+
+  return {
+    landscape,
+    chatStyle: CHAT_STYLES[(mark - 1) % CHAT_STYLES.length] ?? "notebook",
+    composition: ((mark - 1) % 16) + 1,
+    horizon: 48 + ((mark * 7) % 18),
+    sunPosition: 12 + ((mark * 13) % 72),
+    foregroundScale: 88 + ((mark * 11) % 25),
+  };
 }

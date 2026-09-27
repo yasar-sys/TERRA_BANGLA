@@ -3,7 +3,7 @@ Google is the only sign-in method; saved chat is split into URL-addressable conv
 Admin authorization is granted only after server-side verification of the exact approved email and is enforced through database roles and row policies.
 The children’s section is a calm, museum-style 64-district data studio; comparisons and knowledge checks derive from cached NASA records, while illustrations remain explanatory only.
 The supplied detective character is an optional, understated evidence guide; it never represents measured evidence or introduces gamification.
-District visual themes are procedural, geography-informed atmosphere only; they never encode or imply measured climate evidence.
+District visual themes use one shared layered CSS renderer with stable per-district compositions; they are geography-informed atmosphere only and never climate evidence.
 Student profiles, favorites, lesson attempts, and saved AI explanations use separate owner-scoped records; roles never live in profiles.
 <!-- LOVABLE:BEGIN -->
 > [!IMPORTANT]
