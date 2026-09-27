@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Json } from "@/integrations/supabase/types";
 
 const variableSchema = z.enum(["ndvi", "lst", "temperature", "solar", "precipitation"]);
 const trendSchema = z.enum(["up", "down", "same"]);
@@ -77,7 +78,7 @@ export const saveStudentInsight = createServerFn({ method: "POST" })
     const { analyzeVariable } = await import("./climate");
     const analysis = analyzeVariable(data.districtId, data.variable, { start: Math.min(data.start, data.end), end: Math.max(data.start, data.end) });
     if (!analysis) throw new Error("Cached NASA data is not available for this selection.");
-    const evidence = { unit: analysis.unit, period: analysis.result.period, observations: analysis.result.n_observations, first_value: analysis.result.first_value, latest_value: analysis.result.current_value, slope_per_decade: analysis.result.slope.slope_per_decade, trend: analysis.result.trend, provenance: analysis.provenance };
+    const evidence: Json = { unit: analysis.unit, period: { start: analysis.result.period.start, end: analysis.result.period.end }, observations: analysis.result.n_observations, first_value: analysis.result.first_value, latest_value: analysis.result.current_value, slope_per_decade: analysis.result.slope.slope_per_decade, trend: { s: analysis.result.trend.s, z: analysis.result.trend.z, p_value: analysis.result.trend.p_value, direction: analysis.result.trend.direction, significant_at_0_05: analysis.result.trend.significant_at_0_05 }, provenance: { dataset_id: analysis.provenance.dataset_id, source_url: analysis.provenance.source_url, retrieved: analysis.provenance.retrieved, mode: analysis.provenance.mode } };
     const result = await context.supabase.from("saved_insights").insert({ user_id: context.userId, district_id: data.districtId, variable: data.variable, observation: data.observation, explanation: data.explanation, period_start: analysis.result.period.start, period_end: analysis.result.period.end, evidence });
     if (result.error) throw result.error;
     return { ok: true };

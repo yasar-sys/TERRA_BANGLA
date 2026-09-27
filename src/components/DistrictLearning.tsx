@@ -50,7 +50,7 @@ export function DistrictLearning() {
   const analysis = useMemo(() => analyzeVariable(districtId, activeVariable), [districtId, activeVariable]);
   const district = getDistrict(districtId);
   const correct: Trend = !analysis?.result.trend.significant_at_0_05 ? "same" : (analysis.result.slope.slope_per_decade ?? 0) > 0 ? "up" : "down";
-  const chooseDistrict = (id: string) => { setDistrictId(id); setPicked(null); setSaveMessage(""); const next = availableVariables(id); if (next.length && !next.includes(variable)) setVariable(next[0]); };
+  const chooseDistrict = (id: string) => { setDistrictId(id); setPicked(null); setSaveMessage(""); const next = availableVariables(id); const first = next.at(0); if (first && !next.includes(variable)) setVariable(first); };
   const openLesson = async () => { setStep("lesson"); const { data } = await supabase.auth.getUser(); if (data.user) { try { setFavorite((await listFavorites()).includes(districtId)); } catch { setFavorite(false); } } };
   const answer = async (choice: Trend) => {
     setPicked(choice);
