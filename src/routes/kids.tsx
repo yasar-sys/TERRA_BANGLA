@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { BookOpenCheck, Check, RotateCcw } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { usePublishedQuiz } from "@/lib/public-content";
 import { DistrictLearning } from "@/components/DistrictLearning";
@@ -9,17 +10,10 @@ import { KidsMascot, type MascotState } from "@/components/KidsMascot";
 export const Route = createFileRoute("/kids")({
   head: () => ({
     meta: [
-      { title: "আমার হাতে বাংলাদেশ — Animated climate learning" },
-      {
-        name: "description",
-        content:
-          "A calm bilingual animated lesson where students compare real cached NASA climate records across all 64 districts of Bangladesh.",
-      },
-      { property: "og:title", content: "আমার হাতে বাংলাদেশ — Animated climate learning" },
-      {
-        property: "og:description",
-        content: "Choose any Bangladesh district, compare earlier and recent NASA records, and answer a simple trend question.",
-      },
+      { title: "আমার হাতে বাংলাদেশ — TerraBangla Climate Learning Studio" },
+      { name: "description", content: "A calm bilingual climate learning studio where students compare real cached NASA records across all 64 districts of Bangladesh." },
+      { property: "og:title", content: "আমার হাতে বাংলাদেশ — TerraBangla Climate Learning Studio" },
+      { property: "og:description", content: "Explore measured environmental change across Bangladesh through maps, time comparisons, and evidence checks." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -28,8 +22,8 @@ export const Route = createFileRoute("/kids")({
 });
 
 type T2 = { en: string; bn: string };
-
 interface Q { q: T2; options: T2[]; answer: number; why: T2 }
+
 const BUILT_IN_QUIZ: Q[] = [
   { q: { en: "Which gas traps heat like a blanket?", bn: "কোন গ্যাস কম্বলের মতো তাপ আটকে রাখে?" }, options: [{ en: "Oxygen", bn: "অক্সিজেন" }, { en: "Carbon dioxide", bn: "কার্বন ডাই-অক্সাইড" }, { en: "Helium", bn: "হিলিয়াম" }], answer: 1, why: { en: "Carbon dioxide is a greenhouse gas that keeps heat near the Earth.", bn: "কার্বন ডাই-অক্সাইড একটি গ্রিনহাউস গ্যাস যা তাপ পৃথিবীর কাছে ধরে রাখে।" } },
   { q: { en: "What do trees take out of the air?", bn: "গাছ বাতাস থেকে কী নেয়?" }, options: [{ en: "Carbon dioxide", bn: "কার্বন ডাই-অক্সাইড" }, { en: "Water vapour only", bn: "শুধু জলীয় বাষ্প" }, { en: "Smoke colour", bn: "ধোঁয়ার রং" }], answer: 0, why: { en: "Trees use carbon dioxide to grow, cleaning the air.", bn: "গাছ বড় হতে কার্বন ডাই-অক্সাইড ব্যবহার করে, বাতাস পরিষ্কার করে।" } },
@@ -40,105 +34,57 @@ const BUILT_IN_QUIZ: Q[] = [
   { q: { en: "How do scientists know Bangladesh is warming?", bn: "বিজ্ঞানীরা কীভাবে জানেন বাংলাদেশ গরম হচ্ছে?" }, options: [{ en: "By measuring temperature for many years", bn: "অনেক বছর ধরে তাপমাত্রা মেপে" }, { en: "By guessing", bn: "অনুমান করে" }, { en: "From one hot day", bn: "একটা গরম দিন দেখে" }], answer: 0, why: { en: "A trend needs many years of data — like the NASA records on this site.", bn: "প্রবণতা বুঝতে অনেক বছরের তথ্য লাগে — যেমন এই সাইটের নাসার রেকর্ড।" } },
 ];
 
-function Quiz({ onMascotState }: { onMascotState: (state: MascotState) => void }) {
+function KnowledgeCheck({ onMascotState }: { onMascotState: (state: MascotState) => void }) {
   const published = usePublishedQuiz();
-  // Admin-published questions replace the built-in set when any exist.
-  const QUIZ: Q[] = published && published.length > 0 ? published : BUILT_IN_QUIZ;
+  const questions: Q[] = published && published.length > 0 ? published : BUILT_IN_QUIZ;
   const { lang } = useLang();
-  const L = (x: T2) => (lang === "bn" ? x.bn : x.en);
-  const [idx, setIdx] = useState(0);
+  const localize = (value: T2) => lang === "bn" ? value.bn : value.en;
+  const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
-  // Score kept in local state; shape ready for a future badge/progress system.
   const [score, setScore] = useState({ correct: 0, answered: 0, history: [] as boolean[] });
-  const done = idx >= QUIZ.length;
-  const n = (x: number) => (lang === "bn" ? x.toLocaleString("bn-BD") : String(x));
+  const done = index >= questions.length;
+  const number = (value: number) => lang === "bn" ? value.toLocaleString("bn-BD") : String(value);
 
-  if (done) {
-    const highScore = score.correct >= Math.ceil(QUIZ.length * 0.7);
-    return (
-      <div className={`panel quiz-finish relative overflow-hidden p-6 text-center ${highScore ? "quiz-finish-high" : "quiz-finish-growing"}`} aria-live="polite">
-        <div className="quiz-celebration" aria-hidden>{highScore ? "★ ✦ ★ ✦ ★" : "✦ ★ ✦"}</div>
-        <div className="quiz-trophy text-6xl" aria-hidden>{highScore ? "🏆" : "🌱"}</div>
-        <h3 className="mt-2 font-display text-2xl text-foreground">
-          {lang === "bn" ? `তোমার স্কোর: ${n(score.correct)} / ${n(QUIZ.length)}` : `Your score: ${score.correct} / ${QUIZ.length}`}
-        </h3>
-        <p className="mt-2 text-muted-foreground">
-          {highScore
-            ? lang === "bn" ? "দারুণ! তুমি একজন ক্লাইমেট গোয়েন্দা!" : "Brilliant! You are a climate detective!"
-            : lang === "bn" ? "ভালো চেষ্টা! আবার খেলে দেখো।" : "Good try! Play again to learn more."}
-        </p>
-          <Button type="button" onClick={() => { onMascotState("thinking"); setIdx(0); setPicked(null); setScore({ correct: 0, answered: 0, history: [] }); }} className="mt-4">
-          {lang === "bn" ? "আবার খেলো" : "Play again"}
-        </Button>
-      </div>
-    );
-  }
+  if (done) return <div className="knowledge-finish" aria-live="polite"><BookOpenCheck aria-hidden /><p className="learn-section-label">{lang === "bn" ? "পর্যালোচনা সম্পন্ন" : "Review complete"}</p><h3>{lang === "bn" ? `${number(questions.length)}টির মধ্যে ${number(score.correct)}টি সঠিক পর্যবেক্ষণ` : `${score.correct} of ${questions.length} observations correct`}</h3><p>{lang === "bn" ? "প্রতিটি ব্যাখ্যা আবার পড়ে প্রমাণের সঙ্গে ধারণাগুলো মিলিয়ে নাও।" : "Revisit each explanation and connect the ideas to the evidence above."}</p><Button type="button" variant="outline" onClick={() => { onMascotState("thinking"); setIndex(0); setPicked(null); setScore({ correct: 0, answered: 0, history: [] }); }}><RotateCcw />{lang === "bn" ? "আবার পর্যালোচনা করো" : "Review again"}</Button></div>;
 
-  const q = QUIZ[idx]!;
-  const choose = (k: number) => {
+  const question = questions[index];
+  if (!question) return null;
+  const choose = (choice: number) => {
     if (picked !== null) return;
-    setPicked(k);
-    const ok = k === q.answer;
-    onMascotState(ok ? "celebrating" : "encouraging");
-    setScore((s) => ({ correct: s.correct + (ok ? 1 : 0), answered: s.answered + 1, history: [...s.history, ok] }));
+    setPicked(choice);
+    const correct = choice === question.answer;
+    onMascotState(correct ? "idle" : "encouraging");
+    setScore((current) => ({ correct: current.correct + (correct ? 1 : 0), answered: current.answered + 1, history: [...current.history, correct] }));
   };
-  return (
-    <div className="panel p-5">
-      <div className="flex justify-between text-xs text-muted-foreground">
-        <span>{lang === "bn" ? `প্রশ্ন ${n(idx + 1)} / ${n(QUIZ.length)}` : `Question ${idx + 1} of ${QUIZ.length}`}</span>
-        <span key={score.correct} className="quiz-score-pop">{lang === "bn" ? `স্কোর ${n(score.correct)}` : `Score ${score.correct}`}</span>
-      </div>
-      <h3 className="mt-2 font-display text-xl text-foreground">{L(q.q)}</h3>
-      <div className="mt-4 grid gap-2">
-        {q.options.map((o, k) => {
-          const state = picked === null ? "quiz-answer-idle" : k === q.answer ? "quiz-answer-correct" : k === picked ? "quiz-answer-incorrect" : "quiz-answer-muted";
-          return (
-            <Button key={k} type="button" variant="outline" onClick={() => choose(k)} aria-disabled={picked !== null} className={`quiz-answer h-auto min-h-12 justify-start whitespace-normal rounded-xl px-4 py-3 text-left ${state}`}>
-              {picked !== null && k === q.answer && <span className="quiz-check" aria-hidden>✓</span>}{L(o)}
-            </Button>
-          );
-        })}
-      </div>
-      {picked !== null && (
-        <div className="mt-4 animate-fade-in" aria-live="polite">
-          <p className={`font-semibold ${picked === q.answer ? "text-stable" : "text-declining"}`}>
-            {picked === q.answer ? (lang === "bn" ? "✓ সঠিক!" : "✓ Correct!") : lang === "bn" ? "✗ ঠিক হয়নি" : "✗ Not quite"}
-          </p>
-          <p className="mt-1 text-sm text-foreground/90">{L(q.why)}</p>
-          <Button type="button" autoFocus onClick={() => { onMascotState(idx === QUIZ.length - 1 ? "celebrating" : "thinking"); setIdx(idx + 1); setPicked(null); }} className="mt-3">
-            {idx === QUIZ.length - 1 ? (lang === "bn" ? "ফলাফল দেখো" : "See result") : lang === "bn" ? "পরের প্রশ্ন →" : "Next question →"}
-          </Button>
-        </div>
-      )}
-    </div>
-  );
+
+  return <div className="knowledge-card"><div className="knowledge-progress"><span>{lang === "bn" ? `পর্যবেক্ষণ ${number(index + 1)} / ${number(questions.length)}` : `Observation ${index + 1} of ${questions.length}`}</span><span>{lang === "bn" ? `${number(score.correct)}টি মিলেছে` : `${score.correct} matched`}</span></div><div className="knowledge-progress-line" aria-hidden><i style={{ width: `${((index + (picked === null ? 0 : 1)) / questions.length) * 100}%` }} /></div><h3>{localize(question.q)}</h3><div className="knowledge-options">{question.options.map((option, optionIndex) => { const state = picked === null ? "" : optionIndex === question.answer ? "is-correct" : optionIndex === picked ? "is-wrong" : "is-muted"; return <Button key={`${index}-${optionIndex}`} type="button" variant="outline" onClick={() => choose(optionIndex)} aria-disabled={picked !== null} className={state}>{picked !== null && optionIndex === question.answer ? <Check /> : null}{localize(option)}</Button>; })}</div>{picked !== null ? <div className="knowledge-explanation" aria-live="polite"><span>{picked === question.answer ? (lang === "bn" ? "প্রমাণের সঙ্গে মিলেছে" : "Matches the evidence") : (lang === "bn" ? "প্রমাণটি আরেকবার দেখো" : "Look at the evidence again")}</span><p>{localize(question.why)}</p><Button type="button" onClick={() => { onMascotState("thinking"); setIndex(index + 1); setPicked(null); }}>{index === questions.length - 1 ? (lang === "bn" ? "সারাংশ দেখো" : "View summary") : (lang === "bn" ? "পরের পর্যবেক্ষণ" : "Next observation")}<ArrowRightIcon /></Button></div> : null}</div>;
 }
 
+function ArrowRightIcon() { return <span aria-hidden>→</span>; }
+
 function KidsPage() {
-  const { lang } = useLang();
+  const { lang, setLang } = useLang();
   const [mascotState, setMascotState] = useState<MascotState>("waving");
+  const [guideContext, setGuideContext] = useState({ district: lang === "bn" ? "ঢাকা" : "Dhaka", variable: lang === "bn" ? "ভূপৃষ্ঠের তাপমাত্রা" : "Land temperature" });
   const mascotTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showMascotState = useCallback((state: MascotState) => {
     if (mascotTimer.current) clearTimeout(mascotTimer.current);
     setMascotState(state);
-    const duration = state === "thinking" ? 700 : state === "waving" ? 1300 : 1500;
+    const duration = state === "thinking" ? 500 : state === "waving" ? 1000 : 1200;
     mascotTimer.current = setTimeout(() => setMascotState("idle"), duration);
   }, []);
 
   useEffect(() => {
+    if (!window.localStorage.getItem("mec-lang")) setLang("bn");
     showMascotState("waving");
-    return () => { if (mascotTimer.current) clearTimeout(mascotTimer.current); };
-  }, [showMascotState]);
+    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add("is-visible"); observer.unobserve(entry.target); } }), { threshold: 0.12 });
+    document.querySelectorAll(".scroll-reveal").forEach((element) => observer.observe(element));
+    return () => { observer.disconnect(); if (mascotTimer.current) clearTimeout(mascotTimer.current); };
+  }, [setLang, showMascotState]);
 
-  return (
-    <div className="kids-page mx-auto max-w-6xl px-3 py-6 sm:px-6 sm:py-9">
-      <h1 className="sr-only">আমার হাতে বাংলাদেশ — Bangladesh in My Hands</h1>
-      <DistrictLearning onMascotState={showMascotState} />
-      <section className="mx-auto mt-10 max-w-4xl" aria-labelledby="quiz">
-        <div className="mb-3 flex items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase text-muted-foreground">{lang === "bn" ? "অতিরিক্ত অনুশীলন" : "Bonus activity"}</p><h2 id="quiz" className="font-display text-2xl text-primary">{lang === "bn" ? "দ্রুত কুইজ" : "Quick quiz"}</h2></div><span className="text-3xl" aria-hidden="true">🧠</span></div>
-        <Quiz onMascotState={showMascotState} />
-      </section>
-      <KidsMascot state={mascotState} />
-    </div>
-  );
+  return <div className="kids-page mx-auto max-w-7xl px-3 py-8 sm:px-6 sm:py-12">
+    <DistrictLearning onMascotState={showMascotState} onContextChange={(context) => { setGuideContext({ district: context.district, variable: context.variable }); if (context.significant) showMascotState("celebrating"); }} />
+    <KidsMascot state={mascotState} context={guideContext} />
+    <section className="knowledge-section scroll-reveal" aria-labelledby="knowledge-title"><header><p className="learn-section-label">{lang === "bn" ? "ধারণা যাচাই" : "Concept review"}</p><h2 id="knowledge-title">{lang === "bn" ? "প্রমাণ থেকে শেখা" : "Learning from evidence"}</h2><p>{lang === "bn" ? "পরিবেশের পরিবর্তন বুঝতে কয়েকটি সংক্ষিপ্ত প্রশ্ন—কোনো পয়েন্ট বা পুরস্কার নয়।" : "A few short questions for connecting environmental ideas—without points or rewards."}</p></header><KnowledgeCheck onMascotState={showMascotState} /></section>
+  </div>;
 }
