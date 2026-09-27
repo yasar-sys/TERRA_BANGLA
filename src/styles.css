@@ -208,7 +208,7 @@
 .nav-desktop-link:hover,
 .nav-mobile-link:hover,
 .nav-link-active { color: var(--color-foreground); background: var(--color-secondary); }
-.nav-link-active { box-shadow: inset 0 -2px 0 var(--color-accent); }
+.nav-link-active { color: var(--color-primary-foreground); background: var(--color-primary); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primary) 68%, var(--foreground)); }
 
 .globe-frame {
   border-radius: var(--radius-lg);
@@ -311,6 +311,32 @@
 @media (max-width: 760px) { .learn-layout { grid-template-columns: 1fr; }.learn-picker { border-right: 0; border-bottom: 1px solid var(--color-border); }.learn-map { max-height: 17rem; }.learn-header .learn-guides { display: none; }.learn-comparison { grid-template-columns: 1fr 2rem 1fr; gap: .35rem; }.learn-comparison article { min-height: 13rem; }.learn-weather { font-size: 3.2rem; }.learn-time i { height: 4rem; }.learn-content { padding: 1rem; } }
 @media (max-width: 420px) { .learn-shell { border-radius: var(--radius-lg); }.learn-intro { min-height: 29rem; }.learn-header { padding: 1rem; }.learn-answers { grid-template-columns: 1fr; }.learn-answers button { min-height: 3.25rem; flex-direction: row; }.learn-comparison article strong { font-size: 1.5rem; }.learn-comparison article b { font-size: .78rem; }.learn-weather { font-size: 2.7rem; } }
 @media (prefers-reduced-motion: reduce) { .learn-intro-copy, .learn-guide, .learn-orbit, .learn-guides.is-celebrating .learn-guide, .learn-comparison article::before, .learn-comparison article::after, .learn-weather, .learn-feedback, .learn-outro-spark { animation: none; }.learn-map-district, .learn-map-active { transition: none; } }
+
+/* Kids lesson mascot */
+.kids-page { position: relative; }
+.kids-mascot { position: fixed; right: max(.65rem, env(safe-area-inset-right)); bottom: max(.65rem, env(safe-area-inset-bottom)); z-index: 35; display: flex; align-items: flex-end; gap: .45rem; pointer-events: none; filter: drop-shadow(0 8px 14px color-mix(in oklab, var(--background) 65%, transparent)); }
+.kids-mascot-art { width: clamp(5rem, 9vw, 7.5rem); height: clamp(6.5rem, 12vw, 9rem); display: flex; align-items: flex-end; justify-content: center; transform-origin: bottom center; animation: mascot-crossfade .2s ease-out both, mascot-bob 2.5s ease-in-out .2s infinite; }
+.kids-mascot-art img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; user-select: none; }
+.kids-mascot-bubble { position: relative; max-width: 12rem; margin-bottom: 4.5rem; border: 1px solid var(--color-border); border-radius: .9rem .9rem .2rem .9rem; background: color-mix(in oklab, var(--card) 96%, transparent); padding: .55rem .7rem; color: var(--color-foreground); box-shadow: var(--shadow-panel); font-size: .72rem; font-weight: 650; line-height: 1.35; animation: mascot-crossfade .2s ease-out both; }
+.kids-mascot-bubble::after { content: ""; position: absolute; right: -.42rem; bottom: .4rem; width: .75rem; height: .75rem; border-right: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); background: var(--color-card); transform: rotate(-45deg); }
+.kids-mascot.is-celebrating .kids-mascot-art { animation: mascot-crossfade .15s ease-out both, mascot-celebrate .5s cubic-bezier(.2,1.45,.35,1) both; }
+.kids-mascot.is-encouraging .kids-mascot-art { animation: mascot-crossfade .15s ease-out both, mascot-encourage .4s ease-in-out 2; }
+.kids-mascot.is-thinking .kids-mascot-art { animation: mascot-crossfade .15s ease-out both, mascot-bob 2.5s ease-in-out .15s infinite; }
+.kids-mascot.is-waving .kids-mascot-art { animation: mascot-wave .8s ease-out both; }
+@keyframes mascot-crossfade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mascot-bob { 50% { transform: translateY(-2px) scaleY(1.008); } 52% { transform: translateY(-2px) scaleY(.988); } }
+@keyframes mascot-celebrate { 0% { opacity: 0; transform: scale(.8); } 68% { opacity: 1; transform: scale(1.1); } 100% { transform: scale(1); } }
+@keyframes mascot-encourage { 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
+@keyframes mascot-wave { 0% { opacity: 0; transform: scale(.85) rotate(-5deg); } 45% { opacity: 1; transform: scale(1.04) rotate(5deg); } 70% { transform: scale(1) rotate(-3deg); } 100% { transform: none; } }
+@media (max-width: 520px) {
+  .kids-page { padding-bottom: 7.5rem; }
+  .kids-mascot { right: .3rem; bottom: .35rem; gap: .25rem; }
+  .kids-mascot-art { width: 5rem; height: 6.5rem; }
+  .kids-mascot-bubble { max-width: 9.25rem; margin-bottom: 3.7rem; padding: .4rem .5rem; font-size: .64rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kids-mascot-art, .kids-mascot-bubble, .kids-mascot.is-celebrating .kids-mascot-art, .kids-mascot.is-encouraging .kids-mascot-art, .kids-mascot.is-thinking .kids-mascot-art, .kids-mascot.is-waving .kids-mascot-art { animation: mascot-crossfade .001ms linear both; }
+}
 
 /* Home splash */
 .home-splash { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; overflow: hidden; background: var(--color-background); color: var(--color-foreground); transition: opacity .42s ease, visibility .42s ease; isolation: isolate; }

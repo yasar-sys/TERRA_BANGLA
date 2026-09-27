@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLang } from "@/lib/i18n";
 import { usePublishedQuiz } from "@/lib/public-content";
 import { DistrictLearning } from "@/components/DistrictLearning";
 import { Button } from "@/components/ui/button";
+import { KidsMascot, type MascotState } from "@/components/KidsMascot";
 
 export const Route = createFileRoute("/kids")({
   head: () => ({
@@ -39,7 +40,7 @@ const BUILT_IN_QUIZ: Q[] = [
   { q: { en: "How do scientists know Bangladesh is warming?", bn: "বিজ্ঞানীরা কীভাবে জানেন বাংলাদেশ গরম হচ্ছে?" }, options: [{ en: "By measuring temperature for many years", bn: "অনেক বছর ধরে তাপমাত্রা মেপে" }, { en: "By guessing", bn: "অনুমান করে" }, { en: "From one hot day", bn: "একটা গরম দিন দেখে" }], answer: 0, why: { en: "A trend needs many years of data — like the NASA records on this site.", bn: "প্রবণতা বুঝতে অনেক বছরের তথ্য লাগে — যেমন এই সাইটের নাসার রেকর্ড।" } },
 ];
 
-function Quiz() {
+function Quiz({ onMascotState }: { onMascotState: (state: MascotState) => void }) {
   const published = usePublishedQuiz();
   // Admin-published questions replace the built-in set when any exist.
   const QUIZ: Q[] = published && published.length > 0 ? published : BUILT_IN_QUIZ;
@@ -66,7 +67,7 @@ function Quiz() {
             ? lang === "bn" ? "দারুণ! তুমি একজন ক্লাইমেট গোয়েন্দা!" : "Brilliant! You are a climate detective!"
             : lang === "bn" ? "ভালো চেষ্টা! আবার খেলে দেখো।" : "Good try! Play again to learn more."}
         </p>
-        <Button type="button" onClick={() => { setIdx(0); setPicked(null); setScore({ correct: 0, answered: 0, history: [] }); }} className="mt-4">
+          <Button type="button" onClick={() => { onMascotState("thinking"); setIdx(0); setPicked(null); setScore({ correct: 0, answered: 0, history: [] }); }} className="mt-4">
           {lang === "bn" ? "আবার খেলো" : "Play again"}
         </Button>
       </div>
@@ -78,6 +79,7 @@ function Quiz() {
     if (picked !== null) return;
     setPicked(k);
     const ok = k === q.answer;
+    onMascotState(ok ? "celebrating" : "encouraging");
     setScore((s) => ({ correct: s.correct + (ok ? 1 : 0), answered: s.answered + 1, history: [...s.history, ok] }));
   };
   return (
@@ -103,7 +105,7 @@ function Quiz() {
             {picked === q.answer ? (lang === "bn" ? "✓ সঠিক!" : "✓ Correct!") : lang === "bn" ? "✗ ঠিক হয়নি" : "✗ Not quite"}
           </p>
           <p className="mt-1 text-sm text-foreground/90">{L(q.why)}</p>
-          <Button type="button" autoFocus onClick={() => { setIdx(idx + 1); setPicked(null); }} className="mt-3">
+          <Button type="button" autoFocus onClick={() => { onMascotState(idx === QUIZ.length - 1 ? "celebrating" : "thinking"); setIdx(idx + 1); setPicked(null); }} className="mt-3">
             {idx === QUIZ.length - 1 ? (lang === "bn" ? "ফলাফল দেখো" : "See result") : lang === "bn" ? "পরের প্রশ্ন →" : "Next question →"}
           </Button>
         </div>
@@ -114,14 +116,29 @@ function Quiz() {
 
 function KidsPage() {
   const { lang } = useLang();
+  const [mascotState, setMascotState] = useState<MascotState>("waving");
+  const mascotTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showMascotState = useCallback((state: MascotState) => {
+    if (mascotTimer.current) clearTimeout(mascotTimer.current);
+    setMascotState(state);
+    const duration = state === "thinking" ? 700 : state === "waving" ? 1300 : 1500;
+    mascotTimer.current = setTimeout(() => setMascotState("idle"), duration);
+  }, []);
+
+  useEffect(() => {
+    showMascotState("waving");
+    return () => { if (mascotTimer.current) clearTimeout(mascotTimer.current); };
+  }, [showMascotState]);
+
   return (
-    <div className="mx-auto max-w-6xl px-3 py-6 sm:px-6 sm:py-9">
+    <div className="kids-page mx-auto max-w-6xl px-3 py-6 sm:px-6 sm:py-9">
       <h1 className="sr-only">আমার হাতে বাংলাদেশ — Bangladesh in My Hands</h1>
-      <DistrictLearning />
+      <DistrictLearning onMascotState={showMascotState} />
       <section className="mx-auto mt-10 max-w-4xl" aria-labelledby="quiz">
         <div className="mb-3 flex items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase text-muted-foreground">{lang === "bn" ? "অতিরিক্ত অনুশীলন" : "Bonus activity"}</p><h2 id="quiz" className="font-display text-2xl text-primary">{lang === "bn" ? "দ্রুত কুইজ" : "Quick quiz"}</h2></div><span className="text-3xl" aria-hidden="true">🧠</span></div>
-        <Quiz />
+        <Quiz onMascotState={showMascotState} />
       </section>
+      <KidsMascot state={mascotState} />
     </div>
   );
 }

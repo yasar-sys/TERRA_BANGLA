@@ -18,3 +18,4 @@
 - [x] Polish the kids’ game scenes, clue feedback, sound, travel transitions, star motion, and quiz celebrations
 - [x] Replace the game flow with a minimal animated 64-district learning studio
 - [x] Add private student profiles, profile pictures, favorites, lesson results, and saved AI explanations
+- [x] Add the uploaded five-pose animated mascot to the kids learning studio and quiz
