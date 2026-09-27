@@ -24,6 +24,14 @@ export const getLearningProfile = createServerFn({ method: "GET" })
     return { profile: profile.data, favorites: favorites.data ?? [], attempts: attempts.data ?? [], insights: insights.data ?? [], avatarUrl };
   });
 
+export const getFavoriteDistrictIds = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const result = await context.supabase.from("favorite_districts").select("district_id").eq("user_id", context.userId);
+    if (result.error) throw result.error;
+    return result.data.map((row) => row.district_id);
+  });
+
 export const saveLearningProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({

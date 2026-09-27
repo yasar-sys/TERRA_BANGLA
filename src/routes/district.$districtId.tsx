@@ -11,6 +11,7 @@ import {
 import { useLang } from "@/lib/i18n";
 import { StudentInsight } from "@/components/StudentInsight";
 import { useUploadedAnalyses } from "@/lib/public-content";
+import { FavoriteDistrictButton } from "@/components/FavoriteDistrictButton";
 
 export const Route = createFileRoute("/district/$districtId")({
   loader: ({ params }) => {
@@ -82,6 +83,7 @@ function DistrictDetail() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <FavoriteDistrictButton districtId={districtId} />
           <Link
             to="/compare"
             search={{ districtA: districtId, districtB: undefined }}

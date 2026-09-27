@@ -16,3 +16,5 @@
 - [x] Redesign the children’s game as “আমার হাতে বাংলাদেশ” with polished scenes and tactile interaction
 - [x] Connect every game mission to real district NASA records and make phone taps reliable
 - [x] Polish the kids’ game scenes, clue feedback, sound, travel transitions, star motion, and quiz celebrations
+- [ ] Replace the game flow with a minimal animated 64-district learning studio
+- [ ] Add private student profiles, profile pictures, favorites, lesson results, and saved AI explanations

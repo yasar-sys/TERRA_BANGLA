@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn, LogOut, UserRound } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,6 +54,7 @@ export function AuthButton() {
     return (
       <div className="flex items-center gap-1">
         {user.email?.toLowerCase() === "saminyasarsunny@gmail.com" ? <Button asChild variant="ghost" size="sm"><Link to="/admin">{lang === "bn" ? "অ্যাডমিন" : "Admin"}</Link></Button> : null}
+        <Button asChild variant="ghost" size="sm"><Link to="/profile"><UserRound aria-hidden/>{lang === "bn" ? "প্রোফাইল" : "Profile"}</Link></Button>
         <Button variant="outline" size="sm" onClick={() => void supabase.auth.signOut()} title={user.email ?? ""}>
           <LogOut aria-hidden /> {lang === "bn" ? "সাইন আউট" : "Sign out"}
         </Button>
