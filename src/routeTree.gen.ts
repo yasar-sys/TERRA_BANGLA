@@ -18,6 +18,7 @@ import { Route as CompareRouteImport } from './routes/compare'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as KidsRouteImport } from './routes/kids'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as DistrictDistrictIdRouteImport } from './routes/district.$districtId'
 import { Route as AuthenticatedChatIndexRouteImport } from './routes/_authenticated/chat.index'
@@ -67,6 +68,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/api/chat': typeof ApiChatRoute
   '/district/$districtId': typeof DistrictDistrictIdRoute
   '/chat/$conversationId': typeof AuthenticatedChatConversationIdRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/api/chat': typeof ApiChatRoute
   '/district/$districtId': typeof DistrictDistrictIdRoute
   '/chat/$conversationId': typeof AuthenticatedChatConversationIdRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/api/chat': typeof ApiChatRoute
   '/district/$districtId': typeof DistrictDistrictIdRoute
   '/_authenticated/chat/$conversationId': typeof AuthenticatedChatConversationIdRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/heatmap'
     | '/kids'
     | '/admin'
+    | '/profile'
     | '/api/chat'
     | '/district/$districtId'
     | '/chat/$conversationId'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/heatmap'
     | '/kids'
     | '/admin'
+    | '/profile'
     | '/api/chat'
     | '/district/$districtId'
     | '/chat/$conversationId'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/heatmap'
     | '/kids'
     | '/_authenticated/admin'
+    | '/_authenticated/profile'
     | '/api/chat'
     | '/district/$districtId'
     | '/_authenticated/chat/$conversationId'
@@ -257,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -290,12 +309,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedChatConversationIdRoute: typeof AuthenticatedChatConversationIdRoute
   AuthenticatedChatIndexRoute: typeof AuthenticatedChatIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedChatConversationIdRoute: AuthenticatedChatConversationIdRoute,
   AuthenticatedChatIndexRoute: AuthenticatedChatIndexRoute,
 }

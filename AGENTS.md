@@ -1,8 +1,8 @@
 AI explanations are generated only from server-recomputed cached statistics; the browser sends selections, never authoritative climate values, to prevent fabricated evidence.
 Google is the only sign-in method; saved chat is split into URL-addressable conversations owned by each authenticated user.
 Admin authorization is granted only after server-side verification of the exact approved email and is enforced through database roles and row policies.
-The children’s detective game uses explicitly labeled fictional observation-practice illustrations; never present its visual changes as measured environmental claims.
-The children’s game is branded “আমার হাতে বাংলাদেশ” / “Bangladesh in My Hands”; preserve its bilingual, monsoon-adventure identity.
+The children’s section is a minimal animated 64-district learning studio; every comparison and quiz answer derives from cached NASA records, while illustrations remain explanatory only.
+Student profiles, favorites, lesson attempts, and saved AI explanations use separate owner-scoped records; roles never live in profiles.
 <!-- LOVABLE:BEGIN -->
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting

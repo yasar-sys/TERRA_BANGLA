@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { BrainCircuit, Lightbulb, LoaderCircle } from "lucide-react";
+import { BrainCircuit, Bookmark, Lightbulb, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { explainStudentTrend } from "@/lib/trend-insight.functions";
 import { type VariableKey } from "@/lib/climate";
 import { useLang } from "@/lib/i18n";
+import { saveStudentInsight } from "@/lib/learning.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export function StudentInsight({
   districtId,
@@ -23,10 +25,12 @@ export function StudentInsight({
   const { lang } = useLang();
   const L = (en: string, bn: string) => (lang === "bn" ? bn : en);
   const explain = useServerFn(explainStudentTrend);
+  const saveInsight = useServerFn(saveStudentInsight);
   const [observation, setObservation] = useState("");
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [saveState, setSaveState] = useState("");
 
   function renderedAnswer(text: string) {
     return text.split(/\n+/).filter(Boolean).map((line, index) => {
@@ -52,6 +56,13 @@ export function StudentInsight({
     } finally {
       setLoading(false);
     }
+  }
+
+  async function saveAnswer() {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) { sessionStorage.setItem("terrabangla-auth-next", window.location.pathname); window.location.assign("/auth"); return; }
+    setSaveState(L("Saving…", "সেভ হচ্ছে…"));
+    try { await saveInsight({ data: { districtId, variable, start, end, observation, explanation: answer } }); setSaveState(L("Saved to your profile.", "তোমার প্রোফাইলে সেভ হয়েছে।")); } catch { setSaveState(L("Could not save this explanation.", "ব্যাখ্যাটি সেভ করা যায়নি।")); }
   }
 
   return (
@@ -92,7 +103,7 @@ export function StudentInsight({
         <div className="min-h-64 p-5 sm:p-6" aria-live="polite">
           <p className="text-xs font-semibold uppercase text-primary">{L("Data-backed interpretation", "উপাত্তভিত্তিক ব্যাখ্যা")}</p>
           {answer ? (
-            <div className="mt-3">{renderedAnswer(answer)}</div>
+            <div className="mt-3">{renderedAnswer(answer)}<div className="mt-5 flex flex-wrap items-center gap-3"><Button type="button" variant="outline" onClick={saveAnswer}><Bookmark/>{L("Save to profile", "প্রোফাইলে সেভ করো")}</Button>{saveState ? <span className="text-xs text-muted-foreground" role="status">{saveState}</span> : null}</div></div>
           ) : (
             <div className="flex min-h-48 items-center justify-center border border-dashed border-border p-5 text-center text-sm text-muted-foreground">
               {L("Your explanation will appear here. Scientific values always come from the app’s calculations, never from AI.", "তোমার ব্যাখ্যা এখানে আসবে। বৈজ্ঞানিক মান সবসময় অ্যাপের গণনা থেকে আসে, AI থেকে নয়।")}
