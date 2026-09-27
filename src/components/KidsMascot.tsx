@@ -18,7 +18,7 @@ const POSES: Record<MascotState, string> = {
 
 const MESSAGES: Record<MascotState, { en: string; bn: string }> = {
   idle: { en: "Let's discover a real trend!", bn: "চলো, একটি বাস্তব প্রবণতা খুঁজি!" },
-  celebrating: { en: "Brilliant work! 🎉", bn: "দারুণ হয়েছে! 🎉" },
+  celebrating: { en: "Brilliant work!", bn: "দারুণ হয়েছে!" },
   encouraging: { en: "Almost there—try once more!", bn: "প্রায় ঠিক, আরেকবার চেষ্টা করো!" },
   thinking: { en: "Let's look closely…", bn: "চলো, মন দিয়ে দেখি…" },
   waving: { en: "Hello, junior detective!", bn: "হ্যালো, ছোট্ট গোয়েন্দা!" },
