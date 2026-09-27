@@ -190,6 +190,99 @@ export type Database = {
         }
         Relationships: []
       }
+      favorite_districts: {
+        Row: {
+          created_at: string
+          district_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          district_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          district_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      learning_attempts: {
+        Row: {
+          completed_at: string
+          correct: boolean
+          district_id: string
+          id: string
+          score: number
+          selected_trend: string
+          user_id: string
+          variable: string
+        }
+        Insert: {
+          completed_at?: string
+          correct: boolean
+          district_id: string
+          id?: string
+          score: number
+          selected_trend: string
+          user_id: string
+          variable: string
+        }
+        Update: {
+          completed_at?: string
+          correct?: boolean
+          district_id?: string
+          id?: string
+          score?: number
+          selected_trend?: string
+          user_id?: string
+          variable?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_path: string | null
+          class_level: string
+          created_at: string
+          display_name: string
+          home_district_id: string | null
+          learning_interests: string[]
+          preferred_language: string
+          school_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_path?: string | null
+          class_level?: string
+          created_at?: string
+          display_name?: string
+          home_district_id?: string | null
+          learning_interests?: string[]
+          preferred_language?: string
+          school_name?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_path?: string | null
+          class_level?: string
+          created_at?: string
+          display_name?: string
+          home_district_id?: string | null
+          learning_interests?: string[]
+          preferred_language?: string
+          school_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       quiz_questions: {
         Row: {
           correct_index: number
@@ -235,6 +328,45 @@ export type Database = {
           updated_at?: string
           why_bn?: string
           why_en?: string
+        }
+        Relationships: []
+      }
+      saved_insights: {
+        Row: {
+          created_at: string
+          district_id: string
+          evidence: Json
+          explanation: string
+          id: string
+          observation: string
+          period_end: number
+          period_start: number
+          user_id: string
+          variable: string
+        }
+        Insert: {
+          created_at?: string
+          district_id: string
+          evidence: Json
+          explanation: string
+          id?: string
+          observation: string
+          period_end: number
+          period_start: number
+          user_id: string
+          variable: string
+        }
+        Update: {
+          created_at?: string
+          district_id?: string
+          evidence?: Json
+          explanation?: string
+          id?: string
+          observation?: string
+          period_end?: number
+          period_start?: number
+          user_id?: string
+          variable?: string
         }
         Relationships: []
       }
