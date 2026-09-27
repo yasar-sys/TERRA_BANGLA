@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import celebratingAsset from "@/assets/mascot/celebrating.png.asset.json";
 import encouragingAsset from "@/assets/mascot/encouraging.png.asset.json";
 import idleAsset from "@/assets/mascot/idle.png.asset.json";
@@ -17,15 +19,16 @@ const POSES: Record<MascotState, string> = {
 };
 
 const MESSAGES: Record<MascotState, { en: string; bn: string }> = {
-  idle: { en: "Let's discover a real trend!", bn: "চলো, একটি বাস্তব প্রবণতা খুঁজি!" },
-  celebrating: { en: "Brilliant work!", bn: "দারুণ হয়েছে!" },
-  encouraging: { en: "Almost there—try once more!", bn: "প্রায় ঠিক, আরেকবার চেষ্টা করো!" },
-  thinking: { en: "Let's look closely…", bn: "চলো, মন দিয়ে দেখি…" },
-  waving: { en: "Hello, junior detective!", bn: "হ্যালো, ছোট্ট গোয়েন্দা!" },
+  idle: { en: "Read the map, then follow the evidence through time.", bn: "মানচিত্রটি দেখো, তারপর সময়ের সঙ্গে প্রমাণ অনুসরণ করো।" },
+  celebrating: { en: "This pattern is statistically significant.", bn: "এই প্রবণতাটি পরিসংখ্যানগতভাবে তাৎপর্যপূর্ণ।" },
+  encouraging: { en: "Compare the direction with the evidence sentence.", bn: "প্রমাণের বাক্যটির সঙ্গে পরিবর্তনের দিক মিলিয়ে দেখো।" },
+  thinking: { en: "The evidence view is updating.", bn: "প্রমাণের দৃশ্যটি হালনাগাদ হচ্ছে।" },
+  waving: { en: "Welcome to the district climate studio.", bn: "জেলা জলবায়ু স্টুডিওতে স্বাগতম।" },
 };
 
-export function KidsMascot({ state }: { state: MascotState }) {
+export function KidsMascot({ state, context }: { state: MascotState; context?: { district: string; variable: string } }) {
   const { lang } = useLang();
+  const [minimized, setMinimized] = useState(false);
 
   useEffect(() => {
     Object.values(POSES).forEach((src) => {
@@ -34,12 +37,21 @@ export function KidsMascot({ state }: { state: MascotState }) {
     });
   }, []);
 
+  const contextual = context && state === "idle"
+    ? lang === "bn"
+      ? `${context.district}-এর ${context.variable} উপাত্তে কী দেখা যায়, তা এখানে বোঝানো হয়েছে।`
+      : `Here is what the ${context.variable.toLowerCase()} record shows for ${context.district}.`
+    : MESSAGES[state][lang];
+
+  if (minimized) return <Button type="button" variant="outline" size="sm" className="kids-guide-restore" onClick={() => setMinimized(false)}><ChevronUp />{lang === "bn" ? "গাইড দেখাও" : "Show guide"}</Button>;
+
   return (
     <aside className={`kids-mascot is-${state}`} aria-live="polite" aria-atomic="true">
-      <div className="kids-mascot-bubble">{MESSAGES[state][lang]}</div>
+      <div className="kids-mascot-copy"><span>{lang === "bn" ? "তথ্য গাইড" : "Evidence guide"}</span><p>{contextual}</p></div>
       <div className="kids-mascot-art" key={state}>
         <img src={POSES[state]} alt="" aria-hidden="true" draggable={false} />
       </div>
+      <Button type="button" variant="ghost" size="icon-sm" className="kids-guide-minimize" onClick={() => setMinimized(true)} aria-label={lang === "bn" ? "গাইড ছোট করো" : "Minimize guide"}><ChevronDown /></Button>
     </aside>
   );
 }

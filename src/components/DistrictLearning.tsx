@@ -1,45 +1,69 @@
-import { useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState, type ComponentType, type KeyboardEvent, type SVGProps } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, BookOpen, Check, Heart, Leaf, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, Check, CloudRain, Heart, Info, Leaf, MapPin, Minus, Sprout, Sun, ThermometerSun, TrendingDown, TrendingUp, Wind } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { analyzeVariable, availableVariables, districts, getDistrict, type VariableKey } from "@/lib/climate";
-import { useLang } from "@/lib/i18n";
+import { analyzeVariable, availableVariables, districts, getDistrict, type VariableAnalysis, type VariableKey } from "@/lib/climate";
+import { fmt, useLang, type Lang } from "@/lib/i18n";
 import { getFavoriteDistrictIds, saveLearningAttempt, toggleFavoriteDistrict } from "@/lib/learning.functions";
 import districtGeo from "@/data/bangladesh-districts.geojson.json";
 import type { MascotState } from "@/components/KidsMascot";
 
 type Trend = "up" | "down" | "same";
-type Step = "intro" | "lesson" | "outro";
+type Icon = ComponentType<SVGProps<SVGSVGElement>>;
 type GeoFeature = { properties: { districtId: string; name: string }; geometry: { type: "Polygon" | "MultiPolygon"; coordinates: number[][][] | number[][][][] } };
-const LABELS: Record<VariableKey, { en: string; bn: string; icon: string }> = {
-  ndvi: { en: "Vegetation", bn: "উদ্ভিদ", icon: "🌿" }, lst: { en: "Land temperature", bn: "ভূপৃষ্ঠের তাপমাত্রা", icon: "🌡️" },
-  temperature: { en: "Air temperature", bn: "বায়ুর তাপমাত্রা", icon: "☀️" }, solar: { en: "Sunlight", bn: "সূর্যালোক", icon: "🔆" }, precipitation: { en: "Rainfall", bn: "বৃষ্টিপাত", icon: "🌧️" },
+
+const LABELS: Record<VariableKey, { en: string; bn: string; icon: Icon }> = {
+  ndvi: { en: "Vegetation", bn: "উদ্ভিদ", icon: Sprout },
+  lst: { en: "Land temperature", bn: "ভূপৃষ্ঠের তাপমাত্রা", icon: ThermometerSun },
+  temperature: { en: "Air temperature", bn: "বায়ুর তাপমাত্রা", icon: Wind },
+  solar: { en: "Sunlight", bn: "সূর্যালোক", icon: Sun },
+  precipitation: { en: "Rainfall", bn: "বৃষ্টিপাত", icon: CloudRain },
 };
-const TRENDS: Record<Trend, { en: string; bn: string; icon: string }> = { up: { en: "Increased", bn: "বেড়েছে", icon: "↗" }, down: { en: "Decreased", bn: "কমেছে", icon: "↘" }, same: { en: "No clear change", bn: "স্পষ্ট পরিবর্তন নেই", icon: "→" } };
+const TRENDS: Record<Trend, { en: string; bn: string; icon: Icon }> = {
+  up: { en: "Increased", bn: "বেড়েছে", icon: TrendingUp },
+  down: { en: "Decreased", bn: "কমেছে", icon: TrendingDown },
+  same: { en: "No clear change", bn: "স্পষ্ট পরিবর্তন নেই", icon: Minus },
+};
 
 function pathFor(feature: GeoFeature) {
   const polygons = feature.geometry.type === "Polygon" ? [feature.geometry.coordinates as number[][][]] : feature.geometry.coordinates as number[][][][];
-  return polygons.flatMap((p) => p).map((ring) => ring.map(([lng, lat], i) => `${i ? "L" : "M"}${(((Number(lng) - 88) / 5) * 240).toFixed(1)},${(((26.7 - Number(lat)) / 6.3) * 300).toFixed(1)}`).join(" ") + " Z").join(" ");
+  return polygons.flatMap((polygon) => polygon).map((ring) => ring.map(([lng, lat], index) => `${index ? "L" : "M"}${(((Number(lng) - 88) / 5) * 240).toFixed(1)},${(((26.7 - Number(lat)) / 6.3) * 300).toFixed(1)}`).join(" ") + " Z").join(" ");
 }
 
-function DistrictMap({ activeId, onSelect }: { activeId: string; onSelect: (id: string) => void }) {
-  return <svg viewBox="0 0 240 300" className="learn-map" role="img" aria-label="Bangladesh district map">{(districtGeo.features as GeoFeature[]).map((f) => <path key={f.properties.districtId} d={pathFor(f)} className={f.properties.districtId === activeId ? "learn-map-active" : "learn-map-district"} onClick={() => onSelect(f.properties.districtId)}><title>{f.properties.name}</title></path>)}</svg>;
+function DistrictMap({ activeId, onSelect, lang }: { activeId: string; onSelect: (id: string) => void; lang: Lang }) {
+  const chooseFromKey = (event: KeyboardEvent<SVGPathElement>, id: string) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    onSelect(id);
+  };
+  return <svg viewBox="0 0 240 300" className="learn-map" role="group" aria-label={lang === "bn" ? "বাংলাদেশের ৬৪ জেলার মানচিত্র" : "Map of the 64 districts of Bangladesh"}>{(districtGeo.features as GeoFeature[]).map((feature) => { const active = feature.properties.districtId === activeId; return <path key={feature.properties.districtId} d={pathFor(feature)} className={active ? "learn-map-active" : "learn-map-district"} role="button" tabIndex={0} aria-pressed={active} aria-label={lang === "bn" ? (districts.find(d => d.id === feature.properties.districtId)?.bn ?? feature.properties.name) : feature.properties.name} onClick={() => onSelect(feature.properties.districtId)} onKeyDown={(event) => chooseFromKey(event, feature.properties.districtId)}><title>{feature.properties.name}</title></path>; })}</svg>;
 }
 
-function Guides({ celebrate = false }: { celebrate?: boolean }) {
-  return <div className={`learn-guides ${celebrate ? "is-celebrating" : ""}`} aria-hidden="true"><span className="learn-guide"><i className="learn-face"/><i className="learn-body"/><i className="learn-cap"/></span><span className="learn-orbit"><Leaf /></span><span className="learn-guide is-scientist"><i className="learn-face"/><i className="learn-body"/><i className="learn-hair"/></span></div>;
+function pValue(value: number) { return value < 0.001 ? "< 0.001" : value.toFixed(3); }
+
+function evidenceSentence(analysis: VariableAnalysis, districtName: string, lang: Lang) {
+  const { trend } = analysis.result;
+  const slope = analysis.result.slope.slope_per_decade;
+  const years = analysis.result.period.end - analysis.result.period.start;
+  const label = LABELS[analysis.variable][lang];
+  const p = pValue(trend.p_value);
+  if (!Number.isFinite(trend.p_value) || !Number.isFinite(slope)) return null;
+  if (!trend.significant_at_0_05) return lang === "bn"
+    ? `${years.toLocaleString("bn-BD")} বছরে ${districtName}-এর ${label} মোটামুটি স্থিতিশীল ছিল (p = ${p}; পরিসংখ্যানগতভাবে তাৎপর্যপূর্ণ নয়)।`
+    : `${label} in ${districtName} stayed roughly stable over ${years} years (p = ${p}; not statistically significant).`;
+  const direction = slope > 0 ? (lang === "bn" ? "বেড়েছে" : "risen") : (lang === "bn" ? "কমেছে" : "declined");
+  const amount = fmt(Math.abs(slope), lang, analysis.variable === "ndvi" ? 3 : 2);
+  return lang === "bn"
+    ? `${districtName}-এর ${label} উল্লেখযোগ্যভাবে ${direction}—প্রতি দশকে প্রায় ${amount} ${analysis.unit} (p = ${p})।`
+    : `${label} in ${districtName} has ${direction} significantly, by about ${amount} ${analysis.unit} per decade (p = ${p}).`;
 }
 
-function sceneClass(variable: VariableKey) { return variable === "ndvi" ? "is-green" : variable === "precipitation" ? "is-rain" : variable === "solar" ? "is-solar" : "is-warm"; }
-
-export function DistrictLearning({ onMascotState }: { onMascotState?: (state: MascotState) => void }) {
+export function DistrictLearning({ onMascotState, onContextChange }: { onMascotState?: (state: MascotState) => void; onContextChange?: (context: { district: string; variable: string; significant: boolean }) => void }) {
   const { lang } = useLang();
   const L = (en: string, bn: string) => lang === "bn" ? bn : en;
-  const [step, setStep] = useState<Step>("intro");
   const [districtId, setDistrictId] = useState("dhaka");
-  const vars = availableVariables(districtId);
+  const variables = availableVariables(districtId);
   const [variable, setVariable] = useState<VariableKey>("lst");
   const [picked, setPicked] = useState<Trend | null>(null);
   const [favorite, setFavorite] = useState(false);
@@ -47,26 +71,70 @@ export function DistrictLearning({ onMascotState }: { onMascotState?: (state: Ma
   const saveAttempt = useServerFn(saveLearningAttempt);
   const toggleFavorite = useServerFn(toggleFavoriteDistrict);
   const listFavorites = useServerFn(getFavoriteDistrictIds);
-  const activeVariable = vars.includes(variable) ? variable : vars[0] ?? "temperature";
+  const activeVariable = variables.includes(variable) ? variable : variables[0] ?? "temperature";
   const analysis = useMemo(() => analyzeVariable(districtId, activeVariable), [districtId, activeVariable]);
   const district = getDistrict(districtId);
+  const districtName = lang === "bn" ? district?.bn ?? districtId : district?.name ?? districtId;
   const correct: Trend = !analysis?.result.trend.significant_at_0_05 ? "same" : (analysis.result.slope.slope_per_decade ?? 0) > 0 ? "up" : "down";
+  const evidence = analysis ? evidenceSentence(analysis, districtName, lang) : null;
+  const ActiveVariableIcon = LABELS[activeVariable].icon;
+
+  useEffect(() => {
+    onContextChange?.({ district: districtName, variable: LABELS[activeVariable][lang], significant: Boolean(analysis?.result.trend.significant_at_0_05) });
+  }, [activeVariable, analysis?.result.trend.significant_at_0_05, districtName, lang, onContextChange]);
+
   const chooseDistrict = (id: string) => { onMascotState?.("thinking"); setDistrictId(id); setPicked(null); setSaveMessage(""); const next = availableVariables(id); const first = next.at(0); if (first && !next.includes(variable)) setVariable(first); };
-  const openLesson = async () => { onMascotState?.("thinking"); setStep("lesson"); const { data } = await supabase.auth.getUser(); if (data.user) { try { setFavorite((await listFavorites()).includes(districtId)); } catch { setFavorite(false); } } };
+  const chooseVariable = (key: VariableKey) => { onMascotState?.("thinking"); setVariable(key); setPicked(null); setSaveMessage(""); };
   const answer = async (choice: Trend) => {
     setPicked(choice);
-    onMascotState?.(choice === correct ? "celebrating" : "encouraging");
+    onMascotState?.(choice === correct && analysis?.result.trend.significant_at_0_05 ? "celebrating" : choice === correct ? "idle" : "encouraging");
     const { data } = await supabase.auth.getUser();
-    if (!data.user) { setSaveMessage(L("Sign in to save this result.", "ফলাফল সেভ করতে সাইন ইন করো।")); return; }
-    try { await saveAttempt({ data: { districtId, variable: activeVariable, selectedTrend: choice } }); setSaveMessage(L("Result saved to your profile.", "ফলাফল তোমার প্রোফাইলে সেভ হয়েছে।")); } catch { setSaveMessage(L("Result could not be saved.", "ফলাফল সেভ করা যায়নি।")); }
+    if (!data.user) { setSaveMessage(L("Sign in to save this observation.", "এই পর্যবেক্ষণ সেভ করতে সাইন ইন করো।")); return; }
+    try { await saveAttempt({ data: { districtId, variable: activeVariable, selectedTrend: choice } }); setSaveMessage(L("Observation saved to your profile.", "পর্যবেক্ষণটি তোমার প্রোফাইলে সেভ হয়েছে।")); } catch { setSaveMessage(L("The observation could not be saved.", "পর্যবেক্ষণটি সেভ করা যায়নি।")); }
   };
   const updateFavorite = async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) { setSaveMessage(L("Sign in to save favorite districts.", "প্রিয় জেলা সেভ করতে সাইন ইন করো।")); return; }
-    const next = !favorite; await toggleFavorite({ data: { districtId, favorite: next } }); setFavorite(next); setSaveMessage(next ? L("District saved.", "জেলা সেভ হয়েছে।") : L("District removed.", "জেলা সরানো হয়েছে।"));
+    const next = !favorite;
+    await toggleFavorite({ data: { districtId, favorite: next } });
+    setFavorite(next);
+    setSaveMessage(next ? L("District saved to favorites.", "জেলাটি প্রিয় তালিকায় সেভ হয়েছে।") : L("District removed from favorites.", "জেলাটি প্রিয় তালিকা থেকে সরানো হয়েছে।"));
   };
+  useEffect(() => { void supabase.auth.getUser().then(async ({ data }) => { if (!data.user) return; try { setFavorite((await listFavorites()).includes(districtId)); } catch { setFavorite(false); } }); }, [districtId, listFavorites]);
 
-  if (step === "intro") return <section className="learn-shell learn-intro"><div className="learn-grid"/><div className="learn-intro-copy"><p className="learn-eyebrow"><Sparkles/> {L("Animated climate lesson", "অ্যানিমেটেড জলবায়ু পাঠ")}</p><h2>{L("Bangladesh in My Hands", "আমার হাতে বাংলাদেশ")}</h2><p>{L("Choose any district. Compare an earlier NASA record with a recent one, then answer one simple question.", "যেকোনো জেলা বেছে নাও। NASA-এর আগের ও সাম্প্রতিক রেকর্ড তুলনা করে একটি সহজ প্রশ্নের উত্তর দাও।")}</p><Button size="lg" onClick={() => void openLesson()}>{L("Start learning", "শেখা শুরু করো")} <ArrowRight/></Button></div><Guides/></section>;
-  if (step === "outro") return <section className="learn-shell learn-outro"><Sparkles className="learn-outro-spark"/><Guides celebrate/><p className="learn-eyebrow">{L("Lesson complete", "পাঠ শেষ")}</p><h2>{L("You read a real climate trend", "তুমি একটি বাস্তব জলবায়ু প্রবণতা বুঝেছ")}</h2><p>{L("Try another district to see how Bangladesh changes from place to place.", "বাংলাদেশের একেক স্থানের পরিবর্তন দেখতে আরেকটি জেলা বেছে নাও।")}</p><div className="flex flex-wrap justify-center gap-2"><Button onClick={() => { onMascotState?.("thinking"); setPicked(null); setStep("lesson"); }}>{L("Explore another district", "আরেকটি জেলা দেখো")}</Button><Button asChild variant="outline"><Link to="/profile">{L("View profile", "প্রোফাইল দেখো")}</Link></Button></div></section>;
-  return <section className="learn-shell"><header className="learn-header"><div><p className="learn-eyebrow"><BookOpen/> {L("District learning studio", "জেলা শেখার স্টুডিও")}</p><h2>{L("Bangladesh in My Hands", "আমার হাতে বাংলাদেশ")}</h2></div><Guides/></header><div className="learn-layout"><aside className="learn-picker"><label>{L("Choose a district", "জেলা বেছে নাও")}<select value={districtId} onChange={(e) => chooseDistrict(e.target.value)}>{districts.map((d) => <option key={d.id} value={d.id}>{lang === "bn" ? d.bn : d.name}</option>)}</select></label><DistrictMap activeId={districtId} onSelect={chooseDistrict}/><p><MapPin/> {lang === "bn" ? district?.bn : district?.name} · {district?.division}</p></aside><div className="learn-content"><div className="learn-toolbar"><div className="learn-tabs">{vars.map((key) => <Button key={key} size="sm" variant={activeVariable === key ? "default" : "outline"} onClick={() => { onMascotState?.("thinking"); setVariable(key); setPicked(null); }}>{LABELS[key].icon} {LABELS[key][lang]}</Button>)}</div><Button size="icon" variant="outline" onClick={updateFavorite} aria-label={L("Save favorite district", "প্রিয় জেলা সেভ করো")}><Heart className={favorite ? "fill-current" : ""}/></Button></div>{analysis ? <><div className={`learn-comparison ${sceneClass(activeVariable)}`}><article><span>{L("Earlier", "আগে")}</span><strong>{analysis.result.period.start}</strong><div className="learn-weather" aria-hidden>{LABELS[activeVariable].icon}</div><b>{analysis.result.first_value?.toFixed(activeVariable === "ndvi" ? 2 : 1)} {analysis.unit}</b></article><div className="learn-time"><i/><ArrowRight/></div><article><span>{L("Recent", "সাম্প্রতিক")}</span><strong>{analysis.result.period.end}</strong><div className="learn-weather is-current" aria-hidden>{LABELS[activeVariable].icon}</div><b>{analysis.result.current_value?.toFixed(activeVariable === "ndvi" ? 2 : 1)} {analysis.unit}</b></article></div><p className="learn-source">NASA · {analysis.provenance.dataset_id} · {L("cached annual record", "সংরক্ষিত বার্ষিক রেকর্ড")}</p><div className="learn-question"><h3>{L(`What happened to ${LABELS[activeVariable].en.toLowerCase()}?`, `${LABELS[activeVariable].bn}-এর কী পরিবর্তন হয়েছে?`)}</h3><div className="learn-answers">{(Object.keys(TRENDS) as Trend[]).map((trend) => <Button key={trend} variant="outline" disabled={picked !== null} onClick={() => void answer(trend)} className={picked ? trend === correct ? "is-correct" : trend === picked ? "is-wrong" : "" : ""}><span>{TRENDS[trend].icon}</span>{TRENDS[trend][lang]}{picked && trend === correct ? <Check/> : null}</Button>)}</div>{picked ? <div className="learn-feedback" role="status"><p>{picked === correct ? L("Correct — well observed!", "সঠিক—খুব ভালো পর্যবেক্ষণ!") : L("Good try. The highlighted answer matches the measured trend.", "ভালো চেষ্টা। চিহ্নিত উত্তরটি পরিমাপ করা প্রবণতার সঙ্গে মেলে।")}</p><small>{L("Per decade", "প্রতি দশকে")}: {analysis.result.slope.slope_per_decade > 0 ? "+" : ""}{analysis.result.slope.slope_per_decade.toFixed(2)} {analysis.unit} · p={analysis.result.trend.p_value.toFixed(3)}</small>{saveMessage ? <p className="learn-save-note">{saveMessage}</p> : null}<Button onClick={() => { onMascotState?.("celebrating"); setStep("outro"); }}>{L("Finish this lesson", "এই পাঠ শেষ করো")} <ArrowRight/></Button></div> : null}</div></> : <div className="learn-empty">{L("Data not yet available for this district.", "এই জেলার তথ্য এখনো পাওয়া যায়নি।")}</div>}</div></div><p className="learn-honesty">ⓘ {L("Every number comes from cached NASA records. Illustrations are explanatory, not measured images.", "প্রতিটি সংখ্যা সংরক্ষিত NASA রেকর্ড থেকে এসেছে। ছবিগুলো ব্যাখ্যার জন্য, পরিমাপ করা ছবি নয়।")}</p></section>;
+  return <section className="learn-studio" aria-labelledby="learn-title">
+    <header className="learn-header scroll-reveal">
+      <div><p className="learn-eyebrow"><Leaf /> {L("A guided Earth observation", "নির্দেশিত পৃথিবী পর্যবেক্ষণ")}</p><h1 id="learn-title">{L("Bangladesh in My Hands", "আমার হাতে বাংলাদেশ")}</h1><p>{L("Explore measured change across Bangladesh, one district and one climate record at a time.", "একটি জেলা ও একটি জলবায়ু রেকর্ড ধরে বাংলাদেশের পরিমাপ করা পরিবর্তন অনুসন্ধান করো।")}</p></div>
+      <div className="learn-record"><span>{L("Evidence coverage", "উপাত্তের আওতা")}</span><strong>{lang === "bn" ? "৬৪ জেলা" : "64 districts"}</strong><small>{L("NASA Earth observations", "নাসা আর্থ অবজারভেশনস")}</small></div>
+    </header>
+
+    <div className="learn-layout scroll-reveal">
+      <aside className="learn-picker" aria-label={L("District selector", "জেলা নির্বাচন")}>
+        <div className="learn-picker-heading"><div><span>{L("Explore by place", "স্থান ধরে অনুসন্ধান")}</span><h2>{L("Choose a district", "জেলা বেছে নাও")}</h2></div><MapPin /></div>
+        <DistrictMap activeId={districtId} onSelect={chooseDistrict} lang={lang} />
+        <div className="learn-selected-place"><span>{L("Selected district", "নির্বাচিত জেলা")}</span><strong>{districtName}</strong><small>{district?.division}</small></div>
+        <label className="learn-select-label">{L("District list", "জেলার তালিকা")}<select value={districtId} onChange={(event) => chooseDistrict(event.target.value)}>{districts.map((item) => <option key={item.id} value={item.id}>{lang === "bn" ? item.bn : item.name}</option>)}</select></label>
+      </aside>
+
+      <div className="learn-content">
+        <div className="learn-toolbar">
+          <div className="learn-tabs" role="tablist" aria-label={L("Climate record", "জলবায়ু রেকর্ড")}>{variables.map((key) => { const IconComponent = LABELS[key].icon; const active = activeVariable === key; return <Button key={key} type="button" variant="ghost" role="tab" aria-selected={active} className={active ? "is-active" : ""} onClick={() => chooseVariable(key)}><IconComponent />{LABELS[key][lang]}</Button>; })}</div>
+          <Button type="button" size="icon" variant="outline" className="learn-favorite" onClick={updateFavorite} aria-label={favorite ? L("Remove favorite district", "প্রিয় জেলা থেকে সরাও") : L("Save favorite district", "প্রিয় জেলা সেভ করো")} title={favorite ? L("Remove favorite", "প্রিয় থেকে সরাও") : L("Save favorite", "প্রিয় হিসেবে সেভ করো")}><Heart className={favorite ? "fill-current text-accent" : ""} /></Button>
+        </div>
+
+        {analysis ? <div key={`${districtId}-${activeVariable}`} className="learn-evidence-transition">
+          <div className="learn-comparison">
+            <article className="learn-period-card is-earlier"><div className="learn-period-top"><span>{L("Earlier record", "আগের রেকর্ড")}</span><strong>{analysis.result.period.start}</strong></div><div className="learn-measure-icon"><ActiveVariableIcon /></div><div><b>{fmt(analysis.result.first_value ?? 0, lang, activeVariable === "ndvi" ? 2 : 1)}</b><small>{analysis.unit}</small></div></article>
+            <div className="learn-time" aria-hidden><span/><ArrowRight /></div>
+            <article className="learn-period-card is-recent"><div className="learn-period-top"><span>{L("Recent record", "সাম্প্রতিক রেকর্ড")}</span><strong>{analysis.result.period.end}</strong></div><div className="learn-measure-icon"><ActiveVariableIcon /></div><div><b>{fmt(analysis.result.current_value ?? 0, lang, activeVariable === "ndvi" ? 2 : 1)}</b><small>{analysis.unit}</small></div></article>
+          </div>
+          {evidence ? <div className={`learn-insight ${analysis.result.trend.significant_at_0_05 ? "is-significant" : "is-neutral"}`}><Info /><div><span>{L("What the trend test says", "প্রবণতা পরীক্ষায় যা দেখা যায়")}</span><p>{evidence}</p></div></div> : null}
+          <p className="learn-source">NASA · {analysis.provenance.dataset_id} · {L(`${analysis.result.n_observations} annual observations`, `${analysis.result.n_observations.toLocaleString("bn-BD")}টি বার্ষিক পর্যবেক্ষণ`)}</p>
+
+          <section className="learn-question" aria-labelledby="observation-question"><p className="learn-section-label">{L("Check your observation", "তোমার পর্যবেক্ষণ মিলিয়ে দেখো")}</p><h2 id="observation-question">{L(`What does the long-term ${LABELS[activeVariable].en.toLowerCase()} record show?`, `দীর্ঘমেয়াদি ${LABELS[activeVariable].bn} রেকর্ডে কী দেখা যায়?`)}</h2><div className="learn-answers">{(Object.keys(TRENDS) as Trend[]).map((trend) => { const IconComponent = TRENDS[trend].icon; return <Button key={trend} variant="outline" disabled={picked !== null} onClick={() => void answer(trend)} className={picked ? trend === correct ? "is-correct" : trend === picked ? "is-wrong" : "" : ""}><IconComponent /><span>{TRENDS[trend][lang]}</span>{picked && trend === correct ? <Check /> : null}</Button>; })}</div>{picked ? <div className="learn-feedback" role="status"><p>{picked === correct ? L("Your observation matches the statistical test.", "তোমার পর্যবেক্ষণটি পরিসংখ্যানগত পরীক্ষার সঙ্গে মিলেছে।") : L("Compare your choice with the highlighted statistical result.", "তোমার পছন্দটি চিহ্নিত পরিসংখ্যানগত ফলাফলের সঙ্গে মিলিয়ে দেখো।")}</p><small>{L("Theil–Sen rate per decade", "প্রতি দশকে থেইল–সেন হার")}: {analysis.result.slope.slope_per_decade > 0 ? "+" : ""}{fmt(analysis.result.slope.slope_per_decade, lang, 2)} {analysis.unit} · p = {pValue(analysis.result.trend.p_value)}</small>{saveMessage ? <p className="learn-save-note">{saveMessage}</p> : null}</div> : saveMessage ? <p className="learn-save-note" role="status">{saveMessage}</p> : null}</section>
+        </div> : <div className="learn-empty">{L("Data not yet available for this district.", "এই জেলার তথ্য এখনো পাওয়া যায়নি।")}</div>}
+      </div>
+    </div>
+    <p className="learn-honesty"><Info />{L("Every number comes from cached NASA records. The guide illustration explains the interface; it does not represent measured evidence.", "প্রতিটি সংখ্যা সংরক্ষিত NASA রেকর্ড থেকে এসেছে। গাইডের ছবিটি ইন্টারফেস বোঝায়; এটি পরিমাপ করা প্রমাণ নয়।")}</p>
+  </section>;
 }

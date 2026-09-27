@@ -22,7 +22,7 @@ export const strings: Dict = {
   "nav.globe": { en: "Globe", bn: "গ্লোব" },
   "nav.heatmap": { en: "Heatmap", bn: "হিটম্যাপ" },
   "nav.compare": { en: "Compare", bn: "তুলনা" },
-  "nav.kids": { en: "Kids' Climate Game", bn: "শিশুদের ক্লাইমেট গেম" },
+  "nav.kids": { en: "For Kids", bn: "শিশুদের জন্য" },
   "nav.about": { en: "Data & Methods", bn: "উপাত্ত ও পদ্ধতি" },
   "nav.chat": { en: "Ask TerraBangla", bn: "টেরা বাংলাকে জিজ্ঞেস করুন" },
   "nav.admin": { en: "Admin", bn: "অ্যাডমিন" },
@@ -92,7 +92,7 @@ export const strings: Dict = {
   "compare.exporting": { en: "Building report…", bn: "রিপোর্ট তৈরি হচ্ছে…" },
   "compare.report": { en: "Comparison report", bn: "তুলনা প্রতিবেদন" },
   "heatmap.title": { en: "Gridded heatmap", bn: "গ্রিড হিটম্যাপ" },
-  "kids.title": { en: "Kids' Climate Game", bn: "শিশুদের ক্লাইমেট গেম" },
+  "kids.title": { en: "Climate Learning Studio", bn: "জলবায়ু শেখার স্টুডিও" },
   "loading": { en: "Loading…", bn: "লোড হচ্ছে…" },
 };
 
