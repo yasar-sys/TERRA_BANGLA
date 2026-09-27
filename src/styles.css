@@ -255,6 +255,56 @@
   .atmosphere-frame-one { opacity: 0.25; }
 }
 
+/* Minimal animated district learning studio */
+.learn-shell { position: relative; overflow: hidden; border: 1px solid var(--color-border); border-radius: var(--radius-xl); background: color-mix(in oklab, var(--card) 96%, transparent); box-shadow: var(--shadow-panel); }
+.learn-intro, .learn-outro { min-height: 34rem; display: grid; place-items: center; padding: 3rem 1.25rem; text-align: center; isolation: isolate; }
+.learn-grid { position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(color-mix(in oklab, var(--border) 55%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--border) 55%, transparent) 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(to bottom, black, transparent); }
+.learn-intro-copy { max-width: 44rem; animation: learn-enter .7s ease-out both; }
+.learn-intro h2, .learn-outro h2, .learn-header h2 { margin-top: .55rem; font-size: clamp(2.15rem, 7vw, 4.6rem); line-height: 1.05; color: var(--color-foreground); }
+.learn-intro-copy > p:not(.learn-eyebrow), .learn-outro > p:not(.learn-eyebrow) { margin: 1rem auto 1.5rem; max-width: 38rem; color: var(--color-muted-foreground); line-height: 1.8; }
+.learn-eyebrow { display: inline-flex; align-items: center; gap: .45rem; color: var(--color-accent); font-size: .72rem; font-weight: 700; text-transform: uppercase; }
+.learn-eyebrow svg { width: 1rem; }
+.learn-guides { display: flex; align-items: center; justify-content: center; gap: 1.1rem; margin-top: 2rem; }
+.learn-guide { display: grid; place-items: center; width: 4.6rem; height: 4.6rem; border: 1px solid var(--color-border); border-radius: 50%; background: var(--color-elevated); font-size: 2.5rem; animation: learn-float 3.6s ease-in-out infinite; }
+.learn-guide:last-child { animation-delay: -1.8s; }
+.learn-orbit { display: grid; place-items: center; width: 2.8rem; height: 2.8rem; border-radius: 50%; background: var(--color-stable); color: var(--color-background); animation: learn-orbit 8s linear infinite; }
+.learn-guides.is-celebrating .learn-guide { animation: learn-celebrate .65s ease-in-out infinite alternate; }
+.learn-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.5rem; border-bottom: 1px solid var(--color-border); }
+.learn-header h2 { font-size: clamp(1.8rem, 5vw, 3.2rem); }
+.learn-header .learn-guides { margin: 0; transform: scale(.72); transform-origin: right; }
+.learn-layout { display: grid; grid-template-columns: minmax(15rem, .72fr) minmax(0, 1.7fr); min-height: 44rem; }
+.learn-picker { padding: 1.25rem; border-right: 1px solid var(--color-border); background: color-mix(in oklab, var(--elevated) 86%, transparent); }
+.learn-picker label { display: block; color: var(--color-muted-foreground); font-size: .78rem; font-weight: 600; }
+.learn-picker select { width: 100%; height: 2.75rem; margin-top: .5rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); padding: 0 .75rem; color: var(--color-foreground); }
+.learn-map { display: block; width: min(100%, 15rem); max-height: 29rem; margin: 1.25rem auto; overflow: visible; }
+.learn-map-district, .learn-map-active { cursor: pointer; vector-effect: non-scaling-stroke; stroke: var(--color-background); stroke-width: .7; transition: fill .2s ease, transform .2s ease; transform-box: fill-box; transform-origin: center; }
+.learn-map-district { fill: var(--color-secondary); }.learn-map-district:hover { fill: var(--color-stable); transform: scale(1.04); }.learn-map-active { fill: var(--color-accent); stroke: var(--color-accent-foreground); stroke-width: 1.5; filter: drop-shadow(0 0 6px color-mix(in oklab, var(--accent) 55%, transparent)); }
+.learn-picker > p { display: flex; align-items: center; justify-content: center; gap: .35rem; color: var(--color-foreground); font-size: .82rem; }.learn-picker > p svg { width: 1rem; color: var(--color-accent); }
+.learn-content { min-width: 0; padding: 1.25rem; }
+.learn-toolbar { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }.learn-tabs { display: flex; flex-wrap: wrap; gap: .45rem; }
+.learn-comparison { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; margin-top: 1.25rem; }
+.learn-comparison article { position: relative; min-height: 17rem; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-elevated); text-align: center; }
+.learn-comparison article::before { content: ""; position: absolute; inset: auto -10% -28%; height: 55%; border-radius: 50% 50% 0 0; background: color-mix(in oklab, var(--stable) 52%, var(--elevated)); animation: learn-land 5s ease-in-out infinite alternate; }
+.learn-comparison.is-rain article::after { content: "⋮ ⋮ ⋮"; position: absolute; inset: 17% 0 auto; color: var(--color-primary); font-size: 2.5rem; letter-spacing: 1rem; animation: learn-rain 1.8s linear infinite; }
+.learn-comparison.is-warm article::before { background: color-mix(in oklab, var(--rising) 42%, var(--elevated)); }.learn-comparison.is-green article::before { background: color-mix(in oklab, var(--stable) 75%, var(--elevated)); }.learn-comparison.is-solar article::before { background: color-mix(in oklab, var(--accent) 62%, var(--elevated)); }
+.learn-comparison article > * { position: relative; z-index: 2; }.learn-comparison article span { color: var(--color-muted-foreground); font-size: .72rem; text-transform: uppercase; }.learn-comparison article strong { margin-top: .25rem; font-family: var(--font-display); font-size: 2rem; }.learn-comparison article b { margin-top: 1rem; font-size: 1.05rem; }
+.learn-weather { margin-top: 1rem; font-size: 4.5rem; filter: saturate(.78); animation: learn-weather 4s ease-in-out infinite; }.learn-weather.is-current { animation-delay: -2s; }
+.learn-time { display: grid; place-items: center; color: var(--color-accent); }.learn-time i { width: 1px; height: 7rem; background: var(--color-border); }.learn-time svg { width: 1.35rem; }
+.learn-source, .learn-honesty { color: var(--color-muted-foreground); font-size: .7rem; text-align: center; }.learn-source { margin-top: .8rem; }.learn-honesty { padding: .85rem 1rem; border-top: 1px solid var(--color-border); }
+.learn-question { margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1.25rem; text-align: center; }.learn-question h3 { font-size: 1.35rem; }.learn-answers { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-top: 1rem; }.learn-answers button { min-height: 4.5rem; flex-direction: column; }.learn-answers button span { font-size: 1.5rem; }.learn-answers button.is-correct { border-color: var(--color-stable); background: color-mix(in oklab, var(--stable) 20%, var(--card)); color: var(--color-foreground); }.learn-answers button.is-wrong { border-color: var(--color-accent); opacity: .68; }
+.learn-feedback { margin-top: 1rem; animation: learn-enter .35s ease-out both; }.learn-feedback p { font-weight: 600; }.learn-feedback small { display: block; margin: .35rem 0 .9rem; color: var(--color-muted-foreground); }.learn-save-note { color: var(--color-accent); font-size: .75rem; }.learn-empty { display: grid; min-height: 24rem; place-items: center; color: var(--color-muted-foreground); text-align: center; }
+.learn-outro-spark { width: 3rem; height: 3rem; color: var(--color-accent); animation: learn-orbit 6s linear infinite; }
+@keyframes learn-enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes learn-float { 50% { transform: translateY(-7px); } }
+@keyframes learn-orbit { to { transform: rotate(360deg); } }
+@keyframes learn-celebrate { to { transform: translateY(-8px) rotate(3deg); } }
+@keyframes learn-land { to { transform: translateY(6px) scaleX(1.03); } }
+@keyframes learn-rain { to { transform: translateY(24px); opacity: .25; } }
+@keyframes learn-weather { 50% { transform: translateY(-5px) scale(1.03); } }
+@media (max-width: 760px) { .learn-layout { grid-template-columns: 1fr; }.learn-picker { border-right: 0; border-bottom: 1px solid var(--color-border); }.learn-map { max-height: 17rem; }.learn-header .learn-guides { display: none; }.learn-comparison { grid-template-columns: 1fr 2rem 1fr; gap: .35rem; }.learn-comparison article { min-height: 13rem; }.learn-weather { font-size: 3.2rem; }.learn-time i { height: 4rem; }.learn-content { padding: 1rem; } }
+@media (max-width: 420px) { .learn-shell { border-radius: var(--radius-lg); }.learn-intro { min-height: 29rem; }.learn-header { padding: 1rem; }.learn-answers { grid-template-columns: 1fr; }.learn-answers button { min-height: 3.25rem; flex-direction: row; }.learn-comparison article strong { font-size: 1.5rem; }.learn-comparison article b { font-size: .78rem; }.learn-weather { font-size: 2.7rem; } }
+@media (prefers-reduced-motion: reduce) { .learn-intro-copy, .learn-guide, .learn-orbit, .learn-guides.is-celebrating .learn-guide, .learn-comparison article::before, .learn-comparison article::after, .learn-weather, .learn-feedback, .learn-outro-spark { animation: none; }.learn-map-district, .learn-map-active { transition: none; } }
+
 @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @utility animate-fade-in { animation: fade-in 0.45s ease-out both; }
 @utility animate-spin-slow { animation: spin 6s linear infinite; }
