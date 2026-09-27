@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ComponentType, type KeyboardEvent, type SVGProps } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Check, CloudRain, Heart, Info, Leaf, MapPin, Minus, Sprout, Sun, ThermometerSun, TrendingDown, TrendingUp, Wind } from "lucide-react";
+import { ArrowRight, BookOpenCheck, Check, CloudRain, Heart, Info, Leaf, MapPin, Minus, Sprout, Sun, ThermometerSun, TrendingDown, TrendingUp, Wind } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { analyzeVariable, availableVariables, districts, getDistrict, type VariableAnalysis, type VariableKey } from "@/lib/climate";
@@ -57,6 +57,15 @@ function evidenceSentence(analysis: VariableAnalysis, districtName: string, lang
   return lang === "bn"
     ? `${districtName}-এর ${label} উল্লেখযোগ্যভাবে ${direction}—প্রতি দশকে প্রায় ${amount} ${analysis.unit} (p = ${p})।`
     : `${label} in ${districtName} has ${direction} significantly, by about ${amount} ${analysis.unit} per decade (p = ${p}).`;
+}
+
+function learningSentence(analysis: VariableAnalysis, lang: Lang) {
+  if (!analysis.result.trend.significant_at_0_05) return lang === "bn"
+    ? "শিখলাম: শুধু প্রথম ও শেষ মান আলাদা হলেই দীর্ঘমেয়াদি পরিবর্তন প্রমাণ হয় না। বহু বছরের সব রেকর্ড ও p-value একসঙ্গে দেখে সিদ্ধান্ত নিতে হয়।"
+    : "What you learned: Different first and last values do not prove a long-term change. Scientists consider every annual record and the p-value together.";
+  return lang === "bn"
+    ? "শিখলাম: বহু বছরের রেকর্ড একই দিকে ধারাবাহিক পরিবর্তন দেখালে এবং p-value ০.০৫-এর কম হলে বিজ্ঞানীরা পরিবর্তনটিকে পরিসংখ্যানগতভাবে তাৎপর্যপূর্ণ বলেন।"
+    : "What you learned: When many years of records show a consistent direction and the p-value is below 0.05, scientists call the change statistically significant.";
 }
 
 export function DistrictLearning({ onMascotState, onContextChange }: { onMascotState?: (state: MascotState) => void; onContextChange?: (context: { districtId: string; district: string; variable: string; significant: boolean }) => void }) {
@@ -131,7 +140,7 @@ export function DistrictLearning({ onMascotState, onContextChange }: { onMascotS
           {evidence ? <div className={`learn-insight ${analysis.result.trend.significant_at_0_05 ? "is-significant" : "is-neutral"}`}><Info /><div><span>{L("What the trend test says", "প্রবণতা পরীক্ষায় যা দেখা যায়")}</span><p>{evidence}</p></div></div> : null}
           <p className="learn-source">NASA · {analysis.provenance.dataset_id} · {L(`${analysis.result.n_observations} annual observations`, `${analysis.result.n_observations.toLocaleString("bn-BD")}টি বার্ষিক পর্যবেক্ষণ`)}</p>
 
-          <section className="learn-question" aria-labelledby="observation-question"><p className="learn-section-label">{L("Check your observation", "তোমার পর্যবেক্ষণ মিলিয়ে দেখো")}</p><h2 id="observation-question">{L(`What does the long-term ${LABELS[activeVariable].en.toLowerCase()} record show?`, `দীর্ঘমেয়াদি ${LABELS[activeVariable].bn} রেকর্ডে কী দেখা যায়?`)}</h2><div className="learn-answers">{(Object.keys(TRENDS) as Trend[]).map((trend) => { const IconComponent = TRENDS[trend].icon; return <Button key={trend} variant="outline" disabled={picked !== null} onClick={() => void answer(trend)} className={picked ? trend === correct ? "is-correct" : trend === picked ? "is-wrong" : "" : ""}><IconComponent /><span>{TRENDS[trend][lang]}</span>{picked && trend === correct ? <Check /> : null}</Button>; })}</div>{picked ? <div className="learn-feedback" role="status"><p>{picked === correct ? L("Your observation matches the statistical test.", "তোমার পর্যবেক্ষণটি পরিসংখ্যানগত পরীক্ষার সঙ্গে মিলেছে।") : L("Compare your choice with the highlighted statistical result.", "তোমার পছন্দটি চিহ্নিত পরিসংখ্যানগত ফলাফলের সঙ্গে মিলিয়ে দেখো।")}</p><small>{L("Theil–Sen rate per decade", "প্রতি দশকে থেইল–সেন হার")}: {analysis.result.slope.slope_per_decade > 0 ? "+" : ""}{fmt(analysis.result.slope.slope_per_decade, lang, 2)} {analysis.unit} · p = {pValue(analysis.result.trend.p_value)}</small>{saveMessage ? <p className="learn-save-note">{saveMessage}</p> : null}</div> : saveMessage ? <p className="learn-save-note" role="status">{saveMessage}</p> : null}</section>
+          <section className="learn-question" aria-labelledby="observation-question"><p className="learn-section-label">{L("Check your observation", "তোমার পর্যবেক্ষণ মিলিয়ে দেখো")}</p><h2 id="observation-question">{L(`What does the long-term ${LABELS[activeVariable].en.toLowerCase()} record show?`, `দীর্ঘমেয়াদি ${LABELS[activeVariable].bn} রেকর্ডে কী দেখা যায়?`)}</h2><div className="learn-answers">{(Object.keys(TRENDS) as Trend[]).map((trend) => { const IconComponent = TRENDS[trend].icon; return <Button key={trend} variant="outline" disabled={picked !== null} onClick={() => void answer(trend)} className={picked ? trend === correct ? "is-correct" : trend === picked ? "is-wrong" : "" : ""}><IconComponent /><span>{TRENDS[trend][lang]}</span>{picked && trend === correct ? <Check /> : null}</Button>; })}</div>{picked ? <div className="learn-feedback" role="status"><p>{picked === correct ? L("Your observation matches the statistical test.", "তোমার পর্যবেক্ষণটি পরিসংখ্যানগত পরীক্ষার সঙ্গে মিলেছে।") : L("Compare your choice with the highlighted statistical result.", "তোমার পছন্দটি চিহ্নিত পরিসংখ্যানগত ফলাফলের সঙ্গে মিলিয়ে দেখো।")}</p><div className="learn-answer-row"><span>{L("Correct answer", "সঠিক উত্তর")}</span><strong>{TRENDS[correct][lang]}</strong></div><small>{L("Theil–Sen rate per decade", "প্রতি দশকে থেইল–সেন হার")}: {analysis.result.slope.slope_per_decade > 0 ? "+" : ""}{fmt(analysis.result.slope.slope_per_decade, lang, 2)} {analysis.unit} · p = {pValue(analysis.result.trend.p_value)}</small><p className="learn-takeaway"><BookOpenCheck aria-hidden />{learningSentence(analysis, lang)}</p>{saveMessage ? <p className="learn-save-note">{saveMessage}</p> : null}</div> : saveMessage ? <p className="learn-save-note" role="status">{saveMessage}</p> : null}</section>
         </div> : <div className="learn-empty">{L("Data not yet available for this district.", "এই জেলার তথ্য এখনো পাওয়া যায়নি।")}</div>}
       </div>
     </div>
