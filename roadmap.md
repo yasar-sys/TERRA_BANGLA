@@ -24,3 +24,4 @@
 - [x] Upgrade all district themes into layered illustrated worlds with animated guide conversations
 - [x] Install the supplied TerraBangla logo across the site, splash screen, and app icons
 - [x] Add clear answers and learning takeaways to every children’s question
+- [x] Add the final presentation-ready 240-second English voiceover script to the docs

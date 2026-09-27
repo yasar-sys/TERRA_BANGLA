@@ -15,6 +15,7 @@
 
 **Narration:**  
 Every place has a climate story. But a single hot day, one heavy storm, or one unusual season cannot tell us how that story is changing. We need evidence collected over many years. [PAUSE] This is TerraBangla, built by MEC TERRA_DETECTORS for the NASA Space Apps Challenge 2026. It helps people investigate Bangladesh through real Earth-observation records.
+Instead of asking learners to accept a conclusion, it invites them to inspect the pattern, question the result, and follow the source.
 
 ---
 
@@ -87,6 +88,7 @@ Every chart includes provenance: the dataset, source link, retrieval time, and w
 
 **Narration:**  
 Climate understanding begins with better questions and honest evidence. TerraBangla helps Bangladesh’s next generation explore both. [PAUSE] TerraBangla, by MEC TERRA_DETECTORS. Be an Earth System Trend Detective.
+From the whole planet to one local district, every investigation begins with curiosity and ends with evidence that can be checked.
 
 ---
 

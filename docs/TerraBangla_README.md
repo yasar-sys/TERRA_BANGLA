@@ -6,6 +6,12 @@ Challenge: "Be An Earth System Trend Detective!" · License: Apache-2.0
 TerraBangla is an interactive 3D web app that turns real NASA satellite data into
 plain-language climate stories for all 64 districts of Bangladesh — in English and বাংলা.
 
+## Presentation narration
+
+The current presentation-ready English voiceover is available at
+`docs/voiceover/TerraBangla_voiceover_240s_EN_final.md`. It includes a complete
+240-second narration, matching screen directions, timing windows, and recording notes.
+
 ---
 
 ## What's inside the website
