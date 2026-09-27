@@ -7,6 +7,7 @@ import idleAsset from "@/assets/mascot/idle.png.asset.json";
 import thinkingAsset from "@/assets/mascot/thinking.png.asset.json";
 import wavingAsset from "@/assets/mascot/waving.png.asset.json";
 import { useLang } from "@/lib/i18n";
+import { getDistrictTheme } from "@/lib/district-themes";
 
 export type MascotState = "idle" | "celebrating" | "encouraging" | "thinking" | "waving";
 
@@ -26,9 +27,10 @@ const MESSAGES: Record<MascotState, { en: string; bn: string }> = {
   waving: { en: "Welcome to the district climate studio.", bn: "জেলা জলবায়ু স্টুডিওতে স্বাগতম।" },
 };
 
-export function KidsMascot({ state, context }: { state: MascotState; context?: { district: string; variable: string } }) {
+export function KidsMascot({ state, context, districtId = "dhaka" }: { state: MascotState; context?: { district: string; variable: string }; districtId?: string }) {
   const { lang } = useLang();
   const [minimized, setMinimized] = useState(false);
+  const accent = getDistrictTheme(districtId).characterAccent;
 
   useEffect(() => {
     Object.values(POSES).forEach((src) => {
@@ -46,10 +48,11 @@ export function KidsMascot({ state, context }: { state: MascotState; context?: {
   if (minimized) return <Button type="button" variant="outline" size="sm" className="kids-guide-restore" onClick={() => setMinimized(false)}><ChevronUp />{lang === "bn" ? "গাইড দেখাও" : "Show guide"}</Button>;
 
   return (
-    <aside className={`kids-mascot is-${state}`} aria-live="polite" aria-atomic="true">
+    <aside className={`kids-mascot is-${state}`} data-accessory={accent.accessory} style={{ "--district-guide-accent": accent.color } as React.CSSProperties} aria-live="polite" aria-atomic="true">
       <div className="kids-mascot-copy"><span>{lang === "bn" ? "তথ্য গাইড" : "Evidence guide"}</span><p>{contextual}</p></div>
       <div className="kids-mascot-art" key={state}>
         <img src={POSES[state]} alt="" aria-hidden="true" draggable={false} />
+        <i className="kids-mascot-accent" aria-hidden="true">{String(accent.mark).padStart(2, "0")}</i>
       </div>
       <Button type="button" variant="ghost" size="icon-sm" className="kids-guide-minimize" onClick={() => setMinimized(true)} aria-label={lang === "bn" ? "গাইড ছোট করো" : "Minimize guide"}><ChevronDown /></Button>
     </aside>

@@ -20,3 +20,4 @@
 - [x] Add private student profiles, profile pictures, favorites, lesson results, and saved AI explanations
 - [x] Add the uploaded five-pose animated mascot to the kids learning studio and quiz
 - [x] Overhaul `/kids` into a calm, museum-quality climate data learning experience
+- [ ] Add 64 distinct procedural district themes and guide accents to `/kids`
