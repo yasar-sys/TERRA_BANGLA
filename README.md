@@ -45,6 +45,8 @@ python3 scripts/fetch_modis.py        # NDVI + LST (slow, chunked)
 
 ## Pitch voiceover
 Video narration (English, 4 minutes) for the demo/pitch video:
+- `docs/voiceover/TerraBangla_voiceover_240s_EN_final.md` — current presentation-ready
+  240-second English script, with scene directions, timing windows, and recording notes.
 - `docs/voiceover/TerraBangla_voiceover_EN_240s_meet_the_site.mp3` — final narration, TerraBangla
   speaks in first person; script with timing windows: `TerraBangla_voiceover_240s_EN_meet_the_site.md`.
 - `docs/voiceover/TerraBangla_voiceover_EN_240s.mp3` — earlier documentary-style version;
