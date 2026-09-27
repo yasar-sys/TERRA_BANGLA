@@ -11,10 +11,10 @@
 - [x] Add Google sign-in with saved multi-conversation climate chat
 - [x] Add a secure admin workspace for content, announcements, chat review, and data uploads
 - [x] Verify public sign-in flow, protected chat/admin access, install metadata, and mobile layout
-- [ ] Verify saved chat streaming and admin forms after the first Google account signs in (blocked: no auth user exists yet)
+- [x] Verify signed-in chat and admin access with the approved Google account
 - [x] Build and verify the four-location Bangladesh Earth Trend Detective game for ages 7–12
 - [x] Redesign the children’s game as “আমার হাতে বাংলাদেশ” with polished scenes and tactile interaction
 - [x] Connect every game mission to real district NASA records and make phone taps reliable
 - [x] Polish the kids’ game scenes, clue feedback, sound, travel transitions, star motion, and quiz celebrations
-- [ ] Replace the game flow with a minimal animated 64-district learning studio
-- [ ] Add private student profiles, profile pictures, favorites, lesson results, and saved AI explanations
+- [x] Replace the game flow with a minimal animated 64-district learning studio
+- [x] Add private student profiles, profile pictures, favorites, lesson results, and saved AI explanations
