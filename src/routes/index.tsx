@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GlobeStage } from "@/components/GlobeStage";
 import { DistrictPicker } from "@/components/DistrictPicker";
+import { HomeSplash } from "@/components/HomeSplash";
 import { coveredDistrictIds } from "@/lib/climate";
 import { useLang } from "@/lib/i18n";
 
@@ -31,10 +32,18 @@ function Landing() {
   const { t, lang } = useLang();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<"world" | "bangladesh">("world");
+  const [splashReady, setSplashReady] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
   const covered = coveredDistrictIds().length;
+
+  useEffect(() => {
+    setShowSplash(sessionStorage.getItem("terrabangla-splash-seen") !== "1");
+    setSplashReady(true);
+  }, []);
 
   return (
     <div className="star-field">
+      {splashReady && showSplash ? <HomeSplash onComplete={() => setShowSplash(false)} /> : null}
       <section className="mx-auto max-w-7xl px-3 pt-8 sm:px-6">
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-accent">
           {t("hero.challenge")}
