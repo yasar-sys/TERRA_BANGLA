@@ -73,6 +73,10 @@ function KidsPage() {
     const duration = state === "thinking" ? 500 : state === "waving" ? 1000 : 1200;
     mascotTimer.current = setTimeout(() => setMascotState("idle"), duration);
   }, []);
+  const updateGuideContext = useCallback((context: { district: string; variable: string; significant: boolean }) => {
+    setGuideContext({ district: context.district, variable: context.variable });
+    if (context.significant) showMascotState("celebrating");
+  }, [showMascotState]);
 
   useEffect(() => {
     if (!window.localStorage.getItem("mec-lang")) setLang("bn");
@@ -83,7 +87,7 @@ function KidsPage() {
   }, [setLang, showMascotState]);
 
   return <div className="kids-page mx-auto max-w-7xl px-3 py-8 sm:px-6 sm:py-12">
-    <DistrictLearning onMascotState={showMascotState} onContextChange={(context) => { setGuideContext({ district: context.district, variable: context.variable }); if (context.significant) showMascotState("celebrating"); }} />
+    <DistrictLearning onMascotState={showMascotState} onContextChange={updateGuideContext} />
     <KidsMascot state={mascotState} context={guideContext} />
     <section className="knowledge-section scroll-reveal" aria-labelledby="knowledge-title"><header><p className="learn-section-label">{lang === "bn" ? "ধারণা যাচাই" : "Concept review"}</p><h2 id="knowledge-title">{lang === "bn" ? "প্রমাণ থেকে শেখা" : "Learning from evidence"}</h2><p>{lang === "bn" ? "পরিবেশের পরিবর্তন বুঝতে কয়েকটি সংক্ষিপ্ত প্রশ্ন—কোনো পয়েন্ট বা পুরস্কার নয়।" : "A few short questions for connecting environmental ideas—without points or rewards."}</p></header><KnowledgeCheck onMascotState={showMascotState} /></section>
   </div>;

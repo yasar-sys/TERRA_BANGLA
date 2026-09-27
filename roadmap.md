@@ -19,4 +19,4 @@
 - [x] Replace the game flow with a minimal animated 64-district learning studio
 - [x] Add private student profiles, profile pictures, favorites, lesson results, and saved AI explanations
 - [x] Add the uploaded five-pose animated mascot to the kids learning studio and quiz
-- [ ] Overhaul `/kids` into a calm, museum-quality climate data learning experience
+- [x] Overhaul `/kids` into a calm, museum-quality climate data learning experience
