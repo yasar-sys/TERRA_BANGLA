@@ -68,20 +68,31 @@ export function ProvenanceButton({
               <Row label={t("prov.retrieved")} value={provenance.retrieved} />
               <Row label={t("prov.mode")} value={provenance.mode} />
             </dl>
-            <p className="mt-2 break-all text-xs text-muted-foreground">
-              {provenance.source_url.startsWith("http") ? (
-                <a
-                  className="text-primary underline"
-                  href={provenance.source_url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {provenance.source_url}
-                </a>
-              ) : (
-                provenance.source_url
-              )}
-            </p>
+            {(() => {
+              const link = resolveSourceLink(provenance.source_url);
+              return (
+                <div className="mt-2 space-y-1">
+                  <p className="break-all text-xs text-muted-foreground">
+                    {link.href ? (
+                      <a
+                        className="text-primary underline"
+                        href={link.href}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {link.href}
+                      </a>
+                    ) : (
+                      provenance.source_url
+                    )}
+                  </p>
+                  {link.query ? (
+                    <p className="break-all text-[11px] text-muted-foreground">{link.query}</p>
+                  ) : null}
+                </div>
+              );
+            })()}
+
 
             <h3 className="mt-5 text-sm font-semibold text-foreground">{t("prov.raw")}</h3>
             <pre className="mt-2 max-h-[50vh] overflow-auto rounded-lg border border-border bg-elevated p-3 text-[11px] leading-relaxed text-foreground">
