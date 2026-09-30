@@ -68,20 +68,31 @@ export function ProvenanceButton({
               <Row label={t("prov.retrieved")} value={provenance.retrieved} />
               <Row label={t("prov.mode")} value={provenance.mode} />
             </dl>
-            <p className="mt-2 break-all text-xs text-muted-foreground">
-              {provenance.source_url.startsWith("http") ? (
-                <a
-                  className="text-primary underline"
-                  href={provenance.source_url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {provenance.source_url}
-                </a>
-              ) : (
-                provenance.source_url
-              )}
-            </p>
+            {(() => {
+              const link = resolveSourceLink(provenance.source_url);
+              return (
+                <div className="mt-2 space-y-1">
+                  <p className="break-all text-xs text-muted-foreground">
+                    {link.href ? (
+                      <a
+                        className="text-primary underline"
+                        href={link.href}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {link.href}
+                      </a>
+                    ) : (
+                      provenance.source_url
+                    )}
+                  </p>
+                  {link.query ? (
+                    <p className="break-all text-[11px] text-muted-foreground">{link.query}</p>
+                  ) : null}
+                </div>
+              );
+            })()}
+
 
             <h3 className="mt-5 text-sm font-semibold text-foreground">{t("prov.raw")}</h3>
             <pre className="mt-2 max-h-[50vh] overflow-auto rounded-lg border border-border bg-elevated p-3 text-[11px] leading-relaxed text-foreground">
@@ -101,4 +112,32 @@ function Row({ label, value }: { label: string; value: string }) {
       <dd className="font-medium text-foreground">{value}</dd>
     </div>
   );
+}
+
+/**
+ * Cached MODIS records store the source as
+ * "<endpoint>/subset (lat=.., lon=.., band=..)". That combined string is not a
+ * resolvable URL, so we surface the real, working NASA endpoint as the link and
+ * keep the exact query parameters visible as text beneath it.
+ */
+function resolveSourceLink(raw: string): { href: string | null; query: string | null } {
+  if (!raw.startsWith("http")) return { href: null, query: null };
+  const split = raw.indexOf(" (");
+  if (split === -1) return { href: raw, query: null };
+
+  const base = raw.slice(0, split).trim();
+  const inner = raw.slice(split + 2).replace(/\)\s*$/, "");
+  const params = new Map<string, string>();
+  for (const part of inner.split(",")) {
+    const [key, value] = part.split("=").map((s) => s?.trim());
+    if (key && value) params.set(key, value);
+  }
+
+  const lat = params.get("lat");
+  const lon = params.get("lon");
+  if (base.endsWith("/subset") && lat && lon) {
+    const href = `${base.replace(/\/subset$/, "/dates")}?latitude=${lat}&longitude=${lon}`;
+    return { href, query: inner };
+  }
+  return { href: base, query: inner };
 }
