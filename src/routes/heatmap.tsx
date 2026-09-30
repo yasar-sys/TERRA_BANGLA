@@ -6,6 +6,7 @@ import { nearestDistrict, type Provenance, type VariableKey } from "@/lib/climat
 import { spectralGradient } from "@/lib/colors";
 import { analyzeSeries } from "@/lib/stats";
 import { fmt, useLang } from "@/lib/i18n";
+import { exportGridCsv, exportGridPdf, type GridExport } from "@/lib/export-grid";
 import tempGrid from "@/data/grid/temperature.json";
 import precipGrid from "@/data/grid/precipitation.json";
 import solarGrid from "@/data/grid/solar.json";
@@ -91,6 +92,26 @@ function HeatmapPage() {
   const sorted = [...points].sort((a, b) => b.value - a.value);
   const unit = mode === "trend" ? `${grid.unit} / ${L("decade", "দশক")}` : grid.unit;
   const sigCount = mode === "trend" ? points.filter((p) => (p as { sig?: boolean }).sig).length : 0;
+
+  const buildExport = (): GridExport => ({
+    variable,
+    variableLabel: LABELS[variable].en,
+    unit: grid.unit,
+    datasetId: grid.provenance.dataset_id,
+    sourceUrl: grid.provenance.source_url,
+    retrieved: grid.provenance.retrieved,
+    cells: grid.cells.map((c) => {
+      const r = analyzeSeries(Object.entries(c.annual).map(([y, v]) => ({ year: Number(y), value: v })));
+      const d = nearestDistrict(c.lat, c.lng);
+      return {
+        place: d?.name ?? "-",
+        lat: c.lat,
+        lng: c.lng,
+        annual: c.annual,
+        trend: r ? { slope_per_decade: r.slope.slope_per_decade, p_value: r.trend.p_value, significant: r.trend.significant_at_0_05 } : null,
+      };
+    }),
+  });
 
   return (
     <div className="mx-auto max-w-7xl px-3 py-8 sm:px-6">
@@ -197,12 +218,18 @@ function HeatmapPage() {
               </li>
             ))}
           </ol>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             <ProvenanceButton
               provenance={grid.provenance}
               title={L(LABELS[variable].en, LABELS[variable].bn)}
               payload={{ variable, unit, mode, year: mode === "year" ? activeYear : null, n_cells: points.length, provenance: grid.provenance, points: points.slice(0, 20) }}
             />
+            <button type="button" onClick={() => exportGridCsv(buildExport(), `terrabangla-${variable}-cells.csv`)} className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-secondary">
+              {L("Download CSV", "CSV ডাউনলোড")}
+            </button>
+            <button type="button" onClick={() => void exportGridPdf(buildExport(), `terrabangla-${variable}-cells.pdf`)} className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-secondary">
+              {L("Download PDF", "PDF ডাউনলোড")}
+            </button>
           </div>
         </aside>
       </div>
