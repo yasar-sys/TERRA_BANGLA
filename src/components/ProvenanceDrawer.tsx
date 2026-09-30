@@ -113,3 +113,31 @@ function Row({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+/**
+ * Cached MODIS records store the source as
+ * "<endpoint>/subset (lat=.., lon=.., band=..)". That combined string is not a
+ * resolvable URL, so we surface the real, working NASA endpoint as the link and
+ * keep the exact query parameters visible as text beneath it.
+ */
+function resolveSourceLink(raw: string): { href: string | null; query: string | null } {
+  if (!raw.startsWith("http")) return { href: null, query: null };
+  const split = raw.indexOf(" (");
+  if (split === -1) return { href: raw, query: null };
+
+  const base = raw.slice(0, split).trim();
+  const inner = raw.slice(split + 2).replace(/\)\s*$/, "");
+  const params = new Map<string, string>();
+  for (const part of inner.split(",")) {
+    const [key, value] = part.split("=").map((s) => s?.trim());
+    if (key && value) params.set(key, value);
+  }
+
+  const lat = params.get("lat");
+  const lon = params.get("lon");
+  if (base.endsWith("/subset") && lat && lon) {
+    const href = `${base.replace(/\/subset$/, "/dates")}?latitude=${lat}&longitude=${lon}`;
+    return { href, query: inner };
+  }
+  return { href: base, query: inner };
+}
