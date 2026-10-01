@@ -45,7 +45,7 @@ export const Route = createFileRoute("/compare")({
   component: ComparePage,
 });
 
-const COLORS: [string, string] = ["#F2A93B", "#2EE6D6"];
+const COLORS: [string, string] = ["#F2A93B", "#7C6FF0"];
 
 interface CompareLine {
   key: string;

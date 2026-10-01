@@ -7,8 +7,9 @@ type Theme = "light" | "dark";
 
 function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("dark", theme === "dark");
-  document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset["theme"] = theme;
   document.documentElement.style.colorScheme = theme;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#0A0A0F" : "#F7F7FA");
 }
 
 export function ThemeToggle() {
