@@ -7,6 +7,7 @@ District visual themes use one shared layered CSS renderer with stable per-distr
 Student profiles, favorites, lesson attempts, and saved AI explanations use separate owner-scoped records; roles never live in profiles.
 The supplied TerraBangla artwork is the canonical brand logo; serve it through the project asset pointer and derive local favicon/PWA icons from it.
 Apply theme preference before hydration and use semantic CSS tokens so every route shares one accessible light/dark system.
+South Asia comparisons use cached NASA observations at named representative capital points; never present them as national averages.
 <!-- LOVABLE:BEGIN -->
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting

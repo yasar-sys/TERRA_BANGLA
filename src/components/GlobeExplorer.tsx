@@ -12,6 +12,7 @@ import { normalize, rampColor, spectralColor } from "@/lib/colors";
 import { fmt, useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Vector3 } from "three";
+import { southAsiaLocations } from "@/lib/south-asia";
 
 const BD_CENTER = { lat: 23.75, lng: 90.35 };
 const FLY_MS = 1600;
@@ -42,6 +43,9 @@ export interface GlobeExplorerProps {
   onSelectDistrict: (districtId: string) => void;
   hexMode?: boolean;
   gridPoints?: { lat: number; lng: number; value: number }[];
+  regionalMode?: boolean;
+  selectedRegionalId?: string;
+  onSelectRegional?: (id: string) => void;
 }
 
 export default function GlobeExplorer({
@@ -51,6 +55,9 @@ export default function GlobeExplorer({
   onSelectDistrict,
   hexMode = false,
   gridPoints = [],
+  regionalMode = false,
+  selectedRegionalId = "bangladesh",
+  onSelectRegional,
 }: GlobeExplorerProps) {
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -251,6 +258,17 @@ export default function GlobeExplorer({
         onGlobeClick={({ lat, lng }: { lat: number; lng: number }) => {
           if (phase === "world" && lat > 20 && lat < 27 && lng > 88 && lng < 93) enterBangladesh();
         }}
+        pointsData={phase === "world" && regionalMode ? southAsiaLocations : EMPTY}
+        pointLat={(point: object) => (point as { lat: number }).lat}
+        pointLng={(point: object) => (point as { lon: number }).lon}
+        pointAltitude={(point: object) => (point as { id: string }).id === selectedRegionalId ? 0.12 : 0.07}
+        pointRadius={(point: object) => (point as { id: string }).id === "bangladesh" ? 0.48 : 0.34}
+        pointColor={(point: object) => (point as { id: string }).id === "bangladesh" ? "#7C6FF0" : "#2EE6D6"}
+        pointLabel={(point: object) => {
+          const item = point as { id: string; name: string; bn: string };
+          return `<div class="globe-tooltip"><strong>${lang === "bn" ? item.bn : item.name}</strong><br/>${lang === "bn" ? "তুলনা দেখতে ক্লিক করুন" : "Click to compare"}</div>`;
+        }}
+        onPointClick={(point: object) => onSelectRegional?.((point as { id: string }).id)}
         hexBinPointsData={hexMode ? gridPoints : EMPTY}
         hexBinPointLat={(p: object) => (p as { lat: number }).lat}
         hexBinPointLng={(p: object) => (p as { lng: number }).lng}
@@ -280,7 +298,7 @@ export default function GlobeExplorer({
           const name = d ? (lang === "bn" ? d.bn : d.name) : "";
           return `<div class="globe-tooltip"><strong>${lang === "bn" ? "কাছের এলাকা" : "Near"}: ${name}</strong><br/>${p ? `${p.lat.toFixed(2)}°N ${p.lng.toFixed(2)}°E<br/>` : ""}${fmt(mean, lang, 2)}</div>`;
         }}
-        labelsData={phase === "world" ? WORLD_LABELS : hexMode && showNames ? districtLabels : EMPTY}
+        labelsData={phase === "world" && !regionalMode ? WORLD_LABELS : hexMode && showNames ? districtLabels : EMPTY}
         labelLat={(d: object) => (d as { lat: number }).lat}
         labelLng={(d: object) => (d as { lng: number }).lng}
         labelText={(d: object) => (d as { text: string }).text}
@@ -290,7 +308,7 @@ export default function GlobeExplorer({
         labelColor={() => (phase === "world" ? "#B17AFF" : "rgba(238,246,248,0.95)")}
         labelResolution={2}
         onLabelClick={() => { if (phase === "world") enterBangladesh(); }}
-        ringsData={phase === "world" ? WORLD_RINGS : EMPTY}
+        ringsData={phase === "world" && !regionalMode ? WORLD_RINGS : EMPTY}
         ringLat={(d: object) => (d as { lat: number }).lat}
         ringLng={(d: object) => (d as { lng: number }).lng}
         ringColor={ringColorFn}
