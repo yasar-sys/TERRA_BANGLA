@@ -4,6 +4,7 @@ import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AuthButton } from "@/components/AuthButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import terraBanglaLogo from "@/assets/brand/terrabangla-logo.png.asset.json";
 
 const NAV = [
@@ -66,8 +67,8 @@ function BackButton() {
 export function SiteHeader() {
   const { t, lang, setLang } = useLang();
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/82 backdrop-blur-xl">
-      <div className="h-0.5 bg-gradient-to-r from-transparent via-accent to-primary" />
+    <header className="site-header sticky top-0 z-40 border-b border-border/80 bg-background/82 backdrop-blur-xl">
+      <div className="header-spectrum" />
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-3 sm:px-6">
         <BackButton />
         <Brand />
@@ -77,12 +78,13 @@ export function SiteHeader() {
         <Button variant="outline" size="sm" onClick={() => setLang(lang === "en" ? "bn" : "en")} className="ml-auto shrink-0 xl:ml-0" aria-label={t("lang.label")}>
           <Languages aria-hidden /> {t("lang.toggle")}
         </Button>
+        <ThemeToggle />
         <div className="hidden sm:block"><AuthButton /></div>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="shrink-0 xl:hidden" aria-label={t("nav.menu")}><Menu aria-hidden /></Button>
           </SheetTrigger>
-          <SheetContent className="border-border bg-background/95 backdrop-blur-xl">
+          <SheetContent className="glass-panel border-border bg-background/95 backdrop-blur-xl">
             <SheetHeader><SheetTitle><Brand /></SheetTitle></SheetHeader>
             <nav aria-label="Mobile" className="mt-8 flex flex-col gap-2"><NavItems mobile /></nav>
             <div className="mt-5"><AuthButton /></div>

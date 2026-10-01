@@ -7,6 +7,7 @@ import { spectralGradient } from "@/lib/colors";
 import { analyzeSeries } from "@/lib/stats";
 import { fmt, useLang } from "@/lib/i18n";
 import { exportGridCsv, exportGridPdf, type GridExport } from "@/lib/export-grid";
+import { Button } from "@/components/ui/button";
 import tempGrid from "@/data/grid/temperature.json";
 import precipGrid from "@/data/grid/precipitation.json";
 import solarGrid from "@/data/grid/solar.json";
@@ -224,12 +225,12 @@ function HeatmapPage() {
               title={L(LABELS[variable].en, LABELS[variable].bn)}
               payload={{ variable, unit, mode, year: mode === "year" ? activeYear : null, n_cells: points.length, provenance: grid.provenance, points: points.slice(0, 20) }}
             />
-            <button type="button" onClick={() => exportGridCsv(buildExport(), `terrabangla-${variable}-cells.csv`)} className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-secondary">
+            <Button type="button" variant="outline" size="sm" onClick={() => exportGridCsv(buildExport(), `terrabangla-${variable}-cells.csv`)}>
               {L("Download CSV", "CSV ডাউনলোড")}
-            </button>
-            <button type="button" onClick={() => void exportGridPdf(buildExport(), `terrabangla-${variable}-cells.pdf`)} className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-secondary">
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => void exportGridPdf(buildExport(), `terrabangla-${variable}-cells.pdf`)}>
               {L("Download PDF", "PDF ডাউনলোড")}
-            </button>
+            </Button>
           </div>
         </aside>
       </div>

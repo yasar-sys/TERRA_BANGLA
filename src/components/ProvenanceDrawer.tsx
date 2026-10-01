@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Provenance } from "@/lib/climate";
 import { useLang } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
 
 export function ProvenanceButton({
   provenance,
@@ -27,13 +28,15 @@ export function ProvenanceButton({
 
   return (
     <>
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="sm"
         onClick={() => setOpen(true)}
-        className="rounded-md border border-border px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        className="h-7 px-2 text-[11px] text-muted-foreground"
       >
         {t("prov.open")}
-      </button>
+      </Button>
 
       {open ? (
         <div
@@ -45,7 +48,7 @@ export function ProvenanceButton({
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
-          <div className="h-full w-full max-w-md overflow-y-auto border-l border-border bg-card p-4 shadow-panel sm:p-6">
+          <div className="provenance-drawer glass-panel h-full w-full max-w-md overflow-y-auto border-l border-border p-4 shadow-panel sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="font-display text-lg font-semibold text-foreground">
@@ -53,14 +56,15 @@ export function ProvenanceButton({
                 </h2>
                 <p className="mt-1 text-xs text-muted-foreground">{title}</p>
               </div>
-              <button
+              <Button
                 ref={closeRef}
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setOpen(false)}
-                className="rounded-md border border-border px-2.5 py-1.5 text-xs text-foreground hover:bg-secondary"
               >
                 {t("prov.close")}
-              </button>
+              </Button>
             </div>
 
             <dl className="mt-4 space-y-2 text-sm">
