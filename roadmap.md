@@ -25,3 +25,6 @@
 - [x] Install the supplied TerraBangla logo across the site, splash screen, and app icons
 - [x] Add clear answers and learning takeaways to every children’s question
 - [x] Add the final presentation-ready 240-second English voiceover script to the docs
+- [ ] Apply the neon-professional dark/light visual system across every route
+- [ ] Expand saved chat into the server-grounded AI Evidence Lab
+- [ ] Verify both themes, responsive layouts, downloads, and Evidence Lab interactions

@@ -18,9 +18,9 @@ const FLY_MS = 1600;
 const EMPTY: object[] = [];
 const WORLD_LABELS = [{ lat: BD_CENTER.lat, lng: BD_CENTER.lng, text: "Bangladesh" }];
 const WORLD_RINGS = [{ lat: BD_CENTER.lat, lng: BD_CENTER.lng }];
-const sideColor = () => "rgba(26, 31, 46, 0.7)";
-const strokeColor = () => "#0B0E1A";
-const ringColorFn = () => () => "rgba(242, 169, 59, 0.75)";
+const sideColor = () => "rgba(17, 18, 28, 0.72)";
+const strokeColor = () => "rgba(10, 10, 15, 0.92)";
+const ringColorFn = () => (t: number) => `rgba(157, 78, 255, ${Math.max(0, 0.9 - t)})`;
 
 interface Feature {
   type: "Feature";
@@ -139,7 +139,7 @@ export default function GlobeExplorer({
       const v = values.get(id);
       if (v === undefined) return "rgba(45, 52, 72, 0.55)";
       const base = rampColor(variable, normalize(v, bounds.min, bounds.max), 0.86);
-      return hovered === id ? "rgba(124, 111, 240, 0.95)" : base;
+       return hovered === id ? "rgba(157, 78, 255, 0.97)" : base;
     },
     [values, bounds, variable, hovered, phase],
   );
@@ -217,7 +217,7 @@ export default function GlobeExplorer({
         backgroundColor="rgba(0,0,0,0)"
         globeImageUrl="/textures/earth-blue-marble.jpg"
         bumpImageUrl="/textures/earth-topology.png"
-        atmosphereColor="#66c8c1"
+        atmosphereColor="#2EE6D6"
         atmosphereAltitude={0.18}
         showGraticules={phase === "world"}
         showAtmosphere
@@ -230,12 +230,12 @@ export default function GlobeExplorer({
         polygonCapCurvatureResolution={10}
         polygonsTransitionDuration={0}
         polygonLabel={(f: object) => {
-          if (phase === "world") return `<div style="font-family:Inter,sans-serif;background:#1A1F2E;border:1px solid #2D3448;border-radius:8px;padding:6px 9px;color:#F2A93B;font-size:12px"><strong>${lang === "bn" ? "বাংলাদেশ — ক্লিক করুন" : "Bangladesh — click to enter"}</strong></div>`;
+          if (phase === "world") return `<div class="globe-tooltip globe-tooltip-active"><strong>${lang === "bn" ? "বাংলাদেশ — ক্লিক করুন" : "Bangladesh — click to enter"}</strong></div>`;
           const id = (f as Feature).properties.districtId;
           const d = districts.find((x) => x.id === id);
           const v = values.get(id);
           const name = lang === "bn" && d ? d.bn : (d?.name ?? id);
-          return `<div style="font-family:Inter,sans-serif;background:#1A1F2E;border:1px solid #2D3448;border-radius:8px;padding:6px 9px;color:#E8E6E1;font-size:12px">
+          return `<div class="globe-tooltip">
             <strong>${name}</strong><br/>
             ${
               v === undefined
@@ -278,7 +278,7 @@ export default function GlobeExplorer({
           const p = b.points[0];
           const d = p ? nearestDistrict(p.lat, p.lng) : undefined;
           const name = d ? (lang === "bn" ? d.bn : d.name) : "";
-          return `<div style="font-family:Inter,sans-serif;background:#1A1F2E;border:1px solid #2D3448;border-radius:8px;padding:6px 9px;color:#E8E6E1;font-size:12px"><strong>${lang === "bn" ? "কাছের এলাকা" : "Near"}: ${name}</strong><br/>${p ? `${p.lat.toFixed(2)}°N ${p.lng.toFixed(2)}°E<br/>` : ""}${fmt(mean, lang, 2)}</div>`;
+          return `<div class="globe-tooltip"><strong>${lang === "bn" ? "কাছের এলাকা" : "Near"}: ${name}</strong><br/>${p ? `${p.lat.toFixed(2)}°N ${p.lng.toFixed(2)}°E<br/>` : ""}${fmt(mean, lang, 2)}</div>`;
         }}
         labelsData={phase === "world" ? WORLD_LABELS : hexMode && showNames ? districtLabels : EMPTY}
         labelLat={(d: object) => (d as { lat: number }).lat}
@@ -287,7 +287,7 @@ export default function GlobeExplorer({
         labelSize={phase === "world" ? 1.6 : 0.09}
         labelDotRadius={phase === "world" ? 0.7 : 0.03}
         labelAltitude={phase === "world" ? 0.002 : 0.095}
-        labelColor={() => (phase === "world" ? "#F2A93B" : "rgba(232,230,225,0.95)")}
+        labelColor={() => (phase === "world" ? "#B17AFF" : "rgba(238,246,248,0.95)")}
         labelResolution={2}
         onLabelClick={() => { if (phase === "world") enterBangladesh(); }}
         ringsData={phase === "world" ? WORLD_RINGS : EMPTY}
@@ -345,21 +345,23 @@ export default function GlobeExplorer({
       )}
 
       {phase === "world" ? (
-        <button
+        <Button
           type="button"
           onClick={enterBangladesh}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-panel transition-transform hover:scale-[1.03]"
+          className="cta-pulse absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full px-5"
         >
           {t("hero.enter")}
-        </button>
+        </Button>
       ) : hexMode ? null : (
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={() => onPhaseChange("world")}
-          className="absolute left-3 top-3 rounded-md border border-border bg-card/90 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary"
+          className="absolute left-3 top-3 bg-card/90"
         >
           ← {t("globe.back")}
-        </button>
+        </Button>
       )}
     </div>
   );

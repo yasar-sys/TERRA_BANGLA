@@ -5,6 +5,7 @@ import { DistrictPicker } from "@/components/DistrictPicker";
 import { HomeSplash } from "@/components/HomeSplash";
 import { coveredDistrictIds } from "@/lib/climate";
 import { useLang } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -57,6 +58,7 @@ function Landing() {
         <p className="mt-2 text-xs text-muted-foreground">
           {covered} / 64 {t("globe.districts")} · {t("hero.cta")}
         </p>
+        <Button className="cta-pulse mt-5 rounded-full px-6" onClick={() => setPhase("bangladesh")}>{lang === "bn" ? "অনুসন্ধান শুরু করুন" : "Start investigating"}</Button>
       </section>
 
       <section className="mx-auto mt-4 max-w-7xl px-3 sm:px-6">
