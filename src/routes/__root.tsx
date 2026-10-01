@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -39,12 +40,13 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
+  const normalizedError = error instanceof Error ? error : new Error(String(error));
+  console.error(normalizedError);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+    reportLovableError(normalizedError, { boundary: "tanstack_root_error_component" });
+  }, [normalizedError]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -89,7 +91,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Interactive 3D exploration of real NASA Earth-observation trends across all 64 districts of Bangladesh.",
       },
       { name: "author", content: "MEC TERRA_DETECTORS" },
-      { name: "theme-color", content: "#0B0E1A" },
+      { name: "theme-color", content: "#0A0A0F", media: "(prefers-color-scheme: dark)" },
+      { name: "theme-color", content: "#F7F7FA", media: "(prefers-color-scheme: light)" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
@@ -120,7 +123,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var s=localStorage.getItem('terrabangla-theme');var d=s?s==='dark':matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);document.documentElement.dataset.theme=d?'dark':'light';document.documentElement.style.colorScheme=d?'dark':'light'}catch(e){document.documentElement.classList.add('dark')}})();` }} />
         <HeadContent />

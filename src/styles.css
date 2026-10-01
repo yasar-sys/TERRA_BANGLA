@@ -155,7 +155,7 @@
   h3 {
     font-family: var(--font-display);
     font-weight: 700;
-    letter-spacing: -0.025em;
+    letter-spacing: 0;
   }
 
   :focus-visible {
@@ -280,7 +280,7 @@ a:hover > .site-brand-logo { transform: translateY(-1px) scale(1.03); }
 @utility panel {
   background-color: var(--glass);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-panel);
   backdrop-filter: blur(16px) saturate(125%);
   transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
@@ -289,8 +289,8 @@ a:hover > .site-brand-logo { transform: translateY(-1px) scale(1.03); }
 .panel:hover { border-color: color-mix(in oklab,var(--primary) 38%,var(--border)); box-shadow: var(--shadow-panel),0 0 22px -14px var(--primary-glow); }
 .glass-panel { background: var(--glass); backdrop-filter: blur(22px) saturate(140%); box-shadow: var(--shadow-panel); }
 main > div:not(.home-splash) { animation: page-enter 360ms ease-out both; }
-main h1 { font-size: clamp(2.25rem,5vw,4.8rem); line-height: .98; }
-main h2 { letter-spacing: -.02em; }
+main h1 { line-height: 1.02; }
+main h2 { letter-spacing: 0; }
 select, input, textarea { color: var(--color-foreground); background-color: color-mix(in oklab,var(--card) 82%,transparent); }
 select { border-radius: var(--radius-lg) !important; }
 ::selection { background: color-mix(in oklab,var(--primary) 48%,transparent); color: var(--color-foreground); }
