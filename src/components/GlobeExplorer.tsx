@@ -345,21 +345,23 @@ export default function GlobeExplorer({
       )}
 
       {phase === "world" ? (
-        <button
+        <Button
           type="button"
           onClick={enterBangladesh}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-panel transition-transform hover:scale-[1.03]"
+          className="cta-pulse absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full px-5"
         >
           {t("hero.enter")}
-        </button>
+        </Button>
       ) : hexMode ? null : (
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={() => onPhaseChange("world")}
-          className="absolute left-3 top-3 rounded-md border border-border bg-card/90 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary"
+          className="absolute left-3 top-3 bg-card/90"
         >
           ← {t("globe.back")}
-        </button>
+        </Button>
       )}
     </div>
   );

@@ -174,8 +174,8 @@ export function WeatherChat() {
   const choices = done ? STORY[scene]!.choices : [];
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-panel">
-      <div className="flex items-center gap-3 border-b border-border bg-[#128C7E]/25 px-4 py-3">
+    <div className="glass-panel overflow-hidden rounded-2xl border border-border shadow-panel">
+      <div className="flex items-center gap-3 border-b border-border bg-accent/10 px-4 py-3">
         <div className="flex -space-x-3">
           {(["sun", "cloud", "rain"] as const).map((w) => (
             <span key={w} className="rounded-full bg-background/80 p-0.5 ring-2 ring-card"><Character who={w} mood={lastMood(w)} size={34} /></span>
@@ -187,14 +187,14 @@ export function WeatherChat() {
             {typing ? `${L(NAMES[typing])} ${lang === "bn" ? "লিখছে…" : "is typing…"}` : lang === "bn" ? "সূর্যমামা, মেঘলা, বৃষ্টি, তুমি" : "Sunny, Meghla, Brishti, you"}
           </p>
         </div>
-        <span className="rounded-full bg-[#3EC98A]/20 px-3 py-1 text-xs font-semibold text-[#3EC98A]">🌍 {points}/{MAX_POINTS}</span>
+        <span className="rounded-full bg-stable/15 px-3 py-1 text-xs font-semibold text-stable">🌍 {points}/{MAX_POINTS}</span>
       </div>
 
       <div className="wc-wallpaper h-[420px] space-y-3 overflow-y-auto px-3 py-4 sm:px-5" aria-live="polite">
         {log.map((m, i) =>
           m.who === "you" ? (
             <div key={i} className="flex justify-end animate-fade-in">
-              <div className="max-w-[78%] rounded-2xl rounded-br-sm bg-[#1F6F5C] px-3.5 py-2 text-sm text-[#E8E6E1] shadow">{L(m.text)}</div>
+              <div className="max-w-[78%] rounded-2xl rounded-br-sm bg-primary px-3.5 py-2 text-sm text-primary-foreground shadow-glow">{L(m.text)}</div>
             </div>
           ) : (
             <div key={i} className="flex items-end gap-2 animate-fade-in">
@@ -228,7 +228,7 @@ export function WeatherChat() {
             <p className="text-sm text-foreground">
               {lang === "bn" ? `গল্প শেষ! তুমি পেয়েছ ${points}/${MAX_POINTS} পৃথিবী-পয়েন্ট 🌍` : `Story complete! You earned ${points}/${MAX_POINTS} Earth points 🌍`}
             </p>
-            <button type="button" onClick={restart} className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+            <button type="button" onClick={restart} className="cta-pulse rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
               {lang === "bn" ? "আবার খেলো" : "Play again"}
             </button>
           </div>
