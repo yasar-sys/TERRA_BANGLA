@@ -45,7 +45,7 @@ export const Route = createFileRoute("/compare")({
   component: ComparePage,
 });
 
-const COLORS: [string, string] = ["#F2A93B", "#7C6FF0"];
+const COLORS: [string, string] = ["#F2A93B", "#2EE6D6"];
 
 interface CompareLine {
   key: string;
@@ -249,11 +249,11 @@ function ComparePage() {
       <div className="h-[360px] sm:h-[440px]" role="img" aria-label={verdict}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 10, right: dualAxis ? 10 : 20, left: 0, bottom: 0 }}>
-            <CartesianGrid stroke="#2D3448" strokeDasharray="3 3" />
-            <XAxis dataKey="year" stroke="#6B7280" fontSize={11} />
+            <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="3 3" />
+            <XAxis dataKey="year" stroke="var(--chart-axis)" fontSize={11} />
             <YAxis yAxisId="l0" stroke={COLORS[0]} fontSize={11} domain={["auto", "auto"]} width={44} />
             <YAxis yAxisId={dualAxis ? "l1" : "l0"} orientation="right" hide={!dualAxis} stroke={COLORS[1]} fontSize={11} domain={["auto", "auto"]} width={44} />
-            <Tooltip contentStyle={{ background: "#1A1F2E", border: "1px solid #2D3448", color: "#E8E6E1" }} />
+            <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", color: "var(--popover-foreground)", borderRadius: "8px", backdropFilter: "blur(16px)" }} />
             <Legend />
             {lines.map((l, i) =>
               l.analysis ? [

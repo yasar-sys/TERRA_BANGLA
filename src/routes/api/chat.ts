@@ -5,7 +5,17 @@ import type { UIMessage } from "ai";
 import type { Database } from "@/integrations/supabase/types";
 import { streamTerraBanglaChat } from "@/lib/chat-gateway.server";
 
-const bodySchema = z.object({ conversationId: z.string().uuid(), messages: z.array(z.any()) });
+const variableSchema = z.enum(["ndvi", "lst", "temperature", "solar", "precipitation"]);
+const bodySchema = z.object({
+  conversationId: z.string().uuid(),
+  messages: z.array(z.any()),
+  districtId: z.string().min(1).max(80).optional(),
+  variable: variableSchema.optional(),
+  yearStart: z.number().int().min(1900).max(2100).optional(),
+  yearEnd: z.number().int().min(1900).max(2100).optional(),
+}).refine((value) => value.yearStart === undefined || value.yearEnd === undefined || value.yearStart <= value.yearEnd, {
+  message: "The evidence period is invalid.",
+});
 const messageText = (message: UIMessage) => message.parts.filter((part) => part.type === "text").map((part) => part.text).join("\n").trim();
 
 export const Route = createFileRoute("/api/chat")({
@@ -36,9 +46,31 @@ export const Route = createFileRoute("/api/chat")({
 
     const { districts, analyzeVariable, VARIABLE_KEYS } = await import("@/lib/climate");
     const normalized = userText.toLowerCase();
-    const chosen = districts.find((district) => normalized.includes(district.name.toLowerCase()) || normalized.includes(district.bn)) ?? districts.find((district) => district.id === "dhaka");
-    const facts = chosen ? VARIABLE_KEYS.map((variable) => analyzeVariable(chosen.id, variable)).filter(Boolean).map((analysis) => analysis ? ({ variable: analysis.variable, unit: analysis.unit, period: analysis.result.period, current: analysis.result.current_value, slope_per_decade: analysis.result.slope.slope_per_decade, p_value: analysis.result.trend.p_value, significant: analysis.result.trend.significant_at_0_05, direction: analysis.result.trend.direction, source: analysis.provenance.dataset_id }) : null) : [];
-    const climateContext = JSON.stringify({ selected_district: chosen?.name ?? null, selection_rule: chosen ? "district named by user, otherwise Dhaka example" : "none", facts });
+    const explicitDistrict = body.districtId ? districts.find((district) => district.id === body.districtId) : undefined;
+    if (body.districtId && !explicitDistrict) return new Response("Unknown district selection.", { status: 400 });
+    const chosen = explicitDistrict ?? districts.find((district) => normalized.includes(district.name.toLowerCase()) || normalized.includes(district.bn)) ?? districts.find((district) => district.id === "dhaka");
+    const range = body.yearStart !== undefined && body.yearEnd !== undefined ? { start: body.yearStart, end: body.yearEnd } : undefined;
+    const variables = body.variable ? [body.variable] : VARIABLE_KEYS;
+    const facts = chosen ? variables.map((variable) => analyzeVariable(chosen.id, variable, range)).filter(Boolean).map((analysis) => analysis ? ({
+      variable: analysis.variable,
+      unit: analysis.unit,
+      period: analysis.result.period,
+      n_observations: analysis.result.n_observations,
+      current: analysis.result.current_value,
+      slope_per_year: analysis.result.slope.slope_per_year,
+      slope_per_decade: analysis.result.slope.slope_per_decade,
+      confidence_interval_95_per_year: [analysis.result.slope.ci_low, analysis.result.slope.ci_high],
+      mann_kendall: { s: analysis.result.trend.s, z: analysis.result.trend.z, p_value: analysis.result.trend.p_value, significant_at_0_05: analysis.result.trend.significant_at_0_05, direction: analysis.result.trend.direction },
+      provenance: analysis.provenance,
+    }) : null) : [];
+    const climateContext = JSON.stringify({
+      selected_district: chosen ? { id: chosen.id, name: chosen.name, name_bn: chosen.bn } : null,
+      selected_variable: body.variable ?? "all available variables",
+      selected_period: range ?? "full cached period",
+      selection_rule: explicitDistrict ? "locked by the Evidence Lab controls" : chosen ? "district named by user, otherwise Dhaka example" : "none",
+      evidence_available: facts.length > 0,
+      server_recomputed_facts: facts,
+    });
 
     return streamTerraBanglaChat(request, messages, climateContext, async (completed) => {
       const assistant = [...completed].reverse().find((message) => message.role === "assistant");
