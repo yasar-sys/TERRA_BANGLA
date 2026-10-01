@@ -29,4 +29,4 @@
 - [x] Expand saved chat into the server-grounded AI Evidence Lab
 - [x] Verify both themes, responsive layouts, downloads, and Evidence Lab interactions
 - [x] Apply the TerraBangla violet brand color to Bangladesh on the world globe
-- [ ] Add real-data global or regional trend comparison around Bangladesh
+- [x] Add real-data global or regional trend comparison around Bangladesh

@@ -6,6 +6,8 @@ import { HomeSplash } from "@/components/HomeSplash";
 import { coveredDistrictIds } from "@/lib/climate";
 import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { SouthAsiaComparison } from "@/components/SouthAsiaComparison";
+import type { VariableKey } from "@/lib/climate";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,6 +37,9 @@ function Landing() {
   const [phase, setPhase] = useState<"world" | "bangladesh">("world");
   const [splashReady, setSplashReady] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
+  const [regionalMode, setRegionalMode] = useState(false);
+  const [regionalVariable, setRegionalVariable] = useState<VariableKey>("temperature");
+  const [regionalId, setRegionalId] = useState("bangladesh");
   const covered = coveredDistrictIds().length;
 
   useEffect(() => {
@@ -64,12 +69,15 @@ function Landing() {
       <section className="mx-auto mt-4 max-w-7xl px-3 sm:px-6">
         <div className="globe-frame mt-3 h-[58vh] min-h-[340px] overflow-hidden border border-border bg-elevated">
           <GlobeStage
-            variable="temperature"
+            variable={regionalMode ? regionalVariable : "temperature"}
             phase={phase}
             onPhaseChange={setPhase}
             onSelectDistrict={(districtId) =>
               navigate({ to: "/district/$districtId", params: { districtId } })
             }
+            regionalMode={regionalMode}
+            selectedRegionalId={regionalId}
+            onSelectRegional={setRegionalId}
           />
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
@@ -78,6 +86,24 @@ function Landing() {
             : "The globe is mouse and touch driven; keyboard users can select any district from the list below."}
         </p>
       </section>
+
+      <SouthAsiaComparison
+        selection={{
+          active: regionalMode,
+          variable: regionalVariable,
+          selectedId: regionalId,
+          onSelect: (id) => {
+            setRegionalId(id);
+            setRegionalMode(true);
+            setPhase("world");
+          },
+          onVariable: setRegionalVariable,
+          onActive: (active) => {
+            setRegionalMode(active);
+            if (active) setPhase("world");
+          },
+        }}
+      />
 
       <section className="mx-auto mt-6 max-w-7xl px-3 pb-4 sm:px-6">
         <DistrictPicker />
