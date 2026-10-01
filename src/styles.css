@@ -48,7 +48,7 @@
   --color-game-yellow: var(--game-yellow);
   --color-game-red: var(--game-red);
   --color-game-blue: var(--game-blue);
-  --font-display: "Space Grotesk", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Clash Display", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --shadow-panel: 0 24px 60px -30px var(--shadow-color);
   --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 52%, var(--border)), 0 0 24px -9px var(--primary-glow);
@@ -154,9 +154,12 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 700;
     letter-spacing: 0;
   }
+
+  h1 { font-weight: 700; }
+  h2,
+  h3 { font-weight: 600; }
 
   :focus-visible {
     outline: 2px solid var(--color-ring);

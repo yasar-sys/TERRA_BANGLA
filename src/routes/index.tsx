@@ -49,7 +49,7 @@ function Landing() {
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-accent">
           {t("hero.challenge")}
         </p>
-        <h1 className="mt-2 max-w-4xl font-display text-4xl leading-tight text-foreground sm:text-6xl">
+        <h1 className="mt-3 max-w-5xl font-display text-5xl font-bold leading-[0.98] text-foreground sm:text-7xl lg:text-8xl">
           {t("app.title")}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
