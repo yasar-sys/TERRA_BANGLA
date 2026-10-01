@@ -121,13 +121,19 @@ function Row({ label, value }: { label: string; value: string }) {
 /**
  * Cached MODIS records store the source as
  * "<endpoint>/subset (lat=.., lon=.., band=..)". That combined string is not a
- * resolvable URL, so we surface the real, working NASA endpoint as the link and
- * keep the exact query parameters visible as text beneath it.
+ * URL. Convert it to ORNL DAAC's public MODIS product-dates API, which accepts
+ * the sample coordinates directly, while retaining the recorded band below.
  */
-function resolveSourceLink(raw: string): { href: string | null; query: string | null } {
+export function resolveSourceLink(raw: string): { href: string | null; query: string | null } {
   if (!raw.startsWith("http")) return { href: null, query: null };
   const split = raw.indexOf(" (");
-  if (split === -1) return { href: raw, query: null };
+  if (split === -1) {
+    try {
+      return { href: new URL(raw).toString(), query: null };
+    } catch {
+      return { href: null, query: null };
+    }
+  }
 
   const base = raw.slice(0, split).trim();
   const inner = raw.slice(split + 2).replace(/\)\s*$/, "");
@@ -139,9 +145,11 @@ function resolveSourceLink(raw: string): { href: string | null; query: string | 
 
   const lat = params.get("lat");
   const lon = params.get("lon");
-  if (base.endsWith("/subset") && lat && lon) {
-    const href = `${base.replace(/\/subset$/, "/dates")}?latitude=${lat}&longitude=${lon}`;
-    return { href, query: inner };
+  if (/^https:\/\/modis\.ornl\.gov\/rst\/api\/v1\/(MOD13Q1|MOD11A2)\/subset\/?$/.test(base) && lat && lon) {
+    const endpoint = new URL(base.replace(/\/subset\/?$/, "/dates"));
+    endpoint.searchParams.set("latitude", lat);
+    endpoint.searchParams.set("longitude", lon);
+    return { href: endpoint.toString(), query: inner };
   }
   return { href: base, query: inner };
 }
