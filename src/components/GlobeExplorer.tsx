@@ -18,9 +18,9 @@ const FLY_MS = 1600;
 const EMPTY: object[] = [];
 const WORLD_LABELS = [{ lat: BD_CENTER.lat, lng: BD_CENTER.lng, text: "Bangladesh" }];
 const WORLD_RINGS = [{ lat: BD_CENTER.lat, lng: BD_CENTER.lng }];
-const sideColor = () => "rgba(17, 18, 28, 0.72)";
-const strokeColor = () => "rgba(10, 10, 15, 0.92)";
-const ringColorFn = () => (t: number) => `rgba(157, 78, 255, ${Math.max(0, 0.9 - t)})`;
+const sideColor = () => "rgba(8, 67, 73, 0.78)";
+const strokeColor = () => "rgba(7, 20, 30, 0.94)";
+const ringColorFn = () => (t: number) => `rgba(46, 230, 214, ${Math.max(0, 0.92 - t)})`;
 
 interface Feature {
   type: "Feature";
@@ -134,7 +134,7 @@ export default function GlobeExplorer({
     (feat: object) => {
       const f = feat as Feature;
       const id = f.properties.districtId;
-      if (phase === "world") return "rgba(242, 169, 59, 0.9)";
+      if (phase === "world") return "rgba(46, 230, 214, 0.92)";
       if (!hasData(id)) return "rgba(45, 52, 72, 0.55)";
       const v = values.get(id);
       if (v === undefined) return "rgba(45, 52, 72, 0.55)";
