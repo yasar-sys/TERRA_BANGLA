@@ -34,6 +34,6 @@
 - [x] Add research, documentation, and reserved YouTube preview sections
 - [x] Restore 3D pillars in the heatmap experience
 - [x] Verify navigation, responsive layouts, video fallback, and heatmap pillars
-- [ ] Embed the NASA challenge video and add its YouTube submission link
-- [ ] Show each signed-in user's submitted Evidence Lab questions and answers privately on Reference
-- [ ] Verify the video, private evidence states, responsive layout, and build
+- [x] Embed the NASA challenge video and add its YouTube submission link
+- [x] Show each signed-in user's submitted Evidence Lab questions and answers privately on Reference
+- [x] Verify the video, private evidence states, responsive layout, and build

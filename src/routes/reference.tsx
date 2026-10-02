@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, Database, ExternalLink, FileText, FlaskConical, Library, LoaderCircle, LockKeyhole, LogIn, MessageSquareText, Microscope, Satellite, Youtube } from "lucide-react";
 import { listEvidenceReferences } from "@/lib/chat.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { MessageResponse } from "@/components/ai-elements/message";
 
 export const Route = createFileRoute("/reference")({
   head: () => ({
@@ -313,7 +314,7 @@ function EvidenceReferenceLibrary({ lang }: { lang: "en" | "bn" }) {
                 </div>
                 <div className="border-t border-border pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
                   <p className="text-xs font-semibold uppercase text-accent">{L("Grounded answer", "প্রমাণভিত্তিক উত্তর")}</p>
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{reference.answer}</p>
+                  <MessageResponse className="mt-2 text-sm leading-7 text-muted-foreground">{reference.answer}</MessageResponse>
                 </div>
               </div>
               <Button asChild variant="link" className="mt-3 px-0">
