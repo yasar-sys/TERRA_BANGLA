@@ -9,6 +9,7 @@ The supplied TerraBangla artwork is the canonical brand logo; serve it through t
 Apply theme preference before hydration and use semantic CSS tokens so every route shares one accessible light/dark system.
 South Asia comparisons use cached NASA observations at named representative capital points; never present them as national averages.
 Keep challenge context, research references, documentation scope, and the team video together on the public Reference route so judges have one canonical evidence hub.
+Keep saved Evidence Lab questions and answers owner-scoped and reveal them on Reference only after authenticated server verification.
 <!-- LOVABLE:BEGIN -->
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting

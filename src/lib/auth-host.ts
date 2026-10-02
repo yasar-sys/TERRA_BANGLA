@@ -22,6 +22,7 @@ export function usesLovableAuthBroker(): boolean {
   return LOVABLE_ZONES.some((zone) => host === zone || host.endsWith("." + zone));
 }
 
-export function safeAuthNext(value: string | null | undefined): "/admin" | "/chat" {
-  return value === "/admin" ? "/admin" : "/chat";
+export function safeAuthNext(value: string | null | undefined): "/admin" | "/chat" | "/reference" {
+  if (value === "/admin" || value === "/reference") return value;
+  return "/chat";
 }
