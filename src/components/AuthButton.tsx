@@ -19,7 +19,7 @@ export function AuthButton() {
       setUser(session?.user ?? null);
       if (event === "SIGNED_IN" && session) {
         const next = sessionStorage.getItem("terrabangla-auth-next");
-        if (next === "/admin" || next === "/profile" || next?.startsWith("/chat")) {
+        if (next === "/admin" || next === "/profile" || next === "/reference" || next?.startsWith("/chat")) {
           sessionStorage.removeItem("terrabangla-auth-next");
           window.location.assign(next);
         }

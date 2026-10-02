@@ -29,7 +29,7 @@ function AuthPage() {
     const go = () => {
       const next = sessionStorage.getItem("terrabangla-auth-next") || "/chat";
       sessionStorage.removeItem("terrabangla-auth-next");
-      void navigate({ to: next === "/admin" ? "/admin" : "/chat" });
+      void navigate({ to: safeAuthNext(next) });
     };
     void supabase.auth.getSession().then(({ data }) => { if (data.session) go(); else setBusy(false); });
     const { data } = supabase.auth.onAuthStateChange((event, session) => { if (session && event === "SIGNED_IN") go(); });
