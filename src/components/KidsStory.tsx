@@ -201,7 +201,6 @@ export function KidsStory() {
   const [muted, setMuted] = useState(false);
   const [captions, setCaptions] = useState(true);
   const touchStart = useRef<number | null>(null);
-  const storyRoot = useRef<HTMLElement | null>(null);
   const { stop, speak, status, togglePause } = useStoryAudio(lang, muted);
   const scene = KIDS_STORY[active] ?? KIDS_STORY[0];
   const mood = MOODS[scene.id] ?? "encouraging";
@@ -269,7 +268,6 @@ export function KidsStory() {
 
   return (
     <main
-      ref={storyRoot}
       className="story-slide-shell"
       data-scene={scene.id}
       onTouchStart={(event) => { touchStart.current = event.touches[0]?.clientX ?? null; }}
