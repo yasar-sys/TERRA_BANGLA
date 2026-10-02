@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Provenance } from "@/lib/climate";
 import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -18,12 +19,17 @@ export function ProvenanceButton({
 
   useEffect(() => {
     if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [open]);
 
   return (
@@ -38,7 +44,7 @@ export function ProvenanceButton({
         {t("prov.open")}
       </Button>
 
-      {open ? (
+      {open ? createPortal(
         <div
           role="dialog"
           aria-modal="true"
@@ -48,8 +54,8 @@ export function ProvenanceButton({
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
-          <div className="provenance-drawer glass-panel h-full w-full max-w-md overflow-y-auto border-l border-border p-4 shadow-panel sm:p-6">
-            <div className="flex items-start justify-between gap-3">
+          <div className="provenance-drawer glass-panel h-[100dvh] w-full max-w-md overflow-y-auto overscroll-contain border-l border-border p-4 shadow-panel sm:p-6">
+            <div className="sticky top-0 z-10 -mx-4 -mt-4 flex items-start justify-between gap-3 border-b border-border bg-card/95 px-4 py-4 backdrop-blur-xl sm:-mx-6 sm:-mt-6 sm:px-6 sm:py-5">
               <div>
                 <h2 className="font-display text-lg font-semibold text-foreground">
                   {t("prov.title")}
@@ -103,7 +109,8 @@ export function ProvenanceButton({
               {JSON.stringify(payload, null, 2)}
             </pre>
           </div>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </>
   );
