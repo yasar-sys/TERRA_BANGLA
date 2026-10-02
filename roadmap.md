@@ -37,3 +37,5 @@
 - [x] Embed the NASA challenge video and add its YouTube submission link
 - [x] Show each signed-in user's submitted Evidence Lab questions and answers privately on Reference
 - [x] Verify the video, private evidence states, responsive layout, and build
+- [ ] Replace `/kids` with an 8–12 minute bilingual evidence comic and final story review
+- [ ] Verify narration, evidence panels, quiz flow, accessibility, and responsive layouts
