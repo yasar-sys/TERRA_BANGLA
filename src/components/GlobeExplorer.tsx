@@ -341,17 +341,6 @@ export default function GlobeExplorer({
           const name = d ? (lang === "bn" ? d.bn : d.name) : "";
           return `<div class="globe-tooltip"><strong>${lang === "bn" ? "কাছের এলাকা" : "Near"}: ${name}</strong><br/>${p ? `${p.lat.toFixed(2)}°N ${p.lng.toFixed(2)}°E<br/>` : ""}${fmt(mean, lang, 2)}</div>`;
         }}
-        labelsData={phase === "world" && !regionalMode ? WORLD_LABELS : hexMode && showNames ? districtLabels : EMPTY}
-        labelLat={(d: object) => (d as { lat: number }).lat}
-        labelLng={(d: object) => (d as { lng: number }).lng}
-        labelText={(d: object) => (d as { text: string }).text}
-        labelSize={phase === "world" ? 1.6 : 0.09}
-        labelDotRadius={phase === "world" ? 0.7 : 0.03}
-        labelAltitude={phase === "world" ? 0.002 : 0.095}
-        labelColor={() => (phase === "world" ? "#B17AFF" : "rgba(238,246,248,0.95)")}
-        labelResolution={2}
-        onLabelClick={() => { if (phase === "world") enterBangladesh(); }}
-        ringsData={phase === "world" && !regionalMode ? WORLD_RINGS : EMPTY}
         ringLat={(d: object) => (d as { lat: number }).lat}
         ringLng={(d: object) => (d as { lng: number }).lng}
         ringColor={ringColorFn}
