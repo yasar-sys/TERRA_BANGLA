@@ -1,5 +1,5 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { ArrowLeft, BarChart3, BookOpen, FlaskConical, Globe2, Languages, Map, Menu, MessageCircle, Satellite } from "lucide-react";
+import { ArrowLeft, BarChart3, BookOpen, FlaskConical, Globe2, Languages, Library, Map, Menu, MessageCircle, Satellite } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -14,6 +14,7 @@ const NAV = [
   { to: "/kids", key: "nav.kids", icon: FlaskConical },
   { to: "/chat", key: "nav.chat", icon: MessageCircle },
   { to: "/about", key: "nav.about", icon: BookOpen },
+  { to: "/reference", key: "nav.reference", icon: Library },
 ] as const;
 
 function Brand() {
@@ -120,8 +121,11 @@ export function SiteFooter() {
         <div>
           <h2 className="text-xs font-semibold uppercase text-foreground">{L("Open science", "উন্মুক্ত বিজ্ঞান")}</h2>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("footer.license")}</p>
-          <Link to="/about" className="mt-2 inline-block text-sm text-primary hover:underline">{t("nav.about")}</Link>
-          <Link to="/admin" className="mt-2 ml-4 inline-block text-sm text-muted-foreground hover:underline">Admin</Link>
+          <div className="flex flex-col gap-2">
+            <Link to="/about" className="mt-2 text-sm text-primary hover:underline">{t("nav.about")}</Link>
+            <Link to="/reference" className="text-sm text-primary hover:underline">{t("nav.reference")}</Link>
+          </div>
+          <Link to="/admin" className="mt-2 inline-block text-sm text-muted-foreground hover:underline">Admin</Link>
         </div>
       </div>
       <div className="border-t border-border/70 px-3 py-3 text-center text-[11px] text-muted-foreground">MEC TERRA_DETECTORS · Bangladesh · 2026</div>
