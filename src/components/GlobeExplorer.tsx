@@ -323,6 +323,7 @@ export default function GlobeExplorer({
           else enterBangladesh();
         }}
         ringsData={phase === "world" ? WORLD_RINGS : EMPTY}
+        hexBinPointsData={hexMode ? gridPoints : EMPTY}
         hexBinPointLat={(p: object) => (p as { lat: number }).lat}
         hexBinPointLng={(p: object) => (p as { lng: number }).lng}
         hexBinPointWeight={(p: object) => (p as { value: number }).value}

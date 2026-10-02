@@ -94,7 +94,7 @@ export const strings: Dict = {
   "compare.report": { en: "Comparison report", bn: "তুলনা প্রতিবেদন" },
   "heatmap.title": { en: "Gridded heatmap", bn: "গ্রিড হিটম্যাপ" },
   "kids.title": { en: "Climate Learning Studio", bn: "জলবায়ু শেখার স্টুডিও" },
-  "reference.title": { en: "Reference & Research", bn: "রেফারেন্স ও গবেষণা" },
+  "reference.title": { en: "Reference, Research & Documentation", bn: "রেফারেন্স, গবেষণা ও ডকুমেন্টেশন" },
   "reference.nasa_apps": { en: "NASA Space Apps Relationship", bn: "নাসা স্পেস অ্যাপসের সাথে সম্পর্ক" },
   "reference.research_links": { en: "Research & Documentation", bn: "গবেষণা ও নথি" },
   "reference.video_preview": { en: "Video Preview", bn: "ভিডিও প্রিভিউ" },
