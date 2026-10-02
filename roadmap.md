@@ -39,3 +39,5 @@
 - [x] Verify the video, private evidence states, responsive layout, and build
 - [x] Replace `/kids` with an 8–12 minute bilingual evidence comic and final story review
 - [x] Verify narration controls, evidence panels, quiz flow, accessibility, and responsive layouts
+- [x] Convert the children’s story into a reliable one-scene-at-a-time slide player
+- [x] Add per-slide voice playback, expressive mascot poses, speaking motion, and distinct backgrounds

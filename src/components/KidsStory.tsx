@@ -1,46 +1,316 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, BookOpenCheck, Captions, Check, Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpenCheck,
+  Captions,
+  Check,
+  Pause,
+  Play,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProvenanceButton } from "@/components/ProvenanceDrawer";
 import { analyzeVariable, getDistrict } from "@/lib/climate";
 import { fmt, useLang } from "@/lib/i18n";
-import { KIDS_STORY, type StoryArtwork, type StorySound, type StoryText } from "@/lib/kids-story";
+import {
+  KIDS_STORY,
+  type StoryArtwork,
+  type StoryScene,
+  type StorySound,
+  type StoryText,
+} from "@/lib/kids-story";
 import earth from "@/assets/story/story-earth.jpg";
 import delta from "@/assets/story/story-delta.jpg";
 import signals from "@/assets/story/story-signals.jpg";
 import evidence from "@/assets/story/story-evidence.jpg";
 import future from "@/assets/story/story-future.jpg";
-import guide from "@/assets/mascot/waving.png.asset.json";
+import celebrating from "@/assets/mascot/celebrating.png.asset.json";
+import encouraging from "@/assets/mascot/encouraging.png.asset.json";
+import idle from "@/assets/mascot/idle.png.asset.json";
+import thinking from "@/assets/mascot/thinking.png.asset.json";
+import waving from "@/assets/mascot/waving.png.asset.json";
 
-const ART:Record<StoryArtwork,string>={earth,delta,signals,evidence,future};
-const Q=[
-{q:{en:"What makes a climate trend stronger than one unusual day?",bn:"একটি অস্বাভাবিক দিনের চেয়ে জলবায়ু প্রবণতাকে কী শক্তিশালী করে?"},o:[{en:"Many years of observations",bn:"বহু বছরের পর্যবেক্ষণ"},{en:"A brighter illustration",bn:"আরও উজ্জ্বল ছবি"},{en:"A guess",bn:"একটি অনুমান"}],a:0,w:{en:"Scientists test the full sequence of annual records.",bn:"বিজ্ঞানীরা বার্ষিক রেকর্ডের পুরো ধারাবাহিকতা পরীক্ষা করেন।"}},
-{q:{en:"What does NDVI help us compare?",bn:"NDVI কী তুলনা করতে সাহায্য করে?"},o:[{en:"Plant greenness",bn:"উদ্ভিদের সবুজের পরিমাণ"},{en:"River depth",bn:"নদীর গভীরতা"},{en:"Wind speed",bn:"বাতাসের গতি"}],a:0,w:{en:"NDVI is a satellite-derived vegetation signal.",bn:"NDVI হলো স্যাটেলাইট থেকে পাওয়া উদ্ভিদের একটি সংকেত।"}},
-{q:{en:"Are land temperature and air temperature the same record?",bn:"ভূপৃষ্ঠ ও বায়ুর তাপমাত্রা কি একই রেকর্ড?"},o:[{en:"Yes, always",bn:"হ্যাঁ, সবসময়"},{en:"No, they are measured separately",bn:"না, এগুলো আলাদাভাবে মাপা হয়"},{en:"Only in cities",bn:"শুধু শহরে"}],a:1,w:{en:"Ground surfaces and the surrounding air behave differently.",bn:"ভূপৃষ্ঠ ও চারপাশের বাতাস আলাদাভাবে আচরণ করে।"}},
-{q:{en:"What does Mann–Kendall test?",bn:"Mann–Kendall কী পরীক্ষা করে?"},o:[{en:"Trend direction through time",bn:"সময়ের সঙ্গে প্রবণতার দিক"},{en:"A satellite's speed",bn:"স্যাটেলাইটের গতি"},{en:"A map's color",bn:"মানচিত্রের রং"}],a:0,w:{en:"It checks whether values consistently move upward or downward.",bn:"এটি মান ধারাবাহিকভাবে বাড়ে বা কমে কি না যাচাই করে।"}},
-{q:{en:"If a result is not statistically significant, what is the honest conclusion?",bn:"ফল পরিসংখ্যানগতভাবে তাৎপর্যপূর্ণ না হলে সৎ সিদ্ধান্ত কী?"},o:[{en:"A dramatic change",bn:"বড় পরিবর্তন"},{en:"No clear change",bn:"স্পষ্ট পরিবর্তন নেই"},{en:"Delete the data",bn:"তথ্য মুছে ফেলো"}],a:1,w:{en:"Different endpoints alone do not prove a long-term change.",bn:"শুধু আলাদা শেষবিন্দু দীর্ঘমেয়াদি পরিবর্তন প্রমাণ করে না।"}},
-{q:{en:"What estimates the rate of change?",bn:"পরিবর্তনের হার কী হিসাব করে?"},o:[{en:"Theil–Sen",bn:"Theil–Sen"},{en:"A speech bubble",bn:"কথার বুদ্‌বুদ"},{en:"The illustration",bn:"ছবি"}],a:0,w:{en:"Theil–Sen gives a robust rate while unusual years have less influence.",bn:"Theil–Sen অস্বাভাবিক বছরের প্রভাব কমিয়ে একটি নির্ভরযোগ্য হার দেয়।"}},
-{q:{en:"Where must TerraBangla's climate numbers come from?",bn:"টেরাবাংলার জলবায়ুর সংখ্যা কোথা থেকে আসতে হবে?"},o:[{en:"Cached NASA records",bn:"সংরক্ষিত নাসা রেকর্ড"},{en:"Character dialogue",bn:"চরিত্রের সংলাপ"},{en:"AI imagination",bn:"এআই-এর কল্পনা"}],a:0,w:{en:"Illustrations explain; cached observations are the evidence.",bn:"ছবি ব্যাখ্যা করে; সংরক্ষিত পর্যবেক্ষণই প্রমাণ।"}}
-] satisfies [{q:StoryText;o:StoryText[];a:number;w:StoryText},...{q:StoryText;o:StoryText[];a:number;w:StoryText}[]];
+const ART: Record<StoryArtwork, string> = { earth, delta, signals, evidence, future };
+type StoryMood = "welcoming" | "curious" | "thinking" | "encouraging" | "happy";
+type VoiceState = "idle" | "speaking" | "paused";
 
-function useStoryAudio(lang:"en"|"bn",muted:boolean){
- const ctx=useRef<AudioContext|null>(null); const nodes=useRef<{osc:OscillatorNode;gain:GainNode}|null>(null);
- const stop=useCallback(()=>{speechSynthesis.cancel();nodes.current?.osc.stop();nodes.current=null},[]);
- const ambience=useCallback((sound:StorySound)=>{if(muted)return; const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;ctx.current??=new Ctx(); const osc=ctx.current.createOscillator(),gain=ctx.current.createGain();const hz={space:110,river:180,forest:240,city:150,rain:310,signal:520,dawn:220}[sound];osc.type=sound==="signal"?"sine":"triangle";osc.frequency.value=hz;gain.gain.value=.012;osc.connect(gain).connect(ctx.current.destination);osc.start();nodes.current={osc,gain}},[muted]);
- const speak=useCallback((text:string,sound:StorySound)=>{stop();if(muted)return;ambience(sound);const u=new SpeechSynthesisUtterance(text);u.lang=lang==="bn"?"bn-BD":"en-US";u.rate=lang==="bn"?.86:.9;u.pitch=1.03;u.onend=()=>{nodes.current?.osc.stop();nodes.current=null};speechSynthesis.speak(u)},[ambience,lang,muted,stop]);
- useEffect(()=>stop,[lang,muted,stop]);useEffect(()=>()=>stop(),[stop]);return{speak,stop};
+const POSES: Record<StoryMood, string> = {
+  welcoming: waving.url,
+  curious: encouraging.url,
+  thinking: thinking.url,
+  encouraging: idle.url,
+  happy: celebrating.url,
+};
+
+const MOODS: Record<string, StoryMood> = {
+  night: "welcoming",
+  guide: "happy",
+  delta: "curious",
+  signals: "encouraging",
+  green: "curious",
+  land: "thinking",
+  air: "thinking",
+  sun: "happy",
+  rain: "curious",
+  dots: "thinking",
+  test: "encouraging",
+  rate: "thinking",
+  journal: "happy",
+  challenge: "welcoming",
+};
+
+const QUESTIONS = [
+  { q: { en: "What makes a climate trend stronger than one unusual day?", bn: "একটি অস্বাভাবিক দিনের চেয়ে জলবায়ু প্রবণতাকে কী শক্তিশালী করে?" }, o: [{ en: "Many years of observations", bn: "বহু বছরের পর্যবেক্ষণ" }, { en: "A brighter illustration", bn: "আরও উজ্জ্বল ছবি" }, { en: "A guess", bn: "একটি অনুমান" }], a: 0, w: { en: "Scientists test the full sequence of annual records.", bn: "বিজ্ঞানীরা বার্ষিক রেকর্ডের পুরো ধারাবাহিকতা পরীক্ষা করেন।" } },
+  { q: { en: "What does NDVI help us compare?", bn: "NDVI কী তুলনা করতে সাহায্য করে?" }, o: [{ en: "Plant greenness", bn: "উদ্ভিদের সবুজের পরিমাণ" }, { en: "River depth", bn: "নদীর গভীরতা" }, { en: "Wind speed", bn: "বাতাসের গতি" }], a: 0, w: { en: "NDVI is a satellite-derived vegetation signal.", bn: "NDVI হলো স্যাটেলাইট থেকে পাওয়া উদ্ভিদের একটি সংকেত।" } },
+  { q: { en: "Are land temperature and air temperature the same record?", bn: "ভূপৃষ্ঠ ও বায়ুর তাপমাত্রা কি একই রেকর্ড?" }, o: [{ en: "Yes, always", bn: "হ্যাঁ, সবসময়" }, { en: "No, they are measured separately", bn: "না, এগুলো আলাদাভাবে মাপা হয়" }, { en: "Only in cities", bn: "শুধু শহরে" }], a: 1, w: { en: "Ground surfaces and the surrounding air behave differently.", bn: "ভূপৃষ্ঠ ও চারপাশের বাতাস আলাদাভাবে আচরণ করে।" } },
+  { q: { en: "What does Mann–Kendall test?", bn: "Mann–Kendall কী পরীক্ষা করে?" }, o: [{ en: "Trend direction through time", bn: "সময়ের সঙ্গে প্রবণতার দিক" }, { en: "A satellite's speed", bn: "স্যাটেলাইটের গতি" }, { en: "A map's color", bn: "মানচিত্রের রং" }], a: 0, w: { en: "It checks whether values consistently move upward or downward.", bn: "এটি মান ধারাবাহিকভাবে বাড়ে বা কমে কি না যাচাই করে।" } },
+  { q: { en: "If a result is not statistically significant, what is the honest conclusion?", bn: "ফল পরিসংখ্যানগতভাবে তাৎপর্যপূর্ণ না হলে সৎ সিদ্ধান্ত কী?" }, o: [{ en: "A dramatic change", bn: "বড় পরিবর্তন" }, { en: "No clear change", bn: "স্পষ্ট পরিবর্তন নেই" }, { en: "Delete the data", bn: "তথ্য মুছে ফেলো" }], a: 1, w: { en: "Different endpoints alone do not prove a long-term change.", bn: "শুধু আলাদা শেষবিন্দু দীর্ঘমেয়াদি পরিবর্তন প্রমাণ করে না।" } },
+  { q: { en: "What estimates the rate of change?", bn: "পরিবর্তনের হার কী হিসাব করে?" }, o: [{ en: "Theil–Sen", bn: "Theil–Sen" }, { en: "A speech bubble", bn: "কথার বুদ্‌বুদ" }, { en: "The illustration", bn: "ছবি" }], a: 0, w: { en: "Theil–Sen gives a robust rate while unusual years have less influence.", bn: "Theil–Sen অস্বাভাবিক বছরের প্রভাব কমিয়ে একটি নির্ভরযোগ্য হার দেয়।" } },
+  { q: { en: "Where must TerraBangla's climate numbers come from?", bn: "টেরাবাংলার জলবায়ুর সংখ্যা কোথা থেকে আসতে হবে?" }, o: [{ en: "Cached NASA records", bn: "সংরক্ষিত নাসা রেকর্ড" }, { en: "Character dialogue", bn: "চরিত্রের সংলাপ" }, { en: "AI imagination", bn: "এআই-এর কল্পনা" }], a: 0, w: { en: "Illustrations explain; cached observations are the evidence.", bn: "ছবি ব্যাখ্যা করে; সংরক্ষিত পর্যবেক্ষণই প্রমাণ।" } },
+] satisfies [{ q: StoryText; o: StoryText[]; a: number; w: StoryText }, ...{ q: StoryText; o: StoryText[]; a: number; w: StoryText }[]];
+
+function voiceScore(voice: SpeechSynthesisVoice, lang: "en" | "bn") {
+  const name = voice.name.toLowerCase();
+  const language = voice.lang.toLowerCase();
+  let score = 0;
+  if (lang === "bn" && (language.startsWith("bn") || name.includes("bangla") || name.includes("bengali"))) score += 100;
+  if (lang === "en" && language.startsWith("en")) score += 100;
+  if (name.includes("google") || name.includes("microsoft") || name.includes("samantha") || name.includes("natural")) score += 20;
+  if (voice.localService) score += 5;
+  return score;
 }
 
-declare global{interface Window{webkitAudioContext?:typeof AudioContext}}
+function useStoryAudio(lang: "en" | "bn", muted: boolean) {
+  const [status, setStatus] = useState<VoiceState>("idle");
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const ctx = useRef<AudioContext | null>(null);
+  const nodes = useRef<{ osc: OscillatorNode; gain: GainNode } | null>(null);
 
-function FinalReview({onReview}:{onReview:()=>void}){const{lang}=useLang();const[index,setIndex]=useState(0),[picked,setPicked]=useState<number|null>(null),[score,setScore]=useState(0);const done=index>=Q.length;const L=(x:StoryText)=>x[lang];if(done)return <section className="story-review story-review-finish"><BookOpenCheck/><p>{lang==="bn"?"প্রমাণ পাঠ সম্পন্ন":"Evidence reading complete"}</p><h2>{lang==="bn"?`${Q.length.toLocaleString("bn-BD")}টির মধ্যে ${score.toLocaleString("bn-BD")}টি সঠিক`:`${score} of ${Q.length} correct`}</h2><p>{lang==="bn"?"এখন তুমি স্থান, চলক, সময়, পরীক্ষা ও উৎস—সব মিলিয়ে প্রমাণ পড়তে পারো।":"You can now read evidence by connecting place, variable, time, test and source."}</p><div><Button onClick={onReview}><ArrowLeft/>{lang==="bn"?"গল্প আবার দেখো":"Review story"}</Button><Button variant="outline" onClick={()=>{setIndex(0);setPicked(null);setScore(0)}}><RotateCcw/>{lang==="bn"?"আবার উত্তর দাও":"Try again"}</Button></div></section>;const q=Q[index]??Q[0];return <section className="story-review" aria-labelledby="review-title"><div className="story-review-progress"><span>{lang==="bn"?`প্রশ্ন ${index+1} / ${Q.length}`:`Question ${index+1} of ${Q.length}`}</span><i style={{width:`${((index+(picked===null?0:1))/Q.length)*100}%`}}/></div><h2 id="review-title">{L(q.q)}</h2><div className="story-review-options">{q.o.map((o,i)=><Button key={o.en} variant="outline" disabled={picked!==null} className={picked===null?"":i===q.a?"is-correct":i===picked?"is-wrong":"is-muted"} onClick={()=>{setPicked(i);if(i===q.a)setScore(s=>s+1)}}>{picked!==null&&i===q.a?<Check/>:null}{L(o)}</Button>)}</div>{picked!==null?<div className="story-review-answer" role="status"><small>{lang==="bn"?"এখান থেকে কী শিখলাম":"What you learned"}</small><p>{L(q.w)}</p><Button onClick={()=>{setIndex(i=>i+1);setPicked(null)}}>{index===Q.length-1?(lang==="bn"?"ফলাফল দেখো":"See result"):(lang==="bn"?"পরের প্রশ্ন":"Next question")}<ArrowRight/></Button></div>:null}</section>}
+  const stopAmbience = useCallback(() => {
+    try { nodes.current?.osc.stop(); } catch { /* already stopped */ }
+    nodes.current = null;
+  }, []);
 
-export function KidsStory(){const{lang,setLang}=useLang();const[started,setStarted]=useState(false),[active,setActive]=useState(0),[muted,setMuted]=useState(false),[captions,setCaptions]=useState(true),[playing,setPlaying]=useState(false);const refs=useRef<(HTMLElement|null)[]>([]);const{stop,speak}=useStoryAudio(lang,muted);const scene=KIDS_STORY[active]??KIDS_STORY[0];const L=(x:StoryText)=>x[lang];
- useEffect(()=>{if(!window.localStorage.getItem("mec-lang"))setLang("bn");const stored=Number(sessionStorage.getItem("tb-story-scene")||0);if(Number.isFinite(stored))setActive(Math.min(Math.max(stored,0),KIDS_STORY.length-1))},[setLang]);
- const play=useCallback(()=>{setPlaying(true);speak(`${L(scene.title)}. ${L(scene.dialogue)} ${L(scene.narration)}`,scene.sound)},[scene,speak,lang]);
- useEffect(()=>{if(!started)return;const observer=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const i=Number((e.target as HTMLElement).dataset["index"]);setActive(i);sessionStorage.setItem("tb-story-scene",String(i));setPlaying(false);stop()}}),{threshold:.62});refs.current.forEach(el=>el&&observer.observe(el));return()=>observer.disconnect()},[started,stop]);
- const go=(i:number)=>refs.current[Math.max(0,Math.min(KIDS_STORY.length-1,i))]?.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
- if(!started)return <section className="story-gate"><img src={earth} alt="Tara and Rafi look toward Earth and Bangladesh" width={1536} height={1024}/><div><p>{lang==="bn"?"টেরাবাংলা কমিক যাত্রা":"A TerraBangla comic journey"}</p><h1>{lang==="bn"?"প্রমাণের খাতা":"The Evidence Journal"}</h1><p>{lang==="bn"?"তারা, রাফি আর নীলের সঙ্গে ৮–১২ মিনিটে বাংলাদেশের জলবায়ু প্রমাণের গল্প আবিষ্কার করো। দৃশ্যমান caption সবসময় থাকবে; narration ও sound যেকোনো সময় বন্ধ করা যাবে।":"Join Tara, Rafi and Neel for an 8–12 minute story through Bangladesh's climate evidence. Captions stay visible, and narration or sound can be muted anytime."}</p><Button size="lg" onClick={()=>{setStarted(true);setTimeout(()=>{go(active);play()},100)}}><Play/>{lang==="bn"?"গল্প শুরু করো":"Start story"}</Button></div></section>;
- return <div className="story-shell"><div className="story-backdrops" aria-hidden>{Object.entries(ART).map(([k,src])=><img key={k} src={src} className={scene.artwork===k?"is-active":""} alt="" width={1536} height={1024}/>)}</div><div className="story-toolbar"><div><small>{lang==="bn"?`অধ্যায় ${scene.chapter}`:`Chapter ${scene.chapter}`}</small><strong>{L(scene.chapterTitle)}</strong></div><span>{active+1} / {KIDS_STORY.length}</span><Button size="icon" variant="outline" onClick={()=>{if(playing){stop();setPlaying(false)}else play()}} aria-label={playing?(lang==="bn"?"বিরতি":"Pause"):(lang==="bn"?"শোনাও":"Play narration")}>{playing?<Pause/>:<Play/>}</Button><Button size="icon" variant="outline" onClick={()=>setMuted(x=>!x)} aria-label={muted?(lang==="bn"?"শব্দ চালু":"Unmute"):(lang==="bn"?"শব্দ বন্ধ":"Mute")}>{muted?<VolumeX/>:<Volume2/>}</Button><Button size="icon" variant={captions?"secondary":"outline"} onClick={()=>setCaptions(x=>!x)} aria-label={lang==="bn"?"ক্যাপশন":"Captions"}><Captions/></Button></div><div className="story-progress" aria-hidden><i style={{width:`${((active+1)/KIDS_STORY.length)*100}%`}}/></div>
- {KIDS_STORY.map((s,i)=>{const a=s.evidence?analyzeVariable(s.evidence.districtId,s.evidence.variable):null;const d=s.evidence?getDistrict(s.evidence.districtId):null;return <article key={s.id} ref={el=>{refs.current[i]=el}} data-index={i} className="story-scene"><div className="story-panel"><p className="story-panel-index">{String(i+1).padStart(2,"0")} · {L(s.chapterTitle)}</p><h2>{L(s.title)}</h2><div className="story-dialogue"><img src={guide.url} alt="" aria-hidden width={180} height={220}/><div><span>{L(s.speaker)}</span><p>“{L(s.dialogue)}”</p></div></div>{captions?<p className="story-caption">{L(s.narration)}</p>:null}{a?<div className="story-evidence"><div><small>{lang==="bn"?"বাস্তব নাসা প্রমাণ":"Real NASA evidence"}</small><strong>{lang==="bn"?d?.bn:d?.name} · {a.label}</strong><p>{a.result.period.start}–{a.result.period.end} · {a.result.n_observations} {lang==="bn"?"বার্ষিক পর্যবেক্ষণ":"annual observations"} · {lang==="bn"?"প্রতি দশকে":"per decade"} {fmt(a.result.slope.slope_per_decade,lang,2)} {a.unit}</p></div><ProvenanceButton provenance={a.provenance} payload={a} title={`${d?.name} · ${a.label}`}/></div>:null}<div className="story-nav"><Button variant="outline" disabled={i===0} onClick={()=>go(i-1)}><ArrowLeft/>{lang==="bn"?"আগের দৃশ্য":"Previous"}</Button>{i<KIDS_STORY.length-1?<Button onClick={()=>go(i+1)}>{lang==="bn"?"পরের দৃশ্য":"Next"}<ArrowRight/></Button>:<Button onClick={()=>document.getElementById("story-review")?.scrollIntoView({behavior:"smooth"})}>{lang==="bn"?"শেষের প্রশ্নে যাও":"Final review"}<ArrowRight/></Button>}</div></div></article>})}
- <div id="story-review" className="story-review-wrap"><FinalReview onReview={()=>go(0)}/><p className="story-honesty">{lang==="bn"?"কমিকের ছবি ব্যাখ্যার জন্য। পরিমাপ করা প্রমাণ শুধু সংরক্ষিত NASA রেকর্ড ও নির্ধারিত পরিসংখ্যান থেকে আসে।":"Comic artwork is explanatory. Measured evidence comes only from cached NASA records and deterministic statistics."}</p></div></div>}
+  const stop = useCallback(() => {
+    window.speechSynthesis?.cancel();
+    stopAmbience();
+    setStatus("idle");
+  }, [stopAmbience]);
+
+  useEffect(() => {
+    const loadVoices = () => setVoices(window.speechSynthesis?.getVoices() ?? []);
+    loadVoices();
+    window.speechSynthesis?.addEventListener("voiceschanged", loadVoices);
+    return () => window.speechSynthesis?.removeEventListener("voiceschanged", loadVoices);
+  }, []);
+
+  const ambience = useCallback((sound: StorySound) => {
+    if (muted) return;
+    const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextConstructor) return;
+    ctx.current ??= new AudioContextConstructor();
+    const osc = ctx.current.createOscillator();
+    const gain = ctx.current.createGain();
+    const hz = { space: 110, river: 180, forest: 240, city: 150, rain: 310, signal: 520, dawn: 220 }[sound];
+    osc.type = sound === "signal" ? "sine" : "triangle";
+    osc.frequency.value = hz;
+    gain.gain.value = 0.008;
+    osc.connect(gain).connect(ctx.current.destination);
+    osc.start();
+    nodes.current = { osc, gain };
+  }, [muted]);
+
+  const speak = useCallback((text: string, sound: StorySound) => {
+    stop();
+    if (muted || !window.speechSynthesis) return;
+    ambience(sound);
+    const utterance = new SpeechSynthesisUtterance(text);
+    const chosen = [...voices].sort((a, b) => voiceScore(b, lang) - voiceScore(a, lang))[0];
+    if (chosen && voiceScore(chosen, lang) >= 100) utterance.voice = chosen;
+    utterance.lang = lang === "bn" ? "bn-BD" : "en-US";
+    utterance.rate = lang === "bn" ? 0.82 : 0.88;
+    utterance.pitch = lang === "bn" ? 1.1 : 1.08;
+    utterance.volume = 1;
+    utterance.onstart = () => setStatus("speaking");
+    utterance.onend = () => { stopAmbience(); setStatus("idle"); };
+    utterance.onerror = () => { stopAmbience(); setStatus("idle"); };
+    window.speechSynthesis.speak(utterance);
+  }, [ambience, lang, muted, stop, stopAmbience, voices]);
+
+  const togglePause = useCallback(() => {
+    if (status === "speaking") {
+      window.speechSynthesis.pause();
+      stopAmbience();
+      setStatus("paused");
+    } else if (status === "paused") {
+      window.speechSynthesis.resume();
+      setStatus("speaking");
+    }
+  }, [status, stopAmbience]);
+
+  useEffect(() => stop, [lang, muted, stop]);
+  useEffect(() => () => stop(), [stop]);
+  return { speak, stop, status, togglePause };
+}
+
+declare global { interface Window { webkitAudioContext?: typeof AudioContext } }
+
+function FinalReview({ onReview }: { onReview: () => void }) {
+  const { lang } = useLang();
+  const [index, setIndex] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const [score, setScore] = useState(0);
+  const localize = (value: StoryText) => value[lang];
+
+  if (index >= QUESTIONS.length) return (
+    <section className="story-review story-review-finish">
+      <BookOpenCheck />
+      <p>{lang === "bn" ? "প্রমাণ পাঠ সম্পন্ন" : "Evidence reading complete"}</p>
+      <h2>{lang === "bn" ? `${QUESTIONS.length.toLocaleString("bn-BD")}টির মধ্যে ${score.toLocaleString("bn-BD")}টি সঠিক` : `${score} of ${QUESTIONS.length} correct`}</h2>
+      <p>{lang === "bn" ? "এখন তুমি স্থান, চলক, সময়, পরীক্ষা ও উৎস—সব মিলিয়ে প্রমাণ পড়তে পারো।" : "You can now read evidence by connecting place, variable, time, test and source."}</p>
+      <div>
+        <Button onClick={onReview}><ArrowLeft />{lang === "bn" ? "গল্প আবার দেখো" : "Review story"}</Button>
+        <Button variant="outline" onClick={() => { setIndex(0); setPicked(null); setScore(0); }}><RotateCcw />{lang === "bn" ? "আবার উত্তর দাও" : "Try again"}</Button>
+      </div>
+    </section>
+  );
+
+  const question = QUESTIONS[index] ?? QUESTIONS[0];
+  return (
+    <section className="story-review" aria-labelledby="review-title">
+      <div className="story-review-progress"><span>{lang === "bn" ? `প্রশ্ন ${index + 1} / ${QUESTIONS.length}` : `Question ${index + 1} of ${QUESTIONS.length}`}</span><i style={{ width: `${((index + (picked === null ? 0 : 1)) / QUESTIONS.length) * 100}%` }} /></div>
+      <h2 id="review-title">{localize(question.q)}</h2>
+      <div className="story-review-options">{question.o.map((option, optionIndex) => <Button key={option.en} variant="outline" disabled={picked !== null} className={picked === null ? "" : optionIndex === question.a ? "is-correct" : optionIndex === picked ? "is-wrong" : "is-muted"} onClick={() => { setPicked(optionIndex); if (optionIndex === question.a) setScore((value) => value + 1); }}>{picked !== null && optionIndex === question.a ? <Check /> : null}{localize(option)}</Button>)}</div>
+      {picked !== null ? <div className="story-review-answer" role="status"><small>{lang === "bn" ? "এখান থেকে কী শিখলাম" : "What you learned"}</small><p>{localize(question.w)}</p><Button onClick={() => { setIndex((value) => value + 1); setPicked(null); }}>{index === QUESTIONS.length - 1 ? (lang === "bn" ? "ফলাফল দেখো" : "See result") : (lang === "bn" ? "পরের প্রশ্ন" : "Next question")}<ArrowRight /></Button></div> : null}
+    </section>
+  );
+}
+
+function narrationFor(scene: StoryScene, lang: "en" | "bn") {
+  return `${scene.title[lang]}. ${scene.dialogue[lang]} ${scene.narration[lang]}`;
+}
+
+export function KidsStory() {
+  const { lang, setLang } = useLang();
+  const [started, setStarted] = useState(false);
+  const [active, setActive] = useState(0);
+  const [showReview, setShowReview] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [captions, setCaptions] = useState(true);
+  const touchStart = useRef<number | null>(null);
+  const { stop, speak, status, togglePause } = useStoryAudio(lang, muted);
+  const scene = KIDS_STORY[active] ?? KIDS_STORY[0];
+  const mood = MOODS[scene.id] ?? "encouraging";
+  const localize = (value: StoryText) => value[lang];
+  const analysis = useMemo(() => scene.evidence ? analyzeVariable(scene.evidence.districtId, scene.evidence.variable) : null, [scene]);
+  const district = useMemo(() => scene.evidence ? getDistrict(scene.evidence.districtId) : null, [scene]);
+
+  const playScene = useCallback((target: StoryScene) => {
+    speak(narrationFor(target, lang), target.sound);
+  }, [lang, speak]);
+
+  const go = useCallback((next: number) => {
+    stop();
+    if (next >= KIDS_STORY.length) {
+      setShowReview(true);
+      return;
+    }
+    const bounded = Math.max(0, next);
+    const target = KIDS_STORY[bounded] ?? KIDS_STORY[0];
+    setShowReview(false);
+    setActive(bounded);
+    sessionStorage.setItem("tb-story-scene", String(bounded));
+    playScene(target);
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [playScene, stop]);
+
+  useEffect(() => {
+    if (!window.localStorage.getItem("mec-lang")) setLang("bn");
+    const stored = Number(sessionStorage.getItem("tb-story-scene") ?? 0);
+    if (Number.isFinite(stored)) setActive(Math.min(Math.max(stored, 0), KIDS_STORY.length - 1));
+  }, [setLang]);
+
+  useEffect(() => {
+    if (!started || showReview) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight") go(active + 1);
+      if (event.key === "ArrowLeft") go(active - 1);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [active, go, showReview, started]);
+
+  useEffect(() => {
+    if (started && !showReview) stop();
+  }, [lang, showReview, started, stop]);
+
+  if (!started) return (
+    <section className="story-gate">
+      <img src={earth} alt="Tara and Rafi look toward Earth and Bangladesh" width={1536} height={1024} />
+      <div>
+        <p>{lang === "bn" ? "টেরাবাংলা কমিক যাত্রা" : "A TerraBangla comic journey"}</p>
+        <h1>{lang === "bn" ? "প্রমাণের খাতা" : "The Evidence Journal"}</h1>
+        <p>{lang === "bn" ? "তারা, রাফি আর নীলের সঙ্গে বাংলাদেশের জলবায়ু প্রমাণের গল্প আবিষ্কার করো। প্রতিটি নতুন দৃশ্যে চরিত্র, কণ্ঠ ও পটভূমি বদলাবে।" : "Join Tara, Rafi and Neel through Bangladesh's climate evidence. Every new scene changes its character, voice and setting."}</p>
+        <Button size="lg" onClick={() => { setStarted(true); playScene(scene); window.scrollTo({ top: 0, behavior: "auto" }); }}><Play />{lang === "bn" ? "গল্প শুরু করো" : "Start story"}</Button>
+      </div>
+    </section>
+  );
+
+  if (showReview) return (
+    <main className="story-slide-shell story-review-screen">
+      <FinalReview onReview={() => go(0)} />
+      <p className="story-honesty">{lang === "bn" ? "কমিকের ছবি ব্যাখ্যার জন্য। পরিমাপ করা প্রমাণ শুধু সংরক্ষিত NASA রেকর্ড ও নির্ধারিত পরিসংখ্যান থেকে আসে।" : "Comic artwork is explanatory. Measured evidence comes only from cached NASA records and deterministic statistics."}</p>
+    </main>
+  );
+
+  return (
+    <main
+      className="story-slide-shell"
+      data-scene={scene.id}
+      onTouchStart={(event) => { touchStart.current = event.touches[0]?.clientX ?? null; }}
+      onTouchEnd={(event) => {
+        const end = event.changedTouches[0]?.clientX;
+        if (touchStart.current === null || end === undefined) return;
+        const distance = end - touchStart.current;
+        if (Math.abs(distance) > 55) go(distance < 0 ? active + 1 : active - 1);
+        touchStart.current = null;
+      }}
+    >
+      <div className="story-backdrop" key={scene.id} aria-hidden><img src={ART[scene.artwork]} alt="" width={1536} height={1024} /><i /><b /></div>
+      <header className="story-toolbar">
+        <div><small>{lang === "bn" ? `অধ্যায় ${scene.chapter}` : `Chapter ${scene.chapter}`}</small><strong>{localize(scene.chapterTitle)}</strong></div>
+        <span>{active + 1} / {KIDS_STORY.length}</span>
+        <Button size="icon" variant="outline" onClick={() => status === "idle" ? playScene(scene) : togglePause()} aria-label={status === "speaking" ? (lang === "bn" ? "বিরতি" : "Pause") : status === "paused" ? (lang === "bn" ? "আবার চালাও" : "Resume") : (lang === "bn" ? "আবার শোনাও" : "Replay narration")}>{status === "speaking" ? <Pause /> : <Play />}</Button>
+        <Button size="icon" variant="outline" onClick={() => setMuted((value) => !value)} aria-label={muted ? (lang === "bn" ? "শব্দ চালু" : "Unmute") : (lang === "bn" ? "শব্দ বন্ধ" : "Mute")}>{muted ? <VolumeX /> : <Volume2 />}</Button>
+        <Button size="icon" variant={captions ? "secondary" : "outline"} onClick={() => setCaptions((value) => !value)} aria-label={lang === "bn" ? "ক্যাপশন" : "Captions"}><Captions /></Button>
+      </header>
+      <div className="story-progress" aria-hidden><i style={{ width: `${((active + 1) / KIDS_STORY.length) * 100}%` }} /></div>
+
+      <section className="story-active-slide" key={`${scene.id}-${lang}`} aria-labelledby="story-slide-title">
+        <div className="story-character-stage" data-mood={mood} data-speaking={status === "speaking" ? "true" : "false"}>
+          <div className="story-emote" aria-hidden>{mood === "happy" ? "হা হা!" : mood === "thinking" ? "?" : mood === "curious" ? "!" : "✦"}</div>
+          <div className="story-character">
+            <img src={POSES[mood]} alt="" aria-hidden draggable={false} />
+            <i className="story-mouth" aria-hidden />
+            <span className="story-voice-wave" aria-hidden><i /><i /><i /></span>
+          </div>
+        </div>
+
+        <article className="story-panel">
+          <p className="story-panel-index">{String(active + 1).padStart(2, "0")} · {localize(scene.chapterTitle)}</p>
+          <h2 id="story-slide-title">{localize(scene.title)}</h2>
+          <div className="story-dialogue"><div><span>{localize(scene.speaker)}</span><p>“{localize(scene.dialogue)}”</p></div></div>
+          {captions ? <p className="story-caption">{localize(scene.narration)}</p> : null}
+          {analysis ? <div className="story-evidence" onClickCapture={stop}><div><small>{lang === "bn" ? "বাস্তব নাসা প্রমাণ" : "Real NASA evidence"}</small><strong>{lang === "bn" ? district?.bn : district?.name} · {analysis.label}</strong><p>{analysis.result.period.start}–{analysis.result.period.end} · {analysis.result.n_observations} {lang === "bn" ? "বার্ষিক পর্যবেক্ষণ" : "annual observations"} · {lang === "bn" ? "প্রতি দশকে" : "per decade"} {fmt(analysis.result.slope.slope_per_decade, lang, 2)} {analysis.unit}</p></div><ProvenanceButton provenance={analysis.provenance} payload={analysis} title={`${district?.name} · ${analysis.label}`} /></div> : null}
+          <nav className="story-nav" aria-label={lang === "bn" ? "গল্পের দৃশ্য" : "Story scenes"}>
+            <Button variant="outline" disabled={active === 0} onClick={() => go(active - 1)}><ArrowLeft />{lang === "bn" ? "আগের দৃশ্য" : "Previous"}</Button>
+            <Button onClick={() => go(active + 1)}>{active === KIDS_STORY.length - 1 ? (lang === "bn" ? "শেষের প্রশ্ন" : "Final review") : (lang === "bn" ? "পরের দৃশ্য" : "Next")}<ArrowRight /></Button>
+          </nav>
+        </article>
+      </section>
+    </main>
+  );
+}
