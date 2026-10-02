@@ -171,6 +171,16 @@ export default function GlobeExplorer({
     () => districts.map((d) => ({ lat: d.lat, lng: d.lon, text: lang === "bn" ? d.bn : d.name })),
     [lang],
   );
+  const regionalLabels = useMemo(
+    () =>
+      southAsiaLocations.map((item) => ({
+        id: item.id,
+        lat: item.lat,
+        lng: item.lon,
+        text: lang === "bn" ? item.bn : item.name,
+      })),
+    [lang],
+  );
 
   // Aim at Bangladesh instead of the globe's centre so low camera angles keep the data in frame.
   useEffect(() => {
@@ -258,18 +268,61 @@ export default function GlobeExplorer({
         onGlobeClick={({ lat, lng }: { lat: number; lng: number }) => {
           if (phase === "world" && lat > 20 && lat < 27 && lng > 88 && lng < 93) enterBangladesh();
         }}
-        pointsData={phase === "world" && regionalMode ? southAsiaLocations : EMPTY}
-        pointLat={(point: object) => (point as { lat: number }).lat}
-        pointLng={(point: object) => (point as { lon: number }).lon}
-        pointAltitude={(point: object) => (point as { id: string }).id === selectedRegionalId ? 0.12 : 0.07}
-        pointRadius={(point: object) => (point as { id: string }).id === "bangladesh" ? 0.48 : 0.34}
-        pointColor={(point: object) => (point as { id: string }).id === "bangladesh" ? "#7C6FF0" : "#2EE6D6"}
-        pointLabel={(point: object) => {
-          const item = point as { id: string; name: string; bn: string };
-          return `<div class="globe-tooltip"><strong>${lang === "bn" ? item.bn : item.name}</strong><br/>${lang === "bn" ? "তুলনা দেখতে ক্লিক করুন" : "Click to compare"}</div>`;
+        labelsData={
+          phase === "world"
+            ? regionalMode
+              ? regionalLabels
+              : WORLD_LABELS
+            : hexMode && showNames
+              ? districtLabels
+              : EMPTY
+        }
+        labelLat={(d: object) => (d as { lat: number }).lat}
+        labelLng={(d: object) => (d as { lng: number }).lng}
+        labelText={(d: object) => (d as { text: string }).text}
+        labelSize={(d: object) =>
+          phase === "world"
+            ? regionalMode && (d as { id?: string }).id === "bangladesh"
+              ? 1.4
+              : 1.1
+            : 0.09
+        }
+        labelDotRadius={(d: object) =>
+          phase === "world"
+            ? regionalMode && (d as { id?: string }).id === "bangladesh"
+              ? 0.42
+              : 0.26
+            : 0.03
+        }
+        labelAltitude={phase === "world" ? 0.002 : 0.095}
+        labelColor={(d: object) => {
+          if (phase === "world") {
+            if (!regionalMode) return "#B17AFF";
+            const id = (d as { id?: string }).id;
+            if (id === "bangladesh") return "#FFFFFF";
+            return id === selectedRegionalId ? "#7C6FF0" : "#2EE6D6";
+          }
+          return "rgba(238,246,248,0.95)";
         }}
-        onPointClick={(point: object) => onSelectRegional?.((point as { id: string }).id)}
-        hexBinPointsData={hexMode ? gridPoints : EMPTY}
+        labelResolution={2}
+        labelLabel={(d: object) => {
+          if (phase !== "world") return "";
+          const item = d as { id?: string; text: string };
+          if (item.id && item.id !== "bangladesh") {
+            return `<div class="globe-tooltip"><strong>${item.text}</strong><br/>${lang === "bn" ? "তুলনা দেখতে ক্লিক করুন" : "Click to compare"}</div>`;
+          }
+          if (item.id === "bangladesh") {
+            return `<div class="globe-tooltip globe-tooltip-active"><strong>${lang === "bn" ? "বাংলাদেশ — ক্লিক করুন" : "Bangladesh — click to enter"}</strong></div>`;
+          }
+          return "";
+        }}
+        onLabelClick={(d: object) => {
+          if (phase !== "world") return;
+          const id = (d as { id?: string }).id;
+          if (id && id !== "bangladesh") onSelectRegional?.(id);
+          else enterBangladesh();
+        }}
+        ringsData={phase === "world" ? WORLD_RINGS : EMPTY}
         hexBinPointLat={(p: object) => (p as { lat: number }).lat}
         hexBinPointLng={(p: object) => (p as { lng: number }).lng}
         hexBinPointWeight={(p: object) => (p as { value: number }).value}
@@ -298,17 +351,6 @@ export default function GlobeExplorer({
           const name = d ? (lang === "bn" ? d.bn : d.name) : "";
           return `<div class="globe-tooltip"><strong>${lang === "bn" ? "কাছের এলাকা" : "Near"}: ${name}</strong><br/>${p ? `${p.lat.toFixed(2)}°N ${p.lng.toFixed(2)}°E<br/>` : ""}${fmt(mean, lang, 2)}</div>`;
         }}
-        labelsData={phase === "world" && !regionalMode ? WORLD_LABELS : hexMode && showNames ? districtLabels : EMPTY}
-        labelLat={(d: object) => (d as { lat: number }).lat}
-        labelLng={(d: object) => (d as { lng: number }).lng}
-        labelText={(d: object) => (d as { text: string }).text}
-        labelSize={phase === "world" ? 1.6 : 0.09}
-        labelDotRadius={phase === "world" ? 0.7 : 0.03}
-        labelAltitude={phase === "world" ? 0.002 : 0.095}
-        labelColor={() => (phase === "world" ? "#B17AFF" : "rgba(238,246,248,0.95)")}
-        labelResolution={2}
-        onLabelClick={() => { if (phase === "world") enterBangladesh(); }}
-        ringsData={phase === "world" && !regionalMode ? WORLD_RINGS : EMPTY}
         ringLat={(d: object) => (d as { lat: number }).lat}
         ringLng={(d: object) => (d as { lng: number }).lng}
         ringColor={ringColorFn}
