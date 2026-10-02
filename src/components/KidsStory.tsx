@@ -201,6 +201,7 @@ export function KidsStory() {
   const [muted, setMuted] = useState(false);
   const [captions, setCaptions] = useState(true);
   const touchStart = useRef<number | null>(null);
+  const storyRoot = useRef<HTMLElement | null>(null);
   const { stop, speak, status, togglePause } = useStoryAudio(lang, muted);
   const scene = KIDS_STORY[active] ?? KIDS_STORY[0];
   const mood = MOODS[scene.id] ?? "encouraging";
@@ -223,7 +224,8 @@ export function KidsStory() {
     setShowReview(false);
     setActive(bounded);
     sessionStorage.setItem("tb-story-scene", String(bounded));
-    requestAnimationFrame(() => playScene(target));
+    playScene(target);
+    window.scrollTo({ top: 0, behavior: "auto" });
   }, [playScene, stop]);
 
   useEffect(() => {
@@ -253,7 +255,7 @@ export function KidsStory() {
         <p>{lang === "bn" ? "টেরাবাংলা কমিক যাত্রা" : "A TerraBangla comic journey"}</p>
         <h1>{lang === "bn" ? "প্রমাণের খাতা" : "The Evidence Journal"}</h1>
         <p>{lang === "bn" ? "তারা, রাফি আর নীলের সঙ্গে বাংলাদেশের জলবায়ু প্রমাণের গল্প আবিষ্কার করো। প্রতিটি নতুন দৃশ্যে চরিত্র, কণ্ঠ ও পটভূমি বদলাবে।" : "Join Tara, Rafi and Neel through Bangladesh's climate evidence. Every new scene changes its character, voice and setting."}</p>
-        <Button size="lg" onClick={() => { setStarted(true); requestAnimationFrame(() => playScene(scene)); }}><Play />{lang === "bn" ? "গল্প শুরু করো" : "Start story"}</Button>
+        <Button size="lg" onClick={() => { setStarted(true); playScene(scene); window.scrollTo({ top: 0, behavior: "auto" }); }}><Play />{lang === "bn" ? "গল্প শুরু করো" : "Start story"}</Button>
       </div>
     </section>
   );
@@ -267,6 +269,7 @@ export function KidsStory() {
 
   return (
     <main
+      ref={storyRoot}
       className="story-slide-shell"
       data-scene={scene.id}
       onTouchStart={(event) => { touchStart.current = event.touches[0]?.clientX ?? null; }}
