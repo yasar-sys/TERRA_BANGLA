@@ -17,6 +17,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth-callback'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as KidsRouteImport } from './routes/kids'
+import { Route as ReferenceRouteImport } from './routes/reference'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -63,6 +64,11 @@ const KidsRoute = KidsRouteImport.update({
   path: '/kids',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReferenceRoute = ReferenceRouteImport.update({
+  id: '/reference',
+  path: '/reference',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/compare': typeof CompareRoute
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
+  '/reference': typeof ReferenceRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/api/chat': typeof ApiChatRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/compare': typeof CompareRoute
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
+  '/reference': typeof ReferenceRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/api/chat': typeof ApiChatRoute
@@ -135,6 +143,7 @@ export interface FileRoutesById {
   '/compare': typeof CompareRoute
   '/heatmap': typeof HeatmapRoute
   '/kids': typeof KidsRoute
+  '/reference': typeof ReferenceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/api/chat': typeof ApiChatRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/heatmap'
     | '/kids'
+    | '/reference'
     | '/admin'
     | '/profile'
     | '/api/chat'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/heatmap'
     | '/kids'
+    | '/reference'
     | '/admin'
     | '/profile'
     | '/api/chat'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/heatmap'
     | '/kids'
+    | '/reference'
     | '/_authenticated/admin'
     | '/_authenticated/profile'
     | '/api/chat'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   CompareRoute: typeof CompareRoute
   HeatmapRoute: typeof HeatmapRoute
   KidsRoute: typeof KidsRoute
+  ReferenceRoute: typeof ReferenceRoute
   ApiChatRoute: typeof ApiChatRoute
   DistrictDistrictIdRoute: typeof DistrictDistrictIdRoute
 }
@@ -260,6 +273,13 @@ declare module '@tanstack/react-router' {
       path: '/kids'
       fullPath: '/kids'
       preLoaderRoute: typeof KidsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reference': {
+      id: '/reference'
+      path: '/reference'
+      fullPath: '/reference'
+      preLoaderRoute: typeof ReferenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -333,6 +353,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompareRoute: CompareRoute,
   HeatmapRoute: HeatmapRoute,
   KidsRoute: KidsRoute,
+  ReferenceRoute: ReferenceRoute,
   ApiChatRoute: ApiChatRoute,
   DistrictDistrictIdRoute: DistrictDistrictIdRoute,
 }
