@@ -37,7 +37,7 @@ const RESEARCH_LINKS = [
     bnTitle: "NASA MODIS ওয়েব সার্ভিস",
     description: "Satellite vegetation (NDVI) and land-surface-temperature records used in district evidence.",
     bnDescription: "জেলার প্রমাণে ব্যবহৃত স্যাটেলাইট উদ্ভিদ সূচক (NDVI) ও ভূপৃষ্ঠের তাপমাত্রা।",
-    url: "https://modis.ornl.gov/",
+    url: "https://modis.ornl.gov/rst/api/v1/",
   },
   {
     title: "NASA Space Apps Challenge",

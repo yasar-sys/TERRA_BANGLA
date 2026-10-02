@@ -294,7 +294,7 @@ export default function GlobeExplorer({
               : 0.26
             : 0.03
         }
-        labelAltitude={phase === "world" ? 0.002 : 0.095}
+        labelAltitude={phase === "world" ? 0.002 : hexMode ? 0.24 : 0.095}
         labelColor={(d: object) => {
           if (phase === "world") {
             if (!regionalMode) return "#B17AFF";
@@ -342,7 +342,7 @@ export default function GlobeExplorer({
         hexAltitude={(bin: object) => {
           const b = bin as { sumWeight: number; points: unknown[] };
           const mean = b.sumWeight / Math.max(1, b.points.length);
-          return 0.012 + 0.075 * normalize(mean, hexBounds.min, hexBounds.max);
+          return 0.018 + 0.19 * normalize(mean, hexBounds.min, hexBounds.max);
         }}
         hexLabel={(bin: object) => {
           const b = bin as { sumWeight: number; points: { lat: number; lng: number }[] };
