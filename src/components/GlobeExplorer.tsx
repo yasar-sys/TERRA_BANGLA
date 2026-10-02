@@ -283,15 +283,15 @@ export default function GlobeExplorer({
         labelSize={(d: object) =>
           phase === "world"
             ? regionalMode && (d as { id?: string }).id === "bangladesh"
-              ? 1.8
-              : 1.5
+              ? 1.4
+              : 1.1
             : 0.09
         }
         labelDotRadius={(d: object) =>
           phase === "world"
             ? regionalMode && (d as { id?: string }).id === "bangladesh"
-              ? 0.6
-              : 0.42
+              ? 0.42
+              : 0.26
             : 0.03
         }
         labelAltitude={phase === "world" ? 0.002 : 0.095}
