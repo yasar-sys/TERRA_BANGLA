@@ -295,15 +295,14 @@ export default function GlobeExplorer({
             : 0.03
         }
         labelAltitude={phase === "world" ? 0.002 : 0.095}
-        labelColor={(d: object) =>
-          phase === "world"
-            ? regionalMode
-              ? (d as { id?: string }).id === "bangladesh"
-                ? "#7C6FF0"
-                : "#2EE6D6"
-              : "#B17AFF"
-            : "rgba(238,246,248,0.95)"
-        }
+        labelColor={(d: object) => {
+          if (phase === "world") {
+            if (!regionalMode) return "#B17AFF";
+            const id = (d as { id?: string }).id;
+            return id === "bangladesh" || id === selectedRegionalId ? "#7C6FF0" : "#2EE6D6";
+          }
+          return "rgba(238,246,248,0.95)";
+        }}
         labelResolution={2}
         labelLabel={(d: object) => {
           if (phase !== "world") return "";
