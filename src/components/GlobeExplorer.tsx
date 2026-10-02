@@ -171,6 +171,16 @@ export default function GlobeExplorer({
     () => districts.map((d) => ({ lat: d.lat, lng: d.lon, text: lang === "bn" ? d.bn : d.name })),
     [lang],
   );
+  const regionalLabels = useMemo(
+    () =>
+      southAsiaLocations.map((item) => ({
+        id: item.id,
+        lat: item.lat,
+        lng: item.lon,
+        text: lang === "bn" ? item.bn : item.name,
+      })),
+    [lang],
+  );
 
   // Aim at Bangladesh instead of the globe's centre so low camera angles keep the data in frame.
   useEffect(() => {
