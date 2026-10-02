@@ -24,6 +24,7 @@ export const strings: Dict = {
   "nav.compare": { en: "Compare", bn: "তুলনা" },
   "nav.kids": { en: "For Kids", bn: "শিশুদের জন্য" },
   "nav.about": { en: "Data & Methods", bn: "উপাত্ত ও পদ্ধতি" },
+  "nav.reference": { en: "Reference", bn: "রেফারেন্স" },
   "nav.chat": { en: "Ask TerraBangla", bn: "টেরা বাংলাকে জিজ্ঞেস করুন" },
   "nav.admin": { en: "Admin", bn: "অ্যাডমিন" },
   "nav.menu": { en: "Open navigation", bn: "নেভিগেশন খুলুন" },
@@ -93,6 +94,10 @@ export const strings: Dict = {
   "compare.report": { en: "Comparison report", bn: "তুলনা প্রতিবেদন" },
   "heatmap.title": { en: "Gridded heatmap", bn: "গ্রিড হিটম্যাপ" },
   "kids.title": { en: "Climate Learning Studio", bn: "জলবায়ু শেখার স্টুডিও" },
+  "reference.title": { en: "Reference, Research & Documentation", bn: "রেফারেন্স, গবেষণা ও ডকুমেন্টেশন" },
+  "reference.nasa_apps": { en: "NASA Space Apps Relationship", bn: "নাসা স্পেস অ্যাপসের সাথে সম্পর্ক" },
+  "reference.research_links": { en: "Research & Documentation", bn: "গবেষণা ও নথি" },
+  "reference.video_preview": { en: "Video Preview", bn: "ভিডিও প্রিভিউ" },
   "loading": { en: "Loading…", bn: "লোড হচ্ছে…" },
 };
 

@@ -30,7 +30,7 @@
 - [x] Verify both themes, responsive layouts, downloads, and Evidence Lab interactions
 - [x] Apply the TerraBangla violet brand color to Bangladesh on the world globe
 - [x] Add real-data global or regional trend comparison around Bangladesh
-- [ ] Add a Reference tab linking TerraBangla to the NASA Space Apps challenge
-- [ ] Add research, documentation, and reserved YouTube preview sections
-- [ ] Restore 3D pillars in the heatmap experience
-- [ ] Verify navigation, responsive layouts, video fallback, and heatmap pillars
+- [x] Add a Reference tab linking TerraBangla to the NASA Space Apps challenge
+- [x] Add research, documentation, and reserved YouTube preview sections
+- [x] Restore 3D pillars in the heatmap experience
+- [x] Verify navigation, responsive layouts, video fallback, and heatmap pillars

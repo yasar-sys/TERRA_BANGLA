@@ -8,6 +8,7 @@ Student profiles, favorites, lesson attempts, and saved AI explanations use sepa
 The supplied TerraBangla artwork is the canonical brand logo; serve it through the project asset pointer and derive local favicon/PWA icons from it.
 Apply theme preference before hydration and use semantic CSS tokens so every route shares one accessible light/dark system.
 South Asia comparisons use cached NASA observations at named representative capital points; never present them as national averages.
+Keep challenge context, research references, documentation scope, and the team video together on the public Reference route so judges have one canonical evidence hub.
 <!-- LOVABLE:BEGIN -->
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
