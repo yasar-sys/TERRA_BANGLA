@@ -299,7 +299,8 @@ export default function GlobeExplorer({
           if (phase === "world") {
             if (!regionalMode) return "#B17AFF";
             const id = (d as { id?: string }).id;
-            return id === "bangladesh" || id === selectedRegionalId ? "#7C6FF0" : "#2EE6D6";
+            if (id === "bangladesh") return "#FFFFFF";
+            return id === selectedRegionalId ? "#7C6FF0" : "#2EE6D6";
           }
           return "rgba(238,246,248,0.95)";
         }}
