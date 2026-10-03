@@ -41,11 +41,38 @@ function Landing() {
   const [regionalMode, setRegionalMode] = useState(false);
   const [regionalVariable, setRegionalVariable] = useState<VariableKey>("temperature");
   const [regionalId, setRegionalId] = useState("bangladesh");
+  const [isGlobeFull, setIsGlobeFull] = useState(false);
   const covered = coveredDistrictIds().length;
+  const frameRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setShowSplash(sessionStorage.getItem("terrabangla-splash-seen") !== "1");
     setSplashReady(true);
+  }, []);
+
+  useEffect(() => {
+    const sync = () => setIsGlobeFull(document.fullscreenElement === frameRef.current);
+    document.addEventListener("fullscreenchange", sync);
+    document.addEventListener("webkitfullscreenchange", sync);
+    return () => {
+      document.removeEventListener("fullscreenchange", sync);
+      document.removeEventListener("webkitfullscreenchange", sync);
+    };
+  }, []);
+
+  const toggleGlobeFullscreen = useCallback(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const doc = document as Document & { webkitExitFullscreen?: () => Promise<void> | void };
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+      void doc.webkitExitFullscreen?.();
+    } else {
+      const target = el as HTMLDivElement & {
+        webkitRequestFullscreen?: () => Promise<void> | void;
+      };
+      void (target.requestFullscreen?.() ?? target.webkitRequestFullscreen?.());
+    }
   }, []);
 
   return (
