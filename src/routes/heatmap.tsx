@@ -180,6 +180,8 @@ function HeatmapPage() {
             onSelectDistrict={() => {}}
             hexMode
             gridPoints={points}
+            gridUnit={unit}
+            gridCaption={mode === "trend" ? L("Theil-Sen trend per decade", "প্রতি দশকে থাইল-সেন প্রবণতা") : `${L("Annual mean", "বার্ষিক গড়")} ${activeYear}`}
           />
         </div>
         <aside className="panel p-4">

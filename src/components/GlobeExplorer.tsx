@@ -42,7 +42,9 @@ export interface GlobeExplorerProps {
   onPhaseChange: (phase: "world" | "bangladesh") => void;
   onSelectDistrict: (districtId: string) => void;
   hexMode?: boolean;
-  gridPoints?: { lat: number; lng: number; value: number }[];
+  gridPoints?: { lat: number; lng: number; value: number; sig?: boolean }[];
+  gridUnit?: string;
+  gridCaption?: string;
   regionalMode?: boolean;
   selectedRegionalId?: string;
   onSelectRegional?: (id: string) => void;
@@ -55,6 +57,8 @@ export default function GlobeExplorer({
   onSelectDistrict,
   hexMode = false,
   gridPoints = [],
+  gridUnit = "",
+  gridCaption = "",
   regionalMode = false,
   selectedRegionalId = "bangladesh",
   onSelectRegional,
@@ -167,10 +171,24 @@ export default function GlobeExplorer({
   const [view, setView] = useState<"side" | "tilt" | "top">("tilt");
   const [spin, setSpin] = useState(false);
   const [showNames, setShowNames] = useState(true);
-  const districtLabels = useMemo(
-    () => districts.map((d) => ({ lat: d.lat, lng: d.lon, text: lang === "bn" ? d.bn : d.name })),
-    [lang],
+  const pillarHeight = useCallback(
+    (value: number) => 0.018 + 0.19 * normalize(value, hexBounds.min, hexBounds.max),
+    [hexBounds],
   );
+  // Anchor each district name on top of the pillar nearest to it, so names sit with their pillar.
+  const districtLabels = useMemo(() => {
+    if (!gridPoints.length) return [];
+    return districts.flatMap((d) => {
+      let best = gridPoints[0]!;
+      let bestDist = Infinity;
+      for (const p of gridPoints) {
+        const dist = (p.lat - d.lat) ** 2 + (p.lng - d.lon) ** 2;
+        if (dist < bestDist) { bestDist = dist; best = p; }
+      }
+      if (bestDist > 0.36) return [];
+      return [{ lat: best.lat, lng: best.lng, text: lang === "bn" ? d.bn : d.name, alt: pillarHeight(best.value) + 0.006 }];
+    });
+  }, [lang, gridPoints, pillarHeight]);
   const regionalLabels = useMemo(
     () =>
       southAsiaLocations.map((item) => ({
@@ -285,16 +303,16 @@ export default function GlobeExplorer({
             ? regionalMode && (d as { id?: string }).id === "bangladesh"
               ? 1.4
               : 1.1
-            : 0.09
+            : 0.1
         }
         labelDotRadius={(d: object) =>
           phase === "world"
             ? regionalMode && (d as { id?: string }).id === "bangladesh"
               ? 0.42
               : 0.26
-            : 0.03
+            : hexMode ? 0 : 0.03
         }
-        labelAltitude={phase === "world" ? 0.002 : hexMode ? 0.24 : 0.095}
+        labelAltitude={(d: object) => phase === "world" ? 0.002 : hexMode ? ((d as { alt?: number }).alt ?? 0.2) : 0.095}
         labelColor={(d: object) => {
           if (phase === "world") {
             if (!regionalMode) return "#B17AFF";
@@ -342,15 +360,28 @@ export default function GlobeExplorer({
         hexAltitude={(bin: object) => {
           const b = bin as { sumWeight: number; points: unknown[] };
           const mean = b.sumWeight / Math.max(1, b.points.length);
-          return 0.018 + 0.19 * normalize(mean, hexBounds.min, hexBounds.max);
+          return pillarHeight(mean);
         }}
         hexLabel={(bin: object) => {
-          const b = bin as { sumWeight: number; points: { lat: number; lng: number }[] };
-          const mean = b.sumWeight / Math.max(1, b.points.length);
-          const p = b.points[0];
-          const d = p ? nearestDistrict(p.lat, p.lng) : undefined;
-          const name = d ? (lang === "bn" ? d.bn : d.name) : "";
-          return `<div class="globe-tooltip"><strong>${lang === "bn" ? "কাছের এলাকা" : "Near"}: ${name}</strong><br/>${p ? `${p.lat.toFixed(2)}°N ${p.lng.toFixed(2)}°E<br/>` : ""}${fmt(mean, lang, 2)}</div>`;
+          const b = bin as { sumWeight: number; points: { lat: number; lng: number; sig?: boolean }[] };
+          const n = Math.max(1, b.points.length);
+          const mean = b.sumWeight / n;
+          const lat = b.points.reduce((sum, p) => sum + p.lat, 0) / n;
+          const lng = b.points.reduce((sum, p) => sum + p.lng, 0) / n;
+          const d = b.points.length ? nearestDistrict(lat, lng) : undefined;
+          const name = d ? (lang === "bn" ? d.bn : d.name) : "—";
+          const share = Math.round(normalize(mean, hexBounds.min, hexBounds.max) * 100);
+          const sigKnown = b.points.some((p) => p.sig !== undefined);
+          const sig = sigKnown ? b.points.some((p) => p.sig) : undefined;
+          const L = (en: string, bn: string) => (lang === "bn" ? bn : en);
+          return `<div class="globe-tooltip">
+            <strong>${L("Nearest district", "নিকটতম জেলা")}: ${name}</strong><br/>
+            ${t(VARIABLE_LABEL_KEY[variable])}${gridCaption ? ` · ${gridCaption}` : ""}<br/>
+            <strong>${fmt(mean, lang, 2)} ${gridUnit}</strong>${n > 1 ? ` (${L(`mean of ${n} cells`, `${n}টি কোষের গড়`)})` : ""}<br/>
+            ${sig === undefined ? "" : `${sig ? L("Significant trend (p &lt; 0.05)", "তাৎপর্যপূর্ণ প্রবণতা (p &lt; ০.০৫)") : L("Not statistically significant", "পরিসংখ্যানগতভাবে তাৎপর্যপূর্ণ নয়")}<br/>`}
+            ${L("Pillar height", "পিলারের উচ্চতা")}: ${share}% ${L("of map range", "মানচিত্রের পরিসরের")}<br/>
+            <span style="opacity:.7">${lat.toFixed(2)}°N ${lng.toFixed(2)}°E · NASA</span>
+          </div>`;
         }}
         ringLat={(d: object) => (d as { lat: number }).lat}
         ringLng={(d: object) => (d as { lng: number }).lng}
