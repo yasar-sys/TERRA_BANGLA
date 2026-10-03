@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Maximize2, Minimize2 } from "lucide-react";
 import { GlobeStage } from "@/components/GlobeStage";
 import { DistrictPicker } from "@/components/DistrictPicker";
 import { HomeSplash } from "@/components/HomeSplash";
