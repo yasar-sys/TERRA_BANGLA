@@ -41,7 +41,9 @@ function Landing() {
   const [regionalMode, setRegionalMode] = useState(false);
   const [regionalVariable, setRegionalVariable] = useState<VariableKey>("temperature");
   const [regionalId, setRegionalId] = useState("bangladesh");
-  const [isGlobeFull, setIsGlobeFull] = useState(false);
+  const [apiFull, setApiFull] = useState(false);
+  const [overlayFull, setOverlayFull] = useState(false);
+  const isGlobeFull = apiFull || overlayFull;
   const covered = coveredDistrictIds().length;
   const frameRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +53,7 @@ function Landing() {
   }, []);
 
   useEffect(() => {
-    const sync = () => setIsGlobeFull(document.fullscreenElement === frameRef.current);
+    const sync = () => setApiFull(document.fullscreenElement === frameRef.current);
     document.addEventListener("fullscreenchange", sync);
     document.addEventListener("webkitfullscreenchange", sync);
     return () => {
@@ -60,18 +62,30 @@ function Landing() {
     };
   }, []);
 
+  // Overlay fallback for browsers (e.g. iOS Safari) without the element Fullscreen API.
+  useEffect(() => {
+    if (!overlayFull) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [overlayFull]);
+
   const toggleGlobeFullscreen = useCallback(() => {
     const el = frameRef.current;
     if (!el) return;
-    const doc = document as Document & { webkitExitFullscreen?: () => Promise<void> | void };
     if (document.fullscreenElement) {
       void document.exitFullscreen();
-      void doc.webkitExitFullscreen?.();
-    } else {
-      const target = el as HTMLDivElement & {
-        webkitRequestFullscreen?: () => Promise<void> | void;
-      };
+      return;
+    }
+    const target = el as HTMLDivElement & {
+      webkitRequestFullscreen?: () => Promise<void> | void;
+    };
+    if (typeof target.requestFullscreen === "function" || typeof target.webkitRequestFullscreen === "function") {
       void (target.requestFullscreen?.() ?? target.webkitRequestFullscreen?.());
+    } else {
+      setOverlayFull(true);
     }
   }, []);
 
