@@ -75,6 +75,10 @@ function Landing() {
   const toggleGlobeFullscreen = useCallback(() => {
     const el = frameRef.current;
     if (!el) return;
+    if (overlayFull) {
+      setOverlayFull(false);
+      return;
+    }
     if (document.fullscreenElement) {
       void document.exitFullscreen();
       return;
@@ -87,7 +91,7 @@ function Landing() {
     } else {
       setOverlayFull(true);
     }
-  }, []);
+  }, [overlayFull]);
 
   return (
     <div className="star-field">
