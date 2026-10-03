@@ -385,6 +385,7 @@ export function KidsStory() {
           </nav>
         </article>
       </section>
+      <BackToTop />
     </main>
   );
 }
