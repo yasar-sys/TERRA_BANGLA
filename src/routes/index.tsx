@@ -97,7 +97,7 @@ function Landing() {
       <section className="mx-auto mt-4 max-w-7xl px-3 sm:px-6">
         <div
           ref={frameRef}
-          className={`globe-frame mt-3 overflow-hidden border border-border bg-elevated ${
+          className={`globe-frame relative mt-3 overflow-hidden border border-border bg-elevated ${
             isGlobeFull ? "globe-frame-full h-full w-full" : "h-[58vh] min-h-[340px]"
           }`}
         >
