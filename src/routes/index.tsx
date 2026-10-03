@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Maximize2, Minimize2 } from "lucide-react";
 import { GlobeStage } from "@/components/GlobeStage";
 import { DistrictPicker } from "@/components/DistrictPicker";
 import { HomeSplash } from "@/components/HomeSplash";
@@ -40,12 +41,57 @@ function Landing() {
   const [regionalMode, setRegionalMode] = useState(false);
   const [regionalVariable, setRegionalVariable] = useState<VariableKey>("temperature");
   const [regionalId, setRegionalId] = useState("bangladesh");
+  const [apiFull, setApiFull] = useState(false);
+  const [overlayFull, setOverlayFull] = useState(false);
+  const isGlobeFull = apiFull || overlayFull;
   const covered = coveredDistrictIds().length;
+  const frameRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setShowSplash(sessionStorage.getItem("terrabangla-splash-seen") !== "1");
     setSplashReady(true);
   }, []);
+
+  useEffect(() => {
+    const sync = () => setApiFull(document.fullscreenElement === frameRef.current);
+    document.addEventListener("fullscreenchange", sync);
+    document.addEventListener("webkitfullscreenchange", sync);
+    return () => {
+      document.removeEventListener("fullscreenchange", sync);
+      document.removeEventListener("webkitfullscreenchange", sync);
+    };
+  }, []);
+
+  // Overlay fallback for browsers (e.g. iOS Safari) without the element Fullscreen API.
+  useEffect(() => {
+    if (!overlayFull) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [overlayFull]);
+
+  const toggleGlobeFullscreen = useCallback(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    if (overlayFull) {
+      setOverlayFull(false);
+      return;
+    }
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+      return;
+    }
+    const target = el as HTMLDivElement & {
+      webkitRequestFullscreen?: () => Promise<void> | void;
+    };
+    if (typeof target.requestFullscreen === "function" || typeof target.webkitRequestFullscreen === "function") {
+      void (target.requestFullscreen?.() ?? target.webkitRequestFullscreen?.());
+    } else {
+      setOverlayFull(true);
+    }
+  }, [overlayFull]);
 
   return (
     <div className="star-field">
@@ -67,7 +113,12 @@ function Landing() {
       </section>
 
       <section className="mx-auto mt-4 max-w-7xl px-3 sm:px-6">
-        <div className="globe-frame mt-3 h-[58vh] min-h-[340px] overflow-hidden border border-border bg-elevated">
+        <div
+          ref={frameRef}
+          className={`globe-frame relative mt-3 overflow-hidden border border-border bg-elevated ${
+            isGlobeFull ? "globe-frame-full h-full w-full" : "h-[58vh] min-h-[340px]"
+          }`}
+        >
           <GlobeStage
             variable={regionalMode ? regionalVariable : "temperature"}
             phase={phase}
@@ -79,6 +130,34 @@ function Landing() {
             selectedRegionalId={regionalId}
             onSelectRegional={setRegionalId}
           />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={toggleGlobeFullscreen}
+            aria-pressed={isGlobeFull}
+            aria-label={
+              isGlobeFull
+                ? lang === "bn"
+                  ? "ফুল স্ক্রিন বন্ধ করুন"
+                  : "Exit full screen"
+                : lang === "bn"
+                  ? "গ্লোব ফুল স্ক্রিনে দেখুন"
+                  : "View globe in full screen"
+            }
+            className="absolute right-3 top-3 z-20 bg-card/90"
+          >
+            {isGlobeFull ? <Minimize2 aria-hidden /> : <Maximize2 aria-hidden />}
+            <span>
+              {isGlobeFull
+                ? lang === "bn"
+                  ? "ছোট করুন"
+                  : "Exit full screen"
+                : lang === "bn"
+                  ? "ফুল স্ক্রিন"
+                  : "Full screen"}
+            </span>
+          </Button>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           {lang === "bn"
