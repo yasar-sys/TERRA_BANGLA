@@ -114,7 +114,7 @@ function useStoryAudio(lang: "en" | "bn", muted: boolean) {
   const [status, setStatus] = useState<VoiceState>("idle");
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const ctx = useRef<AudioContext | null>(null);
-  const nodes = useRef<{ sources: OscillatorNode[]; gain: GainNode } | null>(null);
+  const nodes = useRef<{ sources: AudioScheduledSourceNode[]; gain: GainNode } | null>(null);
   const currentSound = useRef<StorySound>("space");
 
   const stopAmbience = useCallback(() => {
@@ -158,31 +158,51 @@ function useStoryAudio(lang: "en" | "bn", muted: boolean) {
     if (!AudioContextConstructor) return;
     ctx.current ??= new AudioContextConstructor();
     stopAmbience();
-    const profiles: Record<StorySound, { frequencies: number[]; type: OscillatorType; volume: number }> = {
-      space: { frequencies: [82, 123], type: "sine", volume: 0.006 },
-      river: { frequencies: [146, 196], type: "sine", volume: 0.005 },
-      forest: { frequencies: [196, 294], type: "triangle", volume: 0.0045 },
-      city: { frequencies: [110, 165], type: "triangle", volume: 0.004 },
-      rain: { frequencies: [233, 349], type: "triangle", volume: 0.004 },
-      signal: { frequencies: [261, 392], type: "sine", volume: 0.004 },
-      dawn: { frequencies: [174, 261, 349], type: "sine", volume: 0.0035 },
+    void ctx.current.resume();
+    const audio = ctx.current;
+    // Soft scene bed: filtered noise texture (wind/river/rain) plus a quiet drone.
+    const profiles: Record<StorySound, { frequencies: number[]; type: OscillatorType; tone: number; noise: number; cutoff: number }> = {
+      space: { frequencies: [82, 123], type: "sine", tone: 0.03, noise: 0.012, cutoff: 500 },
+      river: { frequencies: [146, 196], type: "sine", tone: 0.015, noise: 0.05, cutoff: 900 },
+      forest: { frequencies: [196, 294], type: "triangle", tone: 0.012, noise: 0.03, cutoff: 1600 },
+      city: { frequencies: [110, 165], type: "triangle", tone: 0.014, noise: 0.035, cutoff: 700 },
+      rain: { frequencies: [233, 349], type: "triangle", tone: 0.008, noise: 0.07, cutoff: 3200 },
+      signal: { frequencies: [261, 392], type: "sine", tone: 0.022, noise: 0.01, cutoff: 1200 },
+      dawn: { frequencies: [174, 261, 349], type: "sine", tone: 0.02, noise: 0.018, cutoff: 1000 },
     };
     const profile = profiles[sound];
-    const gain = ctx.current.createGain();
-    const now = ctx.current.currentTime;
+    const gain = audio.createGain();
+    const now = audio.currentTime;
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(profile.volume, now + 0.45);
-    gain.connect(ctx.current.destination);
-    const sources = profile.frequencies.map((frequency, index) => {
-      const source = ctx.current?.createOscillator();
-      if (!source) return null;
+    gain.gain.exponentialRampToValueAtTime(1, now + 0.8);
+    gain.connect(audio.destination);
+    const toneGain = audio.createGain();
+    toneGain.gain.value = profile.tone;
+    toneGain.connect(gain);
+    const sources: AudioScheduledSourceNode[] = profile.frequencies.map((frequency, index) => {
+      const source = audio.createOscillator();
       source.type = profile.type;
       source.frequency.value = frequency;
       source.detune.value = index % 2 === 0 ? -5 : 5;
-      source.connect(gain);
+      source.connect(toneGain);
       source.start();
       return source;
-    }).filter((source): source is OscillatorNode => source !== null);
+    });
+    const buffer = audio.createBuffer(1, audio.sampleRate * 2, audio.sampleRate);
+    const channel = buffer.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < channel.length; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; channel[i] = last * 3.5; }
+    const noise = audio.createBufferSource();
+    noise.buffer = buffer;
+    noise.loop = true;
+    const filter = audio.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = profile.cutoff;
+    const noiseGain = audio.createGain();
+    noiseGain.gain.value = profile.noise * 6;
+    noise.connect(filter).connect(noiseGain).connect(gain);
+    noise.start();
+    sources.push(noise);
     nodes.current = { sources, gain };
   }, [muted]);
 
@@ -199,8 +219,8 @@ function useStoryAudio(lang: "en" | "bn", muted: boolean) {
     utterance.pitch = lang === "bn" ? 1.1 : 1.08;
     utterance.volume = 1;
     utterance.onstart = () => setStatus("speaking");
-    utterance.onend = () => { fadeAmbience(); setStatus("idle"); };
-    utterance.onerror = () => { fadeAmbience(); setStatus("idle"); };
+    utterance.onend = () => { setStatus("idle"); };
+    utterance.onerror = () => { setStatus("idle"); };
     window.speechSynthesis.speak(utterance);
   }, [ambience, fadeAmbience, lang, muted, stop, voices]);
 
