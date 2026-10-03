@@ -2,7 +2,7 @@ AI explanations are generated only from server-recomputed cached statistics; the
 Google is the only sign-in method; saved chat is split into URL-addressable conversations owned by each authenticated user.
 Admin authorization is granted only after server-side verification of the exact approved email and is enforced through database roles and row policies.
 The children’s section is a bilingual evidence-led comic followed by a calm story review; all climate claims derive from cached NASA records, while illustrations remain explanatory only.
-Kids comic navigation is active-index driven, with one full-screen scene at a time; narration and character motion restart only from a user navigation action.
+Kids comic navigation is active-index driven, with one full-screen scene, unique scene artwork, and clean character motion per step; narration and ambience restart only from a user navigation action.
 The supplied detective character is an optional, understated evidence guide; it never represents measured evidence or introduces gamification.
 District visual themes use one shared layered CSS renderer with stable per-district compositions; they are geography-informed atmosphere only and never climate evidence.
 Student profiles, favorites, lesson attempts, and saved AI explanations use separate owner-scoped records; roles never live in profiles.

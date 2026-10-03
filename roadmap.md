@@ -41,3 +41,5 @@
 - [x] Verify narration controls, evidence panels, quiz flow, accessibility, and responsive layouts
 - [x] Convert the children’s story into a reliable one-scene-at-a-time slide player
 - [x] Add per-slide voice playback, expressive mascot poses, speaking motion, and distinct backgrounds
+- [x] Add 14 unique comic scenes, scene-specific character motion, and layered ambient sound
+- [x] Remove all artificial overlays and effects from around the kids character
