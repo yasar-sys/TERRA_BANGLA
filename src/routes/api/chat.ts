@@ -68,6 +68,8 @@ export const Route = createFileRoute("/api/chat")({
       }] : []),
     }));
     const climateContext = JSON.stringify({
+      evidence_scope: "newest user message only; do not use it to judge or retract earlier turns",
+      newest_user_message: userText,
       mode: explicitDistrict ? "scope set by the user's filters" : "open question: districts detected from the user's message (Dhaka used as an example only if none was named)",
       districts_detected_from_question: !explicitDistrict && mentioned.length > 0,
       selected_variable: body.variable ?? "all available variables",
