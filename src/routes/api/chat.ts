@@ -48,28 +48,32 @@ export const Route = createFileRoute("/api/chat")({
     const normalized = userText.toLowerCase();
     const explicitDistrict = body.districtId ? districts.find((district) => district.id === body.districtId) : undefined;
     if (body.districtId && !explicitDistrict) return new Response("Unknown district selection.", { status: 400 });
-    const chosen = explicitDistrict ?? districts.find((district) => normalized.includes(district.name.toLowerCase()) || normalized.includes(district.bn)) ?? districts.find((district) => district.id === "dhaka");
+    const mentioned = explicitDistrict ? [explicitDistrict] : districts.filter((district) => normalized.includes(district.name.toLowerCase()) || normalized.includes(district.id.replace(/-/g, " ")) || (district.bn && userText.includes(district.bn)));
+    const chosenList = (mentioned.length ? mentioned : districts.filter((district) => district.id === "dhaka")).slice(0, 6);
     const range = body.yearStart !== undefined && body.yearEnd !== undefined ? { start: body.yearStart, end: body.yearEnd } : undefined;
     const variables = body.variable ? [body.variable] : VARIABLE_KEYS;
-    const facts = chosen ? variables.map((variable) => analyzeVariable(chosen.id, variable, range)).filter(Boolean).map((analysis) => analysis ? ({
-      variable: analysis.variable,
-      unit: analysis.unit,
-      period: analysis.result.period,
-      n_observations: analysis.result.n_observations,
-      current: analysis.result.current_value,
-      slope_per_year: analysis.result.slope.slope_per_year,
-      slope_per_decade: analysis.result.slope.slope_per_decade,
-      confidence_interval_95_per_year: [analysis.result.slope.ci_low, analysis.result.slope.ci_high],
-      mann_kendall: { s: analysis.result.trend.s, z: analysis.result.trend.z, p_value: analysis.result.trend.p_value, significant_at_0_05: analysis.result.trend.significant_at_0_05, direction: analysis.result.trend.direction },
-      provenance: analysis.provenance,
-    }) : null) : [];
+    const evidence = chosenList.map((chosen) => ({
+      district: { id: chosen.id, name: chosen.name, name_bn: chosen.bn },
+      facts: variables.map((variable) => analyzeVariable(chosen.id, variable, range)).flatMap((analysis) => analysis ? [{
+        variable: analysis.variable,
+        unit: analysis.unit,
+        period: analysis.result.period,
+        n_observations: analysis.result.n_observations,
+        current: analysis.result.current_value,
+        slope_per_year: analysis.result.slope.slope_per_year,
+        slope_per_decade: analysis.result.slope.slope_per_decade,
+        confidence_interval_95_per_year: [analysis.result.slope.ci_low, analysis.result.slope.ci_high],
+        mann_kendall: { s: analysis.result.trend.s, z: analysis.result.trend.z, p_value: analysis.result.trend.p_value, significant_at_0_05: analysis.result.trend.significant_at_0_05, direction: analysis.result.trend.direction },
+        provenance: analysis.provenance,
+      }] : []),
+    }));
     const climateContext = JSON.stringify({
-      selected_district: chosen ? { id: chosen.id, name: chosen.name, name_bn: chosen.bn } : null,
+      mode: explicitDistrict ? "scope set by the user's filters" : "open question: districts detected from the user's message (Dhaka used as an example only if none was named)",
+      districts_detected_from_question: !explicitDistrict && mentioned.length > 0,
       selected_variable: body.variable ?? "all available variables",
       selected_period: range ?? "full cached period",
-      selection_rule: explicitDistrict ? "locked by the Evidence Lab controls" : chosen ? "district named by user, otherwise Dhaka example" : "none",
-      evidence_available: facts.length > 0,
-      server_recomputed_facts: facts,
+      evidence_available: evidence.some((item) => item.facts.length > 0),
+      server_recomputed_evidence: evidence,
     });
 
     return streamTerraBanglaChat(request, messages, climateContext, async (completed) => {
