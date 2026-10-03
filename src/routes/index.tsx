@@ -95,7 +95,12 @@ function Landing() {
       </section>
 
       <section className="mx-auto mt-4 max-w-7xl px-3 sm:px-6">
-        <div className="globe-frame mt-3 h-[58vh] min-h-[340px] overflow-hidden border border-border bg-elevated">
+        <div
+          ref={frameRef}
+          className={`globe-frame mt-3 overflow-hidden border border-border bg-elevated ${
+            isGlobeFull ? "globe-frame-full h-full w-full" : "h-[58vh] min-h-[340px]"
+          }`}
+        >
           <GlobeStage
             variable={regionalMode ? regionalVariable : "temperature"}
             phase={phase}
@@ -107,6 +112,34 @@ function Landing() {
             selectedRegionalId={regionalId}
             onSelectRegional={setRegionalId}
           />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={toggleGlobeFullscreen}
+            aria-pressed={isGlobeFull}
+            aria-label={
+              isGlobeFull
+                ? lang === "bn"
+                  ? "ফুল স্ক্রিন বন্ধ করুন"
+                  : "Exit full screen"
+                : lang === "bn"
+                  ? "গ্লোব ফুল স্ক্রিনে দেখুন"
+                  : "View globe in full screen"
+            }
+            className="absolute right-3 top-3 z-20 bg-card/90"
+          >
+            {isGlobeFull ? <Minimize2 aria-hidden /> : <Maximize2 aria-hidden />}
+            <span>
+              {isGlobeFull
+                ? lang === "bn"
+                  ? "ছোট করুন"
+                  : "Exit full screen"
+                : lang === "bn"
+                  ? "ফুল স্ক্রিন"
+                  : "Full screen"}
+            </span>
+          </Button>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           {lang === "bn"
