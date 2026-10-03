@@ -12,6 +12,8 @@ import {
   VolumeX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BackToTop } from "@/components/BackToTop";
+import { usePublishedQuiz } from "@/lib/public-content";
 import { ProvenanceButton } from "@/components/ProvenanceDrawer";
 import { analyzeVariable, getDistrict } from "@/lib/climate";
 import { fmt, useLang } from "@/lib/i18n";
@@ -86,15 +88,16 @@ const MOODS: Record<string, StoryMood> = {
   challenge: "welcoming",
 };
 
-const QUESTIONS = [
-  { q: { en: "What makes a climate trend stronger than one unusual day?", bn: "একটি অস্বাভাবিক দিনের চেয়ে জলবায়ু প্রবণতাকে কী শক্তিশালী করে?" }, o: [{ en: "Many years of observations", bn: "বহু বছরের পর্যবেক্ষণ" }, { en: "A brighter illustration", bn: "আরও উজ্জ্বল ছবি" }, { en: "A guess", bn: "একটি অনুমান" }], a: 0, w: { en: "Scientists test the full sequence of annual records.", bn: "বিজ্ঞানীরা বার্ষিক রেকর্ডের পুরো ধারাবাহিকতা পরীক্ষা করেন।" } },
-  { q: { en: "What does NDVI help us compare?", bn: "NDVI কী তুলনা করতে সাহায্য করে?" }, o: [{ en: "Plant greenness", bn: "উদ্ভিদের সবুজের পরিমাণ" }, { en: "River depth", bn: "নদীর গভীরতা" }, { en: "Wind speed", bn: "বাতাসের গতি" }], a: 0, w: { en: "NDVI is a satellite-derived vegetation signal.", bn: "NDVI হলো স্যাটেলাইট থেকে পাওয়া উদ্ভিদের একটি সংকেত।" } },
-  { q: { en: "Are land temperature and air temperature the same record?", bn: "ভূপৃষ্ঠ ও বায়ুর তাপমাত্রা কি একই রেকর্ড?" }, o: [{ en: "Yes, always", bn: "হ্যাঁ, সবসময়" }, { en: "No, they are measured separately", bn: "না, এগুলো আলাদাভাবে মাপা হয়" }, { en: "Only in cities", bn: "শুধু শহরে" }], a: 1, w: { en: "Ground surfaces and the surrounding air behave differently.", bn: "ভূপৃষ্ঠ ও চারপাশের বাতাস আলাদাভাবে আচরণ করে।" } },
-  { q: { en: "What does Mann–Kendall test?", bn: "Mann–Kendall কী পরীক্ষা করে?" }, o: [{ en: "Trend direction through time", bn: "সময়ের সঙ্গে প্রবণতার দিক" }, { en: "A satellite's speed", bn: "স্যাটেলাইটের গতি" }, { en: "A map's color", bn: "মানচিত্রের রং" }], a: 0, w: { en: "It checks whether values consistently move upward or downward.", bn: "এটি মান ধারাবাহিকভাবে বাড়ে বা কমে কি না যাচাই করে।" } },
-  { q: { en: "If a result is not statistically significant, what is the honest conclusion?", bn: "ফল পরিসংখ্যানগতভাবে তাৎপর্যপূর্ণ না হলে সৎ সিদ্ধান্ত কী?" }, o: [{ en: "A dramatic change", bn: "বড় পরিবর্তন" }, { en: "No clear change", bn: "স্পষ্ট পরিবর্তন নেই" }, { en: "Delete the data", bn: "তথ্য মুছে ফেলো" }], a: 1, w: { en: "Different endpoints alone do not prove a long-term change.", bn: "শুধু আলাদা শেষবিন্দু দীর্ঘমেয়াদি পরিবর্তন প্রমাণ করে না।" } },
-  { q: { en: "What estimates the rate of change?", bn: "পরিবর্তনের হার কী হিসাব করে?" }, o: [{ en: "Theil–Sen", bn: "Theil–Sen" }, { en: "A speech bubble", bn: "কথার বুদ্‌বুদ" }, { en: "The illustration", bn: "ছবি" }], a: 0, w: { en: "Theil–Sen gives a robust rate while unusual years have less influence.", bn: "Theil–Sen অস্বাভাবিক বছরের প্রভাব কমিয়ে একটি নির্ভরযোগ্য হার দেয়।" } },
-  { q: { en: "Where must TerraBangla's climate numbers come from?", bn: "টেরাবাংলার জলবায়ুর সংখ্যা কোথা থেকে আসতে হবে?" }, o: [{ en: "Cached NASA records", bn: "সংরক্ষিত নাসা রেকর্ড" }, { en: "Character dialogue", bn: "চরিত্রের সংলাপ" }, { en: "AI imagination", bn: "এআই-এর কল্পনা" }], a: 0, w: { en: "Illustrations explain; cached observations are the evidence.", bn: "ছবি ব্যাখ্যা করে; সংরক্ষিত পর্যবেক্ষণই প্রমাণ।" } },
-] satisfies [{ q: StoryText; o: StoryText[]; a: number; w: StoryText }, ...{ q: StoryText; o: StoryText[]; a: number; w: StoryText }[]];
+type ReviewQuestion = { q: StoryText; o: StoryText[]; a: number; w: StoryText; scene?: string };
+const BUILT_IN_QUESTIONS: [ReviewQuestion, ...ReviewQuestion[]] = [
+  { scene: "dots", q: { en: "Why is a line between only the first and last year not enough?", bn: "শুধু প্রথম ও শেষ বছরের মাঝে রেখা টানা কেন যথেষ্ট নয়?" }, o: [{ en: "Every year between them also matters", bn: "মাঝের প্রতিটি বছরও গুরুত্বপূর্ণ" }, { en: "The last year is always wrong", bn: "শেষ বছর সবসময় ভুল" }, { en: "Lines cannot be drawn on maps", bn: "মানচিত্রে রেখা আঁকা যায় না" }], a: 0, w: { en: "Two dots are not a trend: TerraBangla uses every annual observation in the selected period.", bn: "দুটি বিন্দু প্রবণতা নয়: টেরাবাংলা নির্বাচিত সময়ের প্রতিটি বার্ষিক পর্যবেক্ষণ ব্যবহার করে।" } },
+  { scene: "green", q: { en: "In Satkhira, what does NDVI help Tara compare?", bn: "সাতক্ষীরায় NDVI তারাকে কী তুলনা করতে সাহায্য করে?" }, o: [{ en: "River depth", bn: "নদীর গভীরতা" }, { en: "Plant greenness", bn: "উদ্ভিদের সবুজের পরিমাণ" }, { en: "A photograph of every leaf", bn: "প্রতিটি পাতার ছবি" }], a: 1, w: { en: "NDVI is a greenness signal—not a photograph of every leaf.", bn: "NDVI সবুজের একটি সংকেত—প্রতিটি পাতার ছবি নয়।" } },
+  { scene: "air", q: { en: "Are Rajshahi's land temperature and Dhaka's air temperature the same kind of record?", bn: "রাজশাহীর ভূপৃষ্ঠের তাপমাত্রা আর ঢাকার বায়ুর তাপমাত্রা কি একই ধরনের রেকর্ড?" }, o: [{ en: "Yes, the names are similar", bn: "হ্যাঁ, নাম কাছাকাছি" }, { en: "Only at night", bn: "শুধু রাতে" }, { en: "No, they are measured separately", bn: "না, এগুলো আলাদাভাবে মাপা হয়" }], a: 2, w: { en: "Land temperature comes from MODIS; air temperature comes from NASA POWER. Similar names do not mean identical evidence.", bn: "ভূপৃষ্ঠের তাপমাত্রা আসে MODIS থেকে; বায়ুর তাপমাত্রা NASA POWER থেকে। নাম কাছাকাছি হলেও প্রমাণ এক নয়।" } },
+  { scene: "rain", q: { en: "Rafi says heavy rain today is…", bn: "রাফি বলে, আজকের ভারী বৃষ্টি হলো…" }, o: [{ en: "Weather", bn: "আবহাওয়া" }, { en: "A climate trend", bn: "জলবায়ুর প্রবণতা" }, { en: "A satellite error", bn: "স্যাটেলাইটের ভুল" }], a: 0, w: { en: "One day is weather; a pattern across many years is the evidence we test for climate.", bn: "একদিনের ঘটনা আবহাওয়া; বহু বছরের ধরনই জলবায়ুর জন্য পরীক্ষিত প্রমাণ।" } },
+  { scene: "test", q: { en: "What does the Mann–Kendall test check?", bn: "Mann–Kendall পরীক্ষা কী যাচাই করে?" }, o: [{ en: "A satellite's speed", bn: "স্যাটেলাইটের গতি" }, { en: "The direction of change through time", bn: "সময়ের সঙ্গে পরিবর্তনের দিক" }, { en: "The colour of the map", bn: "মানচিত্রের রং" }], a: 1, w: { en: "Mann–Kendall checks direction, and the p-value helps decide whether the pattern is clear.", bn: "Mann–Kendall দিক যাচাই করে, আর p-value বুঝতে সাহায্য করে ধরনটি স্পষ্ট কি না।" } },
+  { scene: "test", q: { en: "If the evidence is not statistically significant, what is the honest conclusion?", bn: "প্রমাণ পরিসংখ্যানগতভাবে তাৎপর্যপূর্ণ না হলে সৎ সিদ্ধান্ত কী?" }, o: [{ en: "A dramatic change", bn: "বড় পরিবর্তন" }, { en: "Delete the data", bn: "তথ্য মুছে ফেলো" }, { en: "No clear change", bn: "স্পষ্ট পরিবর্তন নেই" }], a: 2, w: { en: "The honest answer is no clear change—even when the two endpoints differ.", bn: "সৎ উত্তর হলো স্পষ্ট পরিবর্তন নেই—দুই শেষবিন্দু আলাদা হলেও।" } },
+  { scene: "rate", q: { en: "Which method estimates the rate of change while resisting unusual years?", bn: "কোন পদ্ধতি অস্বাভাবিক বছরের টান সামলে পরিবর্তনের হার হিসাব করে?" }, o: [{ en: "Theil–Sen", bn: "Theil–Sen" }, { en: "The illustration", bn: "ছবি" }, { en: "An AI guess", bn: "এআই-এর অনুমান" }], a: 0, w: { en: "Theil–Sen estimates the rate; no illustration or AI invents these numbers.", bn: "Theil–Sen হার হিসাব করে; কোনো ছবি বা এআই এই সংখ্যা বানায় না।" } },
+];
 
 function voiceScore(voice: SpeechSynthesisVoice, lang: "en" | "bn") {
   const name = voice.name.toLowerCase();
@@ -226,6 +229,8 @@ function FinalReview({ onReview }: { onReview: () => void }) {
   const [picked, setPicked] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const localize = (value: StoryText) => value[lang];
+  const published = usePublishedQuiz();
+  const QUESTIONS: ReviewQuestion[] = published && published.length > 0 ? published.map((item) => ({ q: item.q, o: item.options, a: item.answer, w: item.why })) : BUILT_IN_QUESTIONS;
 
   if (index >= QUESTIONS.length) return (
     <section className="story-review story-review-finish">
@@ -240,10 +245,12 @@ function FinalReview({ onReview }: { onReview: () => void }) {
     </section>
   );
 
-  const question = QUESTIONS[index] ?? QUESTIONS[0];
+  const question = QUESTIONS[index] ?? QUESTIONS[0]!;
+  const clue = question.scene ? KIDS_STORY.find((item) => item.id === question.scene) : undefined;
   return (
     <section className="story-review" aria-labelledby="review-title">
       <div className="story-review-progress"><span>{lang === "bn" ? `প্রশ্ন ${index + 1} / ${QUESTIONS.length}` : `Question ${index + 1} of ${QUESTIONS.length}`}</span><i style={{ width: `${((index + (picked === null ? 0 : 1)) / QUESTIONS.length) * 100}%` }} /></div>
+      {clue ? <small className="block text-xs text-muted-foreground">{lang === "bn" ? "গল্পের সূত্র: " : "Story clue: "}{localize(clue.title)}</small> : null}
       <h2 id="review-title">{localize(question.q)}</h2>
       <div className="story-review-options">{question.o.map((option, optionIndex) => <Button key={option.en} variant="outline" disabled={picked !== null} className={picked === null ? "" : optionIndex === question.a ? "is-correct" : optionIndex === picked ? "is-wrong" : "is-muted"} onClick={() => { setPicked(optionIndex); if (optionIndex === question.a) setScore((value) => value + 1); }}>{picked !== null && optionIndex === question.a ? <Check /> : null}{localize(option)}</Button>)}</div>
       {picked !== null ? <div className="story-review-answer" role="status"><small>{lang === "bn" ? "এখান থেকে কী শিখলাম" : "What you learned"}</small><p>{localize(question.w)}</p><Button onClick={() => { setIndex((value) => value + 1); setPicked(null); }}>{index === QUESTIONS.length - 1 ? (lang === "bn" ? "ফলাফল দেখো" : "See result") : (lang === "bn" ? "পরের প্রশ্ন" : "Next question")}<ArrowRight /></Button></div> : null}
@@ -331,6 +338,7 @@ export function KidsStory() {
   if (showReview) return (
     <main className="story-slide-shell story-review-screen">
       <FinalReview onReview={() => go(0)} />
+      <BackToTop />
       <p className="story-honesty">{lang === "bn" ? "কমিকের ছবি ব্যাখ্যার জন্য। পরিমাপ করা প্রমাণ শুধু সংরক্ষিত NASA রেকর্ড ও নির্ধারিত পরিসংখ্যান থেকে আসে।" : "Comic artwork is explanatory. Measured evidence comes only from cached NASA records and deterministic statistics."}</p>
     </main>
   );
