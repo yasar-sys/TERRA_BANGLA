@@ -17,23 +17,47 @@ import { analyzeVariable, getDistrict } from "@/lib/climate";
 import { fmt, useLang } from "@/lib/i18n";
 import {
   KIDS_STORY,
-  type StoryArtwork,
   type StoryScene,
   type StorySound,
   type StoryText,
 } from "@/lib/kids-story";
 import earth from "@/assets/story/story-earth.jpg";
-import delta from "@/assets/story/story-delta.jpg";
-import signals from "@/assets/story/story-signals.jpg";
-import evidence from "@/assets/story/story-evidence.jpg";
-import future from "@/assets/story/story-future.jpg";
+import nightScene from "@/assets/story/scenes/night.jpg";
+import guideScene from "@/assets/story/scenes/guide.jpg";
+import deltaScene from "@/assets/story/scenes/delta.jpg";
+import signalsScene from "@/assets/story/scenes/signals.jpg";
+import greenScene from "@/assets/story/scenes/green.jpg";
+import landScene from "@/assets/story/scenes/land.jpg";
+import airScene from "@/assets/story/scenes/air.jpg";
+import sunScene from "@/assets/story/scenes/sun.jpg";
+import rainScene from "@/assets/story/scenes/rain.jpg";
+import dotsScene from "@/assets/story/scenes/dots.jpg";
+import testScene from "@/assets/story/scenes/test.jpg";
+import rateScene from "@/assets/story/scenes/rate.jpg";
+import journalScene from "@/assets/story/scenes/journal.jpg";
+import challengeScene from "@/assets/story/scenes/challenge.jpg";
 import celebrating from "@/assets/mascot/celebrating.png.asset.json";
 import encouraging from "@/assets/mascot/encouraging.png.asset.json";
 import idle from "@/assets/mascot/idle.png.asset.json";
 import thinking from "@/assets/mascot/thinking.png.asset.json";
 import waving from "@/assets/mascot/waving.png.asset.json";
 
-const ART: Record<StoryArtwork, string> = { earth, delta, signals, evidence, future };
+const SCENE_ART: Record<string, string> = {
+  night: nightScene,
+  guide: guideScene,
+  delta: deltaScene,
+  signals: signalsScene,
+  green: greenScene,
+  land: landScene,
+  air: airScene,
+  sun: sunScene,
+  rain: rainScene,
+  dots: dotsScene,
+  test: testScene,
+  rate: rateScene,
+  journal: journalScene,
+  challenge: challengeScene,
+};
 type StoryMood = "welcoming" | "curious" | "thinking" | "encouraging" | "happy";
 type VoiceState = "idle" | "speaking" | "paused";
 
@@ -87,11 +111,29 @@ function useStoryAudio(lang: "en" | "bn", muted: boolean) {
   const [status, setStatus] = useState<VoiceState>("idle");
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const ctx = useRef<AudioContext | null>(null);
-  const nodes = useRef<{ osc: OscillatorNode; gain: GainNode } | null>(null);
+  const nodes = useRef<{ sources: OscillatorNode[]; gain: GainNode } | null>(null);
+  const currentSound = useRef<StorySound>("space");
 
   const stopAmbience = useCallback(() => {
-    try { nodes.current?.osc.stop(); } catch { /* already stopped */ }
+    nodes.current?.sources.forEach((source) => {
+      try { source.stop(); } catch { /* already stopped */ }
+    });
     nodes.current = null;
+  }, []);
+
+  const fadeAmbience = useCallback(() => {
+    const active = nodes.current;
+    if (!active || !ctx.current) return;
+    const now = ctx.current.currentTime;
+    active.gain.gain.cancelScheduledValues(now);
+    active.gain.gain.setValueAtTime(Math.max(active.gain.gain.value, 0.0001), now);
+    active.gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+    window.setTimeout(() => {
+      active.sources.forEach((source) => {
+        try { source.stop(); } catch { /* already stopped */ }
+      });
+      if (nodes.current === active) nodes.current = null;
+    }, 200);
   }, []);
 
   const stop = useCallback(() => {
@@ -112,20 +154,39 @@ function useStoryAudio(lang: "en" | "bn", muted: boolean) {
     const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextConstructor) return;
     ctx.current ??= new AudioContextConstructor();
-    const osc = ctx.current.createOscillator();
+    stopAmbience();
+    const profiles: Record<StorySound, { frequencies: number[]; type: OscillatorType; volume: number }> = {
+      space: { frequencies: [82, 123], type: "sine", volume: 0.006 },
+      river: { frequencies: [146, 196], type: "sine", volume: 0.005 },
+      forest: { frequencies: [196, 294], type: "triangle", volume: 0.0045 },
+      city: { frequencies: [110, 165], type: "triangle", volume: 0.004 },
+      rain: { frequencies: [233, 349], type: "triangle", volume: 0.004 },
+      signal: { frequencies: [261, 392], type: "sine", volume: 0.004 },
+      dawn: { frequencies: [174, 261, 349], type: "sine", volume: 0.0035 },
+    };
+    const profile = profiles[sound];
     const gain = ctx.current.createGain();
-    const hz = { space: 110, river: 180, forest: 240, city: 150, rain: 310, signal: 520, dawn: 220 }[sound];
-    osc.type = sound === "signal" ? "sine" : "triangle";
-    osc.frequency.value = hz;
-    gain.gain.value = 0.008;
-    osc.connect(gain).connect(ctx.current.destination);
-    osc.start();
-    nodes.current = { osc, gain };
+    const now = ctx.current.currentTime;
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(profile.volume, now + 0.45);
+    gain.connect(ctx.current.destination);
+    const sources = profile.frequencies.map((frequency, index) => {
+      const source = ctx.current?.createOscillator();
+      if (!source) return null;
+      source.type = profile.type;
+      source.frequency.value = frequency;
+      source.detune.value = index % 2 === 0 ? -5 : 5;
+      source.connect(gain);
+      source.start();
+      return source;
+    }).filter((source): source is OscillatorNode => source !== null);
+    nodes.current = { sources, gain };
   }, [muted]);
 
   const speak = useCallback((text: string, sound: StorySound) => {
     stop();
     if (muted || !window.speechSynthesis) return;
+    currentSound.current = sound;
     ambience(sound);
     const utterance = new SpeechSynthesisUtterance(text);
     const chosen = [...voices].sort((a, b) => voiceScore(b, lang) - voiceScore(a, lang))[0];
@@ -135,10 +196,10 @@ function useStoryAudio(lang: "en" | "bn", muted: boolean) {
     utterance.pitch = lang === "bn" ? 1.1 : 1.08;
     utterance.volume = 1;
     utterance.onstart = () => setStatus("speaking");
-    utterance.onend = () => { stopAmbience(); setStatus("idle"); };
-    utterance.onerror = () => { stopAmbience(); setStatus("idle"); };
+    utterance.onend = () => { fadeAmbience(); setStatus("idle"); };
+    utterance.onerror = () => { fadeAmbience(); setStatus("idle"); };
     window.speechSynthesis.speak(utterance);
-  }, [ambience, lang, muted, stop, stopAmbience, voices]);
+  }, [ambience, fadeAmbience, lang, muted, stop, voices]);
 
   const togglePause = useCallback(() => {
     if (status === "speaking") {
@@ -147,9 +208,10 @@ function useStoryAudio(lang: "en" | "bn", muted: boolean) {
       setStatus("paused");
     } else if (status === "paused") {
       window.speechSynthesis.resume();
+      ambience(currentSound.current);
       setStatus("speaking");
     }
-  }, [status, stopAmbience]);
+  }, [ambience, status, stopAmbience]);
 
   useEffect(() => stop, [lang, muted, stop]);
   useEffect(() => () => stop(), [stop]);
@@ -234,6 +296,13 @@ export function KidsStory() {
   }, [setLang]);
 
   useEffect(() => {
+    [...Object.values(SCENE_ART), ...Object.values(POSES)].forEach((src) => {
+      const image = new Image();
+      image.src = src;
+    });
+  }, []);
+
+  useEffect(() => {
     if (!started || showReview) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowRight") go(active + 1);
@@ -279,7 +348,7 @@ export function KidsStory() {
         touchStart.current = null;
       }}
     >
-      <div className="story-backdrop" key={scene.id} aria-hidden><img src={ART[scene.artwork]} alt="" width={1536} height={1024} /><i /><b /></div>
+      <div className="story-backdrop" key={scene.id} aria-hidden><img src={SCENE_ART[scene.id] ?? nightScene} alt="" width={1536} height={1024} /></div>
       <header className="story-toolbar">
         <div><small>{lang === "bn" ? `অধ্যায় ${scene.chapter}` : `Chapter ${scene.chapter}`}</small><strong>{localize(scene.chapterTitle)}</strong></div>
         <span>{active + 1} / {KIDS_STORY.length}</span>
@@ -290,12 +359,9 @@ export function KidsStory() {
       <div className="story-progress" aria-hidden><i style={{ width: `${((active + 1) / KIDS_STORY.length) * 100}%` }} /></div>
 
       <section className="story-active-slide" key={`${scene.id}-${lang}`} aria-labelledby="story-slide-title">
-        <div className="story-character-stage" data-mood={mood} data-speaking={status === "speaking" ? "true" : "false"}>
-          <div className="story-emote" aria-hidden>{mood === "happy" ? "হা হা!" : mood === "thinking" ? "?" : mood === "curious" ? "!" : "✦"}</div>
+        <div className="story-character-stage" data-mood={mood} data-motion={scene.id} data-speaking={status === "speaking" ? "true" : "false"}>
           <div className="story-character">
             <img src={POSES[mood]} alt="" aria-hidden draggable={false} />
-            <i className="story-mouth" aria-hidden />
-            <span className="story-voice-wave" aria-hidden><i /><i /><i /></span>
           </div>
         </div>
 
