@@ -279,6 +279,8 @@ a:hover > .site-brand-logo { transform: translateY(-1px) scale(1.03); }
   z-index: 60;
   height: 100dvh !important;
   width: 100vw !important;
+  max-width: none;
+  margin: 0;
   border: none;
   border-radius: 0;
   box-shadow: none;
